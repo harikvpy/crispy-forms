@@ -3,5 +3,38 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
+    "crispy-mat-form": {
+      "projectType": "library",
+      "root": "projects/crispy-mat-form",
+      "sourceRoot": "projects/crispy-mat-form/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/crispy-mat-form/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/crispy-mat-form/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/crispy-mat-form/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/crispy-mat-form/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    }
   }
 }
