@@ -51,4 +51,4 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   ],
   providers: [],
 })
-export class CrispyFormModule { }
+export class CrispyMatFormModule { }

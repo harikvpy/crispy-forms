@@ -188,6 +188,49 @@ export function crispyDateRangeField(
   };
 }
 
+export function crispyCustomComponentField(
+  name: string,
+  options: CrispyFieldProps['customControlOptions'],
+  initial: any,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyFormField {
+  return {
+    type: 'custom',
+    name,
+    initial,
+    validators,
+    label,
+    hint,
+    cssClass,
+    options: {
+      customControlOptions: options,
+    },
+  };
+}
+
+export function crispyTemplateField(
+  name: string,
+  initial: any,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyFormField {
+  return {
+    type: 'template',
+    name,
+    initial,
+    validators,
+    label,
+    hint,
+    cssClass
+  };
+
+}
+
 export function crispyFormFieldGroup(
   name: string,
   fields: CrispyFormField[],
@@ -257,7 +300,7 @@ function getFormGroup(
     if (!cf.children) {
       fg.addControl(cf.name, getFormControl(cf));
     } else {
-      fg.addControl(cf.name, getFormGroup(cf.children));
+      fg.addControl(cf.name, getFormGroup(cf.children, cf.validators));
     }
   });
   return fg;

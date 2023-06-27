@@ -449,6 +449,8 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy {
   @Input() cffs!: CrispyFormField[];
   @Input() cssClass!: string;
 
+  private _tempForm = new FormGroup({});
+
   constructor(private injector: Injector) {}
 
   ngOnInit(): void {
@@ -471,15 +473,16 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy {
     const field: CrispyFieldProps|undefined = crispy.fields.find(
       (cf) => cf.formControlName == fieldName
     );
-    return {
+    const crispyForm = {
       form: crispy.form.controls[fieldName] as FormGroup,
       fields: field?.children || [],
       fieldCssClass: crispy.fieldCssClass,
     };
+    return crispyForm;
   }
 
-  get form(): FormGroup|null {
-    return this.crispy ? this.crispy.form : null;
+  get form(): FormGroup<any> {
+    return this.crispy ? this.crispy.form : this._tempForm;
   }
 
   /**
