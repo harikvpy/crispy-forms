@@ -1,5 +1,5 @@
 /*
- * Public API Surface of mat-crispy-forms
+ * Public API Surface of crispy-mat-forms
  */
 
 export * from './lib/crispy-types';

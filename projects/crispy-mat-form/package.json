@@ -1,5 +1,5 @@
 {
-  "name": "mat-crispy-forms",
+  "name": "crispy-mat-form",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^15.2.0",

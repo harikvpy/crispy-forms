@@ -10,8 +10,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "paths": {
-      "mat-crispy-forms": [
-        "dist/mat-crispy-forms"
+      "crispy-mat-form": [
+        "dist/crispy-mat-form"
       ]
     },
     "noFallthroughCasesInSwitch": true,
