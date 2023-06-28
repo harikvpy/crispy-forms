@@ -250,6 +250,17 @@ export function crispyFormFieldGroup(
   };
 }
 
+export function crispyCheckboxField(
+  name: string,
+  initial: boolean,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyFormField {
+  return { type: 'checkbox', name, initial, validators, label, hint, cssClass };
+}
+
 function getFormControl(cf: CrispyFormField) {
   const keys = Object.keys(cf);
   const hasInitial =
@@ -282,7 +293,7 @@ function getFormControl(cf: CrispyFormField) {
     return group;
   } else {
     return new FormControl(
-      hasInitial ? cf.initial : isInputFieldType(cf.type) ? '' : undefined,
+      cf.type === 'checkbox' ? !!cf?.initial : (hasInitial ? cf.initial : isInputFieldType(cf.type) ? '' : undefined),
       hasInitial
         ? { nonNullable: true, validators: cf.validators }
         : { validators: cf.validators }

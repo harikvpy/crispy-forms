@@ -14,6 +14,7 @@ import {
   crispyPasswordField,
   crispySelectField,
   crispyTemplateField,
+  crispyCheckboxField,
   crispyTextField,
 } from '@smallpearl/crispy-mat-form';
 import { of } from 'rxjs';
@@ -174,6 +175,10 @@ export class AppComponent {
         exchange: '777',
         subscriber: '0787',
       }),
+      crispyCheckboxField(
+        'public',
+        false
+      ),
     ];
   }
 
