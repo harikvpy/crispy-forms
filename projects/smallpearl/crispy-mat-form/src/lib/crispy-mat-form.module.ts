@@ -10,28 +10,30 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {
   CrispyMatFormComponent,
-  CrispySelectFieldComponent,
-  CrispyInputFieldTypeComponent,
-  CrispyDateRangeFieldComponent,
-  CrispyDateFieldComponent,
-  CrispyCustomFieldComponent,
-  CrispyDynamicControlDirective,
   CrispyFieldNameDirective,
-  CrispyCheckboxComponent,
 } from './crispy-mat-form.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import {
+  CrispyCheckboxComponent,
+  CrispyCustomFieldComponent,
+  CrispyDateFieldComponent,
+  CrispyDateRangeFieldComponent,
+  CrispyDynamicControlDirective,
+  CrispyInputFieldTypeComponent,
+  CrispySelectFieldComponent,
+} from './crispy-internal-components';
 
 @NgModule({
   declarations: [
     CrispyFieldNameDirective,
-    CrispyInputFieldTypeComponent,
+    CrispyMatFormComponent,
     CrispySelectFieldComponent,
+    CrispyInputFieldTypeComponent,
     CrispyDateRangeFieldComponent,
     CrispyDateFieldComponent,
     CrispyDynamicControlDirective,
     CrispyCustomFieldComponent,
     CrispyCheckboxComponent,
-    CrispyMatFormComponent
   ],
   imports: [
     CommonModule,
@@ -45,10 +47,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatDatepickerModule,
     MatCheckboxModule,
   ],
-  exports: [
-    CrispyFieldNameDirective,
-    CrispyMatFormComponent,
-  ],
+  exports: [CrispyFieldNameDirective, CrispyMatFormComponent],
   providers: [],
 })
-export class CrispyMatFormModule { }
+export class CrispyMatFormModule {}
