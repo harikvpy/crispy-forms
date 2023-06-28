@@ -1,0 +1,31 @@
+{
+  "name": "@smallpearl/crispy-mat-form",
+  "version": "0.1.0",
+  "description": "Quick and crispy Angular forms, including layout, from TypeScript",
+  "peerDependencies": {
+    "@angular/common": "^15.2.0",
+    "@angular/core": "^15.2.0",
+    "@angular/material": "^15.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false,
+  "keywords": [
+    "angular",
+    "form",
+    "crispy"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/harikvpy/crispy-mat-form/issues"
+  },
+  "homepage": "https://github.com/harikvpy/crispy-mat-form#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/harikvpy/crispy-mat-form"
+  }
+}
