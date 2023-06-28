@@ -1,27 +1,76 @@
 # CrispyMatForm
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.8.
+An Angular library to generate & layout reactive forms based on field definitions as TypeScript objects.
 
-## Development server
+## Dependencies
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+* Angular ^15.2.0
+* Angular Material ^15.2.0
 
-## Code scaffolding
+## Introduction
+Building HTML forms can quickly become quite tedious as one has to constantly shift their energies between writing the code for the form's data logic and the form HTML layout.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Angular's reactive forms helps mitigate this quite a bit by providing a framework to abstract & isolate the former in TypeScript code thereby decoupling the form's data logic from its visual presentation layout part. However, one still has to write the HTML for laying out the form's controls using your chosen framework -- Bootstrap or Angular Material.
 
-## Build
+This is where this library comes in. It allows you to declare the form and its layout in TypeScript as an array of objects much like how the controls are declared in `FormGroup`. Thereafter to render the form, instantiate the library's `crispy-mat-form` component passing this array of fields as its `cffs` property.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+To illustrate with an example:
 
-## Running unit tests
+```
+...
+import {
+  CrispyMatFormComponent,
+  crispyTextField,
+} from '@smallpearl/crispy-mat-form';
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+@Component({
+imports: [
+  CommonModule,
+  ReactiveFormsModule,
+  MatButtonModule,
+  CrispyMatFormModule,
+],
+template: `
+  <form [formGroup]="crispyComponent.form" (ngSubmit)="onSubmit()">
+    <crispy-mat-form [cffs]="cffs"> </crispy-mat-form>
+    <div>
+      <button mat-raised-button color="primary" type="button" (click)="onReset()">
+        Reset
+      </button>&nbsp;
+      <button mat-raised-button color="primary" type="submit" [disabled]="crispyComponent.form.invalid">
+        Submit
+      </button>
+    </div>
+  </form>
+`,
+})
+export class AppComponent implements OnInit {
+  cffs!: CrispyFormField[];
+  @ViewChild(CrispyMatFormComponent, { static: true }) crispyComponent!: CrispyMatFormComponent;
 
-## Running end-to-end tests
+  ngOnInit() {
+    this.cffs = [
+      crispyTextField('name', '', Validators.required, 'pe-2 w-50'),
+      crispyEmailField('email', '', Validators.required, 'w-50'),
+    ];
+  }
+  onReset() {
+    this.crispyComponent.form.reset();
+  }
+  onSubmit() {
+    console.log(
+      `onSubmit - form.value: ${JSON.stringify(
+        this.crispyComponent.form.value
+      )}`
+    );
+  }
+}
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+The `mat` infix in the component's selector is deliberate. This is an explicit
+hint to highlight that the form is rendered using Angular Material UI components.
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Version History
+* 0.1 - Initial release
+* 0.2 - 
+* 0.3 - Added `crispyCheckboxField`.
