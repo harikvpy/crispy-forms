@@ -1,6 +1,6 @@
 {
   "name": "@smallpearl/crispy-mat-form",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Quick and crispy Angular forms, including layout, from TypeScript",
   "peerDependencies": {
     "@angular/common": "^15.2.0",
@@ -13,8 +13,10 @@
   "sideEffects": false,
   "keywords": [
     "angular",
-    "form",
-    "crispy"
+    "forms",
+    "crispy",
+    "reactive-forms",
+    "reactive form"
   ],
   "license": "MIT",
   "publishConfig": {
