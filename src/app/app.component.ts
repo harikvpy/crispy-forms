@@ -51,6 +51,20 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
         <my-tel-input formControlName="mobile"></my-tel-input>
       </mat-form-field>
     </ng-template>
+
+    <ng-template crispyFieldName="mobile">
+      <mat-form-field class="w-50" [formGroup]="crispyComponent.form">
+        <mat-label>My Telephone</mat-label>
+        <my-tel-input formControlName="mobile"></my-tel-input>
+      </mat-form-field>
+    </ng-template>
+
+    <ng-template crispyFieldName="dummy" let-control="control" let-field="field" let-crispy="crispy">
+      <div class="w-100">
+        Members: <span *ngFor="let m of control.value">{{ m }}&nbsp;</span>
+      </div>
+    </ng-template>
+
     <!-- <router-outlet></router-outlet> -->
   `,
   styles: [],
@@ -179,6 +193,7 @@ export class AppComponent {
         'public',
         false
       ),
+      crispyTemplateField('dummy', [1, 2, 3])
     ];
   }
 

@@ -11,6 +11,7 @@ import {
   TemplateRef
 } from '@angular/core';
 import {
+  AbstractControl,
   FormGroup
 } from '@angular/forms';
 import { CrispyFormField, getCrispyFormHelper } from './crispy-mat-form-helper';
@@ -163,6 +164,7 @@ export class CrispyFieldNameDirective implements OnInit, OnDestroy {
       <ng-container
         *ngIf="f.type == 'template'"
         [ngTemplateOutlet]="getFieldTemplate(f)"
+        [ngTemplateOutletContext]="getFieldTemplateContext(f)"
       >
       </ng-container>
     </span>
@@ -173,7 +175,6 @@ export class CrispyFieldNameDirective implements OnInit, OnDestroy {
 export class CrispyMatFormComponent implements OnInit, OnDestroy {
   @ContentChildren(CrispyFieldNameDirective)
   fieldTemplates!: QueryList<CrispyFieldNameDirective>;
-
   @Input() crispy!: CrispyForm;
   @Input() cffs!: CrispyFormField[];
   @Input() cssClass!: string;
@@ -196,6 +197,29 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy {
     );
     // const fnd = this.fieldTemplates.find(ft => ft.crispyFieldName.localeCompare(field.formControlName) == 0);
     return fnd!.templateRef;
+  }
+
+  /**
+   * Returns the context for the 'template' field type's ng-template. Use it as:
+   * 
+   *  <ng-template let-field='field' let-control='control' let-crispy='crispy'>
+   *  </ng-template>
+   * 
+   * @param field 
+   * @returns 
+   */
+  getFieldTemplateContext(field: CrispyFieldProps): any {
+    const control = this.crispy.form.controls[field.formControlName];
+    // console.log(`getFieldTemplateContext - control: ${field.formControlName}, value: ${JSON.stringify(control.value)}`);
+    return {
+      crispy: this.crispy,
+      field,
+      control
+    }
+  }
+
+  getFieldControl(field: CrispyFieldProps): AbstractControl<any, any> {
+    return this.crispy.form.controls[field.formControlName];
   }
 
   getChildrenAsCrispyForm(crispy: CrispyForm, fieldName: string): CrispyForm {
