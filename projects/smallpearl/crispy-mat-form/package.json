@@ -1,6 +1,6 @@
 {
   "name": "@smallpearl/crispy-mat-form",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Quick and crispy Angular forms, including layout, from TypeScript",
   "peerDependencies": {
     "@angular/common": "^15.2.0",

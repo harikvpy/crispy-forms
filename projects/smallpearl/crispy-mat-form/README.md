@@ -326,5 +326,7 @@ The demo project in the workspace shows a rather comprehensive example of how th
 * 0.1.0 - Initial release
 * 0.2.0 - 
 * 0.3.0 - Added `crispyCheckboxField`.
-* 0.3.1 - doc update
-* 0.3.2 - doc update
+* 0.3.1 - doc update.
+* 0.3.2 - doc update.
+* 0.3.3 - doc update.
+* 0.3.4 - Set context for `template` field type.
