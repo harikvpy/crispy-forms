@@ -24,7 +24,7 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
   selector: 'app-root',
   template: `
     <h1>Crispy Form Demo</h1>
-    <form [formGroup]="crispyComponent.form" (ngSubmit)="onSubmit()">
+    <form [formGroup]="crispyComponent.form" (ngSubmit)="onSubmit()" errorTailor>
       <crispy-mat-form [cffs]="cffs"> </crispy-mat-form>
       <div>
         <button
@@ -118,7 +118,7 @@ export class AppComponent {
       return null;
     };
     this.cffs = [
-      crispyTextField('firstName', 'Peter', undefined, 'pe-2 w-50'),
+      crispyTextField('firstName', 'Peter', [Validators.required, Validators.minLength(8)], 'pe-2 w-50'),
       crispyTextField('lastName', 'Parker', undefined, 'w-50'),
       crispyDateRangeField(
         'publishedOn',

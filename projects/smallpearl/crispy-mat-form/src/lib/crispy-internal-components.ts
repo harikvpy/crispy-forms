@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, OnInit, Input, Directive, ViewContainerRef, forwardRef, AfterViewInit, AfterContentInit, ViewChild, ComponentRef, ElementRef, ChangeDetectorRef } from "@angular/core";
-import { UntypedFormGroup, NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
-import { MatFormField, MatFormFieldModule } from "@angular/material/form-field";
+import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, Directive, ElementRef, Input, OnInit, ViewChild, ViewContainerRef, forwardRef } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, UntypedFormGroup } from "@angular/forms";
+import { MatFormField } from "@angular/material/form-field";
 import { Observable, of } from "rxjs";
-import { CrispyForm, CrispyFieldProps, SelectOption } from "./crispy-types";
+import { CrispyFieldProps, CrispyForm, SelectOption } from "./crispy-types";
 
 @Component({
   selector: 'app-crispy-field-input',
@@ -19,14 +19,17 @@ import { CrispyForm, CrispyFieldProps, SelectOption } from "./crispy-types";
         matInput
         placeholder="{{ field.label }}"
         [formControlName]="field.formControlName"
+        [controlErrorAnchor]="errorAnchor"
       />
       <textarea
         *ngIf="field.type == 'textarea'"
         matInput
         placeholder="{{ field.label }}"
         [formControlName]="field.formControlName"
+        [controlErrorAnchor]="errorAnchor"
       ></textarea>
-    </mat-form-field>
+      <mat-error><ng-template controlErrorAnchor #errorAnchor="controlErrorAnchor"></ng-template></mat-error>
+      </mat-form-field>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -46,13 +49,17 @@ export class CrispyInputFieldTypeComponent implements OnInit {
     >
       <mat-label>{{ field.label }}</mat-label>
       <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-      <mat-select [formControlName]="field.formControlName">
+      <mat-select
+        [formControlName]="field.formControlName"
+        [controlErrorAnchor]="errorAnchor"
+      >
         <mat-option
           *ngFor="let option of options | async"
           [value]="option.value"
           >{{ option.label }}</mat-option
         >
       </mat-select>
+      <mat-error><ng-template controlErrorAnchor #errorAnchor="controlErrorAnchor"></ng-template></mat-error>
     </mat-form-field>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

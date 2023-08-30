@@ -3,11 +3,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CRISPY_FORMS_CONFIG_PROVIDER, CrispyFormsConfig, CrispyMatFormModule } from '@smallpearl/crispy-mat-form';
+import { CRISPY_FORMS_CONFIG_PROVIDER, MatErrorTailorControlErrorComponent, CrispyFormsConfig, CrispyMatFormModule } from '@smallpearl/crispy-mat-form';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
+import { errorTailorImports, provideErrorTailorConfig } from '@ngneat/error-tailor';
 
 /**
  * CrispyConfig demonstrator that converts all labels to uppercase.
@@ -28,9 +29,25 @@ const CrispyConfig: CrispyFormsConfig = {
     MatFormFieldModule,
     MyTelInput,
     CrispyMatFormModule,
+    errorTailorImports,
   ],
   providers: [
     { provide: CRISPY_FORMS_CONFIG_PROVIDER, useValue: CrispyConfig },
+    provideErrorTailorConfig({
+      blurPredicate(element) {
+        return element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'MAT-SELECT';
+      },
+      controlErrorComponent: MatErrorTailorControlErrorComponent,
+      errors: {
+          useValue: {
+            required: 'This field is required',
+            pattern: "Doesn't match the required pattern",
+            minlength: ({ requiredLength, actualLength }) => 
+                        `Expect ${requiredLength} but got ${actualLength}`,
+            invalidAddress: error => `Address isn't valid`
+          }
+        }
+      }),
   ],
   bootstrap: [AppComponent],
 })
