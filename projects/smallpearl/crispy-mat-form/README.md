@@ -393,3 +393,4 @@ The demo project in the workspace shows a rather comprehensive example of how th
 * 0.3.3 - doc update.
 * 0.3.4 - Set context for `template` field type.
 * 0.4.0 - Support for error messages via @ngneat/error-tailor.
+* 0.4.1 - Fix errors in publishing.
