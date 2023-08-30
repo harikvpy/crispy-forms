@@ -29,7 +29,7 @@ import { CrispyFieldProps, CrispyForm, SelectOption } from "./crispy-types";
         [controlErrorAnchor]="errorAnchor"
       ></textarea>
       <mat-error><ng-template controlErrorAnchor #errorAnchor="controlErrorAnchor"></ng-template></mat-error>
-      </mat-form-field>
+    </mat-form-field>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
