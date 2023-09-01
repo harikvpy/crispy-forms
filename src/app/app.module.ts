@@ -9,6 +9,7 @@ import { AppComponent } from './app.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
 import { errorTailorImports, provideErrorTailorConfig } from '@ngneat/error-tailor';
+import { MatInputModule } from '@angular/material/input';
 
 /**
  * CrispyConfig demonstrator that converts all labels to uppercase.
@@ -27,6 +28,7 @@ const CrispyConfig: CrispyFormsConfig = {
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
+    MatInputModule,
     MyTelInput,
     CrispyMatFormModule,
     errorTailorImports,

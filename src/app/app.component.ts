@@ -16,6 +16,7 @@ import {
   crispyTemplateField,
   crispyCheckboxField,
   crispyTextField,
+  crispyNumberField,
 } from '@smallpearl/crispy-mat-form';
 import { of } from 'rxjs';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
@@ -142,13 +143,13 @@ export class AppComponent {
           crispyPasswordField(
             'password',
             '',
-            [Validators.required, Validators.minLength(8)],
+            undefined, // [Validators.required, Validators.minLength(8)],
             'pe-2 w-50'
           ),
           crispyPasswordField(
             'confirmPassword',
             '',
-            [Validators.required, Validators.minLength(8)],
+            undefined, // [Validators.required, Validators.minLength(8)],
             'w-50'
           ),
         ],
@@ -189,9 +190,12 @@ export class AppComponent {
         exchange: '777',
         subscriber: '0787',
       }),
+      crispyNumberField('age', undefined, undefined, 'pe-2 w-50'),
       crispyCheckboxField(
         'public',
-        false
+        false,
+        undefined,
+        'w-50'
       ),
       crispyTemplateField('dummy', [1, 2, 3])
     ];

@@ -89,7 +89,7 @@ export function crispyTextField(
 
 export function crispyNumberField(
   name: string,
-  initial: string,
+  initial: number|undefined,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
@@ -292,8 +292,17 @@ function getFormControl(cf: CrispyFormField) {
     );
     return group;
   } else {
-    return new FormControl(
-      cf.type === 'checkbox' ? !!cf?.initial : (hasInitial ? cf.initial : isInputFieldType(cf.type) ? '' : undefined),
+    if (cf.type === 'number') {
+      return new FormControl<number>(hasInitial ? cf.initial : undefined,
+        hasInitial
+          ? { nonNullable: true, validators: cf.validators }
+          : { validators: cf.validators }
+      );
+    }
+    return new FormControl<string>(
+      cf.type === 'checkbox'
+        ? !!cf?.initial
+        : (hasInitial ? cf.initial : isInputFieldType(cf.type) ? '' : undefined),
       hasInitial
         ? { nonNullable: true, validators: cf.validators }
         : { validators: cf.validators }

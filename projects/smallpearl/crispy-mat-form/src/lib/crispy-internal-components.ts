@@ -14,8 +14,18 @@ import { CrispyFieldProps, CrispyForm, SelectOption } from "./crispy-types";
       <mat-label>{{ field.label }}</mat-label>
       <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
       <input
-        *ngIf="field.type != 'textarea'"
+        *ngIf="field.type != 'textarea' && field.type != 'number'"
         [type]="field.type"
+        matInput
+        placeholder="{{ field.label }}"
+        [formControlName]="field.formControlName"
+        [controlErrorAnchor]="errorAnchor"
+      />
+      <!-- number type has to specified as a literal during initial declaration. Or else input treats it like a
+      string and the value returned will be a string. -->
+      <input
+        *ngIf="field.type == 'number'"
+        type="number"
         matInput
         placeholder="{{ field.label }}"
         [formControlName]="field.formControlName"
