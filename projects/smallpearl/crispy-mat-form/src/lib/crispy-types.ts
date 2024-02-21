@@ -1,5 +1,5 @@
-import { FormGroup, ValidatorFn } from "@angular/forms";
-import { Observable } from "rxjs";
+import { FormGroup, ValidatorFn } from '@angular/forms';
+import { Observable } from 'rxjs';
 
 export type CrispyFieldType =
   | 'number'
@@ -18,8 +18,8 @@ export type CrispyFieldType =
 
 export interface SelectOption {
   label: string;
-  value: string | number
-};
+  value: string | number;
+}
 
 export interface CrispyFieldProps {
   // Label use for the field. Wil be placed in a <mat-label> tag.
@@ -35,7 +35,7 @@ export interface CrispyFieldProps {
   /* Only for 'select' field type. Specifies the individual options. */
   selectOptions?: {
     options: Array<SelectOption> | Observable<SelectOption[]>;
-  }
+  };
   /* Only for 'daterange' field type. The member should be self-explantory. */
   dateRangeOptions?: {
     beginRangeLabel?: string; // defaults to 'Start'
@@ -53,7 +53,7 @@ export interface CrispyFieldProps {
 }
 
 export interface CrispyForm {
-  form: FormGroup;
+  form: FormGroup<any>;
   fields: CrispyFieldProps[];
   fieldCssClass?: string;
 }
