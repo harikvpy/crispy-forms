@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ContentChildren,
   Directive,
@@ -12,9 +13,10 @@ import {
 } from '@angular/core';
 import {
   AbstractControl,
+  FormArray,
   FormGroup
 } from '@angular/forms';
-import { CrispyFormField, getCrispyFormHelper } from './crispy-mat-form-helper';
+import { CrispyFormField, getCrispyFormHelper, getFormGroup } from './crispy-mat-form-helper';
 import { CrispyFieldProps, CrispyForm } from './crispy-types';
 import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
 
@@ -49,15 +51,15 @@ export class CrispyFieldNameDirective implements OnInit, OnDestroy {
 
 
 /**
- * `<app-crispy-mat-form>` is a component that makes creating & rendering angular
- * material forms a breeze. The component layers on top the excellent reactive
- * forms to create the required form fields and then layout them in a standardized
- * way such that application code only has to declare the fields of the form in an
- * array and pass this array to the component as an input argument.
+ * `<crispy-mat-form>` is a component that makes creating & rendering angular
+ * material forms a breeze. The component layers on top of angular's reactive
+ * forms to create the required form fields and then layout them in a 
+ * standardized way such that application code only has to declare the fields
+ * of the form in an array and pass this array to the component as a property.
  * 
  * To illustrate with an example:
  * 
- * `<app-crispy-mat-form [cffs]="cffs"> </app-crispy-mat-form>`
+ * `<crispy-mat-form [cffs]="cffs"> </crispy-mat-form>`
  * 
  * where `cffs` is defined as:
  * 
@@ -72,9 +74,10 @@ export class CrispyFieldNameDirective implements OnInit, OnDestroy {
  *     ]
  *   }
  * ```
- * This will create a form with two fields, `firstName` & `lastName` arranged side by side.
- * Note that in the example, the css classes used come from Bootstrap and it's these classes
- * that provide the side-by-side single-line layout in the form.
+ * This will create a form with two fields, `firstName` & `lastName` arranged 
+ * side by side. Note that in the example, the css classes used come from
+ * Bootstrap and it's these classes that provide the side-by-side single-line
+ * layout in the form.
  * 
  * Then in the submit handler you can:
  * 
@@ -112,6 +115,7 @@ export class CrispyFieldNameDirective implements OnInit, OnDestroy {
  *    in the client code via ng-template. The NgTemplate is expected
  *    to have the same name as the field.
  *  * group: For nested FormGroups.
+ *  * array - for an array of fields or forms
  */
 @Component({
   selector: 'crispy-mat-form',
@@ -156,10 +160,18 @@ export class CrispyFieldNameDirective implements OnInit, OnDestroy {
           [field]="f"
         ></app-crispy-field-custom>
       </span>
-      <span *ngIf="f.type == 'group'">
+      <span *ngIf="f.type === 'group'">
         <crispy-mat-form
           [crispy]="getChildrenAsCrispyForm(crispy, f.formControlName)"
         ></crispy-mat-form>
+      </span>
+      <span *ngIf="f.type === 'groupArray'">
+        <app-crispy-mat-form-array
+          [label]="f.label"
+          [group]="crispy.form"
+          [fieldName]="f.formControlName"
+          [crispy]="getChildrenAsCrispyForm(crispy, f.formControlName)"
+        ></app-crispy-mat-form-array>
       </span>
       <ng-container
         *ngIf="f.type == 'template'"
@@ -175,9 +187,11 @@ export class CrispyFieldNameDirective implements OnInit, OnDestroy {
 export class CrispyMatFormComponent implements OnInit, OnDestroy {
   @ContentChildren(CrispyFieldNameDirective)
   fieldTemplates!: QueryList<CrispyFieldNameDirective>;
-  @Input() crispy!: CrispyForm;
-  @Input() cffs!: CrispyFormField[];
-  @Input() cssClass!: string;
+
+  @Input({ required: false }) crispy!: CrispyForm;
+  @Input({ required: false }) cffs!: CrispyFormField[];
+  @Input({ required: false }) cssClass!: string;
+  @Input({ required: false }) multi = false;
 
   private _tempForm = new FormGroup({});
 
@@ -254,5 +268,91 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy {
       defaultCssClass = config && config.defaultCssClass ? config.defaultCssClass : '';
     }
     return getCrispyFormHelper(cffs, labelFn, defaultCssClass);
+  }
+}
+
+/**
+ * A component to render an array of crispy forms. This can come handy in
+ * uses cases such as Invoice -> Line Items. Essentially this component would
+ * take a CrispyForm object as input and build a FormArray consisting of many
+ * instances of this object. 
+ */
+@Component({
+  selector: 'app-crispy-mat-form-array',
+  template: `
+  <div class="crispy-mat-form-array-wrapper" [formGroup]="group">
+    <div class="">{{ label }}</div>
+    <div class="form-array-wrapper" *ngFor="let crispy of crispies; let i=index">
+      <div class="form-array">
+        <crispy-mat-form [crispy]="crispy"></crispy-mat-form>
+      </div>
+      <div class="array-control">
+        <button mat-icon-button type="button" (click)="delRow(i)">&#x274C;</button>
+      </div>
+    </div>
+    <div class="add-row-buttons">
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="addRow()">Add Row</button>
+    </div>
+  </div>
+  `,
+  styles: [`
+    .form-array-wrapper {
+      width: 100% !important;
+      display: flex;
+      flex-direction: row;
+    }
+    .form-array {
+      flex-grow: 1;
+    }
+    .array-control {
+      display: flex;
+      flex-direction: row;
+    }
+    .array-control button {
+      font-size: 0.8em;
+      width: 28px !important;
+      height: 28px !important;
+      padding: 4px !important;
+    }
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class CrispyMatFormArrayComponent implements OnInit {
+
+  @Input({ required: false }) label!: string;
+  @Input({ required: true }) group!: FormGroup;
+  @Input({ required: true }) fieldName!: string;
+  @Input({ required: true }) crispy!: CrispyForm;
+
+  control!: FormArray;
+  crispies: CrispyForm[] = [];
+
+  constructor(private cdr: ChangeDetectorRef) { }
+
+  ngOnInit() {
+    this.control = this.group.controls[this.fieldName] as FormArray;
+    this.addRow();
+  }
+
+  addRow() {
+    const crispy: CrispyForm = {
+      ...this.crispy,
+      form: getFormGroup(this.crispy.fields.map(f => f.field))
+    };
+    this.control.push(crispy.form);
+    this.crispies.push(crispy)
+    this.cdr.markForCheck();
+  }
+
+  delRow(index: number) {
+    if (index < this.crispies.length) {
+      this.control.removeAt(index);
+      this.crispies.splice(index, 1);
+      this.cdr.markForCheck();
+    }
   }
 }

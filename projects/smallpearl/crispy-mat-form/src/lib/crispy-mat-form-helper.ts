@@ -4,6 +4,7 @@ import {
   FormGroup,
   AbstractControlOptions,
   AsyncValidatorFn,
+  FormArray,
 } from '@angular/forms';
 import { CrispyFieldType, CrispyFieldProps, CrispyForm, SelectOption } from './crispy-types';
 import { Observable } from 'rxjs';
@@ -23,6 +24,19 @@ const isInputFieldType = (type: CrispyFieldType) =>
   type == 'search' ||
   type == 'textarea';
 
+/**
+ * A helper function to construct a CrispyForm object from its constituent
+ * field definitions.
+ * 
+ * @param fields - Array of fields to be included in the form.
+ * @param translateFn - String translation function
+ * @param fieldCssClass - Global field css class, if per field css class is
+ * not specified.
+ * @param validatorOrOpts - Global form validation routine.
+ * @param asyncValidator - Global async form validation routine.
+ * @returns CrispyForm object that can be passed to `crispy-mat-form` as
+ * its `crispy` property value.
+ */
 export function getCrispyFormHelper(
   fields: CrispyFormField[],
   translateFn: TRANSLATE_FN,
@@ -107,6 +121,17 @@ export function crispyEmailField(
   hint?: string,
 ): CrispyFormField {
   return { type: 'email', name, initial, validators, label, hint, cssClass };
+}
+
+export function crispyDateField(
+  name: string,
+  initial: Date,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyFormField {
+  return { type: 'date', name, initial, validators, label, hint, cssClass };
 }
 
 export function crispyTextareaField(
@@ -231,7 +256,7 @@ export function crispyTemplateField(
 
 }
 
-export function crispyFormFieldGroup(
+export function crispyFormGroup(
   name: string,
   fields: CrispyFormField[],
   initial?: any,
@@ -244,6 +269,26 @@ export function crispyFormFieldGroup(
     initial,
     validators,
     label: undefined,
+    hint: undefined,
+    cssClass,
+    children: fields,
+  };
+}
+
+export function crispyFormGroupArray(
+  name: string,
+  fields: CrispyFormField[],
+  initial?: any,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string
+): CrispyFormField {
+  return {
+    type: 'groupArray',
+    name,
+    initial,
+    validators,
+    label: label,
     hint: undefined,
     cssClass,
     children: fields,
@@ -310,7 +355,7 @@ function getFormControl(cf: CrispyFormField) {
   }
 }
 
-function getFormGroup(
+export function getFormGroup(
   cfs: CrispyFormField[],
   validatorOrOpts?: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null,
   asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | null
@@ -320,7 +365,12 @@ function getFormGroup(
     if (!cf.children) {
       fg.addControl(cf.name, getFormControl(cf));
     } else {
-      fg.addControl(cf.name, getFormGroup(cf.children, cf.validators));
+      if (cf.type === 'group') {
+        fg.addControl(cf.name, getFormGroup(cf.children, cf.validators));
+      } else if (cf.type === 'groupArray') {
+        const fa = new FormArray<FormGroup>([])
+        fg.addControl(cf.name, fa);
+      }
     }
   });
   return fg;
@@ -335,6 +385,7 @@ function getCrispyFields(
   cfs.forEach((cf) => {
     if (!cf.children) {
       fields.push({
+        field: cf,
         label: translateFn(cf.label ?? cf.name),
         hint: cf.hint ? translateFn(cf.hint) : undefined,
         formControlName: cf.name,
@@ -349,8 +400,9 @@ function getCrispyFields(
         defaultFieldCssClass
       );
       fields.push({
+        field: cf,
         label: '',
-        type: 'group',
+        type: cf.type,
         formControlName: cf.name,
         children: childFields,
       });

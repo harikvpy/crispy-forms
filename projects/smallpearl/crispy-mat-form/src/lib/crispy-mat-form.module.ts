@@ -23,12 +23,14 @@ import {
 import {
   CrispyFieldNameDirective,
   CrispyMatFormComponent,
+  CrispyMatFormArrayComponent,
 } from './crispy-mat-form.component';
 
 @NgModule({
   declarations: [
     CrispyFieldNameDirective,
     CrispyMatFormComponent,
+    CrispyMatFormArrayComponent,
     CrispySelectFieldComponent,
     CrispyInputFieldTypeComponent,
     CrispyDateRangeFieldComponent,

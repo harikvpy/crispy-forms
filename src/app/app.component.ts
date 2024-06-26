@@ -10,7 +10,8 @@ import {
   CrispyMatFormComponent,
   crispyCustomComponentField,
   crispyDateRangeField,
-  crispyFormFieldGroup,
+  crispyFormGroup,
+  crispyFormGroupArray,
   crispyPasswordField,
   crispySelectField,
   crispyTemplateField,
@@ -119,7 +120,7 @@ export class AppComponent {
       return null;
     };
     this.cffs = [
-      crispyTextField('firstName', 'Peter', [Validators.required, Validators.minLength(8)], 'pe-2 w-50'),
+      crispyTextField('firstName', 'Peter', [Validators.required], 'pe-2 w-50'),
       crispyTextField('lastName', 'Parker', undefined, 'w-50'),
       crispyDateRangeField(
         'publishedOn',
@@ -137,7 +138,7 @@ export class AppComponent {
         undefined,
         'w-100'
       ),
-      crispyFormFieldGroup(
+      crispyFormGroup(
         'matchingPassword',
         [
           crispyPasswordField(
@@ -163,7 +164,7 @@ export class AppComponent {
           { label: 'Female', value: 'F' },
           { label: 'Transgender', value: 'T' },
         ],
-        '',
+        'M',
         Validators.required,
         'pe-2 w-50'
       ),
@@ -174,7 +175,7 @@ export class AppComponent {
           { label: 'Single', value: 'S' },
           { label: 'Widow/Widower', value: 'W' },
         ]),
-        '',
+        'M',
         Validators.required,
         'w-50'
       ),
@@ -197,7 +198,19 @@ export class AppComponent {
         undefined,
         'w-50'
       ),
-      crispyTemplateField('dummy', [1, 2, 3])
+      crispyTemplateField('dummy', [1, 2, 3]),
+      crispyFormGroupArray(
+        'items', [
+          crispyTextField('name', '', Validators.required, 'w-40 pe-2', 'Name'),
+          crispyNumberField('qty', 1, Validators.required, 'w-20 pe-2', 'Quantity'),
+          crispyNumberField('unitPrice', 1, Validators.required, 'w-20 pe-2', 'Unit Price'),
+          crispyNumberField('Total', 0, undefined, 'w-20', 'Total'),
+        ],
+        undefined,
+        undefined,
+        undefined,
+        "Items"
+      )
     ];
   }
 

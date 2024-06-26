@@ -1,5 +1,6 @@
 import { FormGroup, ValidatorFn } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { CrispyFormField } from './crispy-mat-form-helper';
 
 export type CrispyFieldType =
   | 'number'
@@ -14,7 +15,8 @@ export type CrispyFieldType =
   | 'checkbox'
   | 'custom'
   | 'template'
-  | 'group';
+  | 'group'
+  | 'groupArray';
 
 export interface SelectOption {
   label: string;
@@ -22,6 +24,7 @@ export interface SelectOption {
 }
 
 export interface CrispyFieldProps {
+  field: CrispyFormField;
   // Label use for the field. Wil be placed in a <mat-label> tag.
   label: string;
   // The field type. This controls the type of UI widget used.
