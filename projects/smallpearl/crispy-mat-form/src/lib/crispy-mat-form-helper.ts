@@ -401,7 +401,7 @@ function getCrispyFields(
       );
       fields.push({
         field: cf,
-        label: '',
+        label: translateFn(cf.label ?? cf.name),
         type: cf.type,
         formControlName: cf.name,
         children: childFields,

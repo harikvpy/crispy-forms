@@ -6,7 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CRISPY_FORMS_CONFIG_PROVIDER, MatErrorTailorControlErrorComponent, CrispyFormsConfig, CrispyMatFormModule } from '@smallpearl/crispy-mat-form';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
 import { errorTailorImports, provideErrorTailorConfig } from '@ngneat/error-tailor';
 import { MatInputModule } from '@angular/material/input';

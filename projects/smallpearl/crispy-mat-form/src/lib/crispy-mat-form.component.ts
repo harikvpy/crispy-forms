@@ -281,7 +281,7 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy {
   selector: 'app-crispy-mat-form-array',
   template: `
   <div class="crispy-mat-form-array-wrapper" [formGroup]="group">
-    <div class="">{{ label }}</div>
+    <div class="form-array-label">{{ label }}</div>
     <div class="form-array-wrapper" *ngFor="let crispy of crispies; let i=index">
       <div class="form-array">
         <crispy-mat-form [crispy]="crispy"></crispy-mat-form>
@@ -304,6 +304,11 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy {
       width: 100% !important;
       display: flex;
       flex-direction: row;
+    }
+    .form-array-label {
+      font-size: 1.2em;
+      font-weight: 600;
+      padding: 4px 0;
     }
     .form-array {
       flex-grow: 1;
