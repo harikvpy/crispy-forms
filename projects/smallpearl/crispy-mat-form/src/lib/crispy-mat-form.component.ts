@@ -345,7 +345,13 @@ export class CrispyMatFormArrayComponent implements OnInit {
 
   ngOnInit() {
     this.control = this.group.controls[this.fieldName] as FormArray;
-    this.addRow(true);
+    // Don't add the row directly or else you will get
+    // ExpressionChangedAfterItHasBeenCheckedError. Add it via a timeout so
+    // that the natural change detect algo (that happens after the
+    // timer routine) picks it up. This will avoid the error as well.
+    // Adding rows when user clicks the 'Add Row' button is okay as the change
+    // detect algo loop is run after every user input.
+    setTimeout(() => this.addRow(true));
   }
 
   addRow(emit = true) {
