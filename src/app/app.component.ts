@@ -2,26 +2,25 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
-  FormControl,
   FormGroup,
   ValidationErrors,
-  Validators,
+  Validators
 } from '@angular/forms';
 import {
   CrispyFormField,
   CrispyMatFormComponent,
+  crispyCheckboxField,
   crispyCustomComponentField,
   crispyDateRangeField,
   crispyFormGroup,
   crispyFormGroupArray,
+  crispyNumberField,
   crispyPasswordField,
   crispySelectField,
   crispyTemplateField,
-  crispyCheckboxField,
   crispyTextField,
-  crispyNumberField,
 } from '@smallpearl/crispy-mat-form';
-import { of, tap } from 'rxjs';
+import { BehaviorSubject, of, tap } from 'rxjs';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
 
 @Component({
@@ -67,6 +66,12 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
         Members: <span *ngFor="let m of control.value">{{ m }}&nbsp;</span>
     </ng-template>
 
+    <ng-template crispyFieldName="total" let-control="control" let-field="field" let-crispy="crispy" let-formGroup="formGroup">
+      <div style="width: 100% !important; display: flex; justify-content: end; padding: 0.4em 1em;">
+        <h2>Total: {{ total|async }}</h2>
+      </div>
+    </ng-template>
+
     <!-- <router-outlet></router-outlet> -->
   `,
   styles: [],
@@ -75,7 +80,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   cffs!: CrispyFormField[];
   @ViewChild(CrispyMatFormComponent, { static: true })
   crispyComponent!: CrispyMatFormComponent;
-
+  total = new BehaviorSubject<number>(0);
   constructor() {}
 
   ngOnInit(): void {
@@ -210,7 +215,8 @@ export class AppComponent implements OnInit, AfterViewInit {
         undefined,
         undefined,
         "Items"
-      )
+      ),
+      crispyTemplateField('total', 0, undefined, 'w-100')
     ];
   }
 
@@ -219,10 +225,12 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (items) {
       items.valueChanges.pipe(
         tap((values: { name: string; qty: number; unitPrice: number; total: number} []) => {
+          let invoiceTotal = 0;
           values.forEach((value, index: number) => {
             try {
               if (value.qty !== undefined && value.unitPrice !== undefined) {
                 const total = value.qty * value.unitPrice;
+                invoiceTotal += total;
                 // const control: FormControl = items.at(index).get('total') as FormControl;
                 items.at(index).get('total')?.setValue(total, {emitEvent: false, onlySelf: true});
               }
@@ -230,6 +238,7 @@ export class AppComponent implements OnInit, AfterViewInit {
               
             }
           })
+          this.total.next(invoiceTotal);
           // console.log(`items changed: ${JSON.stringify(values)}`);
         })
       ).subscribe();
