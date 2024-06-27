@@ -1,6 +1,8 @@
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import {
   AbstractControl,
+  FormArray,
+  FormControl,
   FormGroup,
   ValidationErrors,
   Validators,
@@ -19,7 +21,7 @@ import {
   crispyTextField,
   crispyNumberField,
 } from '@smallpearl/crispy-mat-form';
-import { of } from 'rxjs';
+import { of, tap } from 'rxjs';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
 
 @Component({
@@ -27,7 +29,11 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
   template: `
     <h1>Crispy Form Demo</h1>
     <form [formGroup]="crispyComponent.form" (ngSubmit)="onSubmit()" errorTailor>
-      <crispy-mat-form [cffs]="cffs"> </crispy-mat-form>
+      <crispy-mat-form
+        [cffs]="cffs"
+        (formGroupAdded)="onFormGroupAdded($event)"
+        (formGroupRemoved)="onFormGroupRemoved($event)"
+      ></crispy-mat-form>
       <div>
         <button
           mat-raised-button
@@ -47,31 +53,25 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
         </button>
       </div>
     </form>
-    <ng-template crispyFieldName="mobile">
-      <mat-form-field class="w-50" [formGroup]="crispyComponent.form">
-        <mat-label>My Telephone</mat-label>
-        <my-tel-input formControlName="mobile"></my-tel-input>
-      </mat-form-field>
+
+    <ng-template crispyFieldName="mobile" let-formGroup="formGroup">
+      <span *ngIf="formGroup" [formGroup]="formGroup">
+        <mat-form-field>
+          <mat-label>My Telephone</mat-label>
+          <my-tel-input formControlName="mobile"></my-tel-input>
+        </mat-form-field>
+      </span>
     </ng-template>
 
-    <ng-template crispyFieldName="mobile">
-      <mat-form-field class="w-50" [formGroup]="crispyComponent.form">
-        <mat-label>My Telephone</mat-label>
-        <my-tel-input formControlName="mobile"></my-tel-input>
-      </mat-form-field>
-    </ng-template>
-
-    <ng-template crispyFieldName="dummy" let-control="control" let-field="field" let-crispy="crispy">
-      <div class="w-100">
+    <ng-template crispyFieldName="dummy" let-control="control" let-field="field" let-crispy="crispy" let-formGroup="formGroup">
         Members: <span *ngFor="let m of control.value">{{ m }}&nbsp;</span>
-      </div>
     </ng-template>
 
     <!-- <router-outlet></router-outlet> -->
   `,
   styles: [],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, AfterViewInit {
   cffs!: CrispyFormField[];
   @ViewChild(CrispyMatFormComponent, { static: true })
   crispyComponent!: CrispyMatFormComponent;
@@ -190,8 +190,8 @@ export class AppComponent {
         area: '737',
         exchange: '777',
         subscriber: '0787',
-      }),
-      crispyNumberField('age', undefined, undefined, 'pe-2 w-50'),
+      }, undefined, 'w-50'),
+      crispyNumberField('age', undefined, undefined, 'w-100'),
       crispyCheckboxField(
         'public',
         false,
@@ -204,7 +204,7 @@ export class AppComponent {
           crispyTextField('name', '', Validators.required, 'w-40 pe-2', 'Name'),
           crispyNumberField('qty', 1, Validators.required, 'w-20 pe-2', 'Quantity'),
           crispyNumberField('unitPrice', 1, Validators.required, 'w-20 pe-2', 'Unit Price'),
-          crispyNumberField('Total', 0, undefined, 'w-20', 'Total'),
+          crispyTextField('total', '', undefined, 'w-20', 'Total'),
         ],
         undefined,
         undefined,
@@ -212,6 +212,39 @@ export class AppComponent {
         "Items"
       )
     ];
+  }
+
+  ngAfterViewInit(): void {
+    const items: FormArray = this.crispyComponent.form.controls['items'] as FormArray;
+    if (items) {
+      items.valueChanges.pipe(
+        tap((values: { name: string; qty: number; unitPrice: number; total: number} []) => {
+          values.forEach((value, index: number) => {
+            try {
+              if (value.qty !== undefined && value.unitPrice !== undefined) {
+                const total = value.qty * value.unitPrice;
+                // const control: FormControl = items.at(index).get('total') as FormControl;
+                items.at(index).get('total')?.setValue(total, {emitEvent: false, onlySelf: true});
+              }
+            } catch (error) {
+              
+            }
+          })
+          // console.log(`items changed: ${JSON.stringify(values)}`);
+        })
+      ).subscribe();
+    }
+  }
+
+  onFormGroupAdded(event: any) {
+    const fgEvent: {field: string, form: FormGroup} = event as {field: string, form: FormGroup};
+    // console.log(`form group added - field: ${fgEvent.field}, group: ${fgEvent.form}`);
+    fgEvent.form.controls['total'].disable();
+  }
+
+  onFormGroupRemoved(event: any) {
+    const fgEvent: {field: string, form: FormGroup} = event as {field: string, form: FormGroup};
+    // console.log(`form group removed - field: ${fgEvent.field}, group: ${fgEvent.form}`);
   }
 
   onReset() {

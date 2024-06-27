@@ -19,6 +19,7 @@ import {
   CrispyDynamicControlDirective,
   CrispyInputFieldTypeComponent,
   CrispySelectFieldComponent,
+  CrispyTemplateFieldComponent,
 } from './crispy-internal-components';
 import {
   CrispyFieldNameDirective,
@@ -38,6 +39,7 @@ import {
     CrispyDynamicControlDirective,
     CrispyCustomFieldComponent,
     CrispyCheckboxComponent,
+    CrispyTemplateFieldComponent,
     MatErrorTailorControlErrorComponent,
   ],
   imports: [

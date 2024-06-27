@@ -2,6 +2,7 @@ import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetecto
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, UntypedFormGroup } from "@angular/forms";
 import { MatFormField } from "@angular/material/form-field";
 import { Observable, of } from "rxjs";
+import { CrispyFieldNameDirective } from "./crispy-mat-form.component";
 import { CrispyFieldProps, CrispyForm, SelectOption } from "./crispy-types";
 
 @Component({
@@ -280,32 +281,50 @@ export class CrispyCustomFieldComponent
   // End ControlValueAccessor methods
 }
 
-// import { NgModule } from '@angular/core';
-// import { CommonModule } from "@angular/common";
+@Component({
+  selector: 'app-crispy-field-template',
+  template: `
+  <div [class]="field.cssClass ?? (crispy.fieldCssClass ?? '')">
+    <ng-template crispyDynamicControl></ng-template>
+  </div>
+  `,
+  styles: [`
+    div {
+      display: inline-flex;
+    }
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CrispyTemplateFieldComponent implements OnInit
+{
+  @Input() crispy!: CrispyForm;
+  @Input() field!: CrispyFieldProps;
 
-// @NgModule({
-//   imports: [
-//     CommonModule,
-//     MatFormFieldModule,
-//   ],
-//   exports: [
-//     CrispySelectFieldComponent,
-//     CrispyInputFieldTypeComponent,
-//     CrispyDateRangeFieldComponent,
-//     CrispyDateFieldComponent,
-//     CrispyDynamicControlDirective,
-//     CrispyCustomFieldComponent,
-//     CrispyCheckboxComponent,
-//   ],
-//   declarations: [
-//     CrispySelectFieldComponent,
-//     CrispyInputFieldTypeComponent,
-//     CrispyDateRangeFieldComponent,
-//     CrispyDateFieldComponent,
-//     CrispyDynamicControlDirective,
-//     CrispyCustomFieldComponent,
-//     CrispyCheckboxComponent,  
-//   ],
-//   providers: [],
-// })
-// export class InternalComponentsModule { }
+  @ViewChild(CrispyDynamicControlDirective, { static: true })
+  componentLocation!: CrispyDynamicControlDirective;
+
+  constructor() {}
+
+  ngOnInit() {
+    this.loadTemplate();
+  }
+
+  private loadTemplate() {
+    const fnd = CrispyFieldNameDirective._crispyFieldTemplates.find(
+      (ft) => ft.crispyFieldName.localeCompare(this.field.formControlName) == 0
+    );
+    const templateRef = fnd ? fnd.templateRef : undefined;
+    if (templateRef) {
+      const context = {
+        crispy: this.crispy,
+        field: this.field,
+        control: this.crispy.form.controls[this.field.formControlName],
+        formGroup: this.crispy.form
+      }
+      const view = this.componentLocation.viewContainerRef.createEmbeddedView(
+        templateRef,
+        context
+      );
+    }
+  }
+}

@@ -1,18 +1,20 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ContentChildren,
   Directive,
+  EventEmitter,
   Injector,
   Input,
   OnDestroy,
   OnInit,
+  Output,
   QueryList,
   TemplateRef
 } from '@angular/core';
 import {
-  AbstractControl,
   FormArray,
   FormGroup
 } from '@angular/forms';
@@ -153,38 +155,38 @@ export class CrispyFieldNameDirective implements OnInit, OnDestroy {
         [crispy]="crispy"
         [field]="f"
       ></app-crispy-field-checkbox>
-      <span *ngIf="f.type == 'custom'" [formGroup]="crispy.form">
+      <ng-container *ngIf="f.type == 'custom'" [formGroup]="crispy.form">
         <app-crispy-field-custom
           [crispy]="crispy"
           [formControlName]="f.formControlName"
           [field]="f"
         ></app-crispy-field-custom>
-      </span>
-      <span *ngIf="f.type === 'group'">
+      </ng-container>
+      <ng-container *ngIf="f.type === 'group'">
         <crispy-mat-form
           [crispy]="getChildrenAsCrispyForm(crispy, f.formControlName)"
         ></crispy-mat-form>
-      </span>
-      <span *ngIf="f.type === 'groupArray'">
-        <app-crispy-mat-form-array
-          [label]="f.label"
-          [group]="crispy.form"
-          [fieldName]="f.formControlName"
-          [crispy]="getChildrenAsCrispyForm(crispy, f.formControlName)"
-        ></app-crispy-mat-form-array>
-      </span>
-      <ng-container
-        *ngIf="f.type == 'template'"
-        [ngTemplateOutlet]="getFieldTemplate(f)"
-        [ngTemplateOutletContext]="getFieldTemplateContext(f)"
-      >
       </ng-container>
+      <app-crispy-mat-form-array
+        *ngIf="f.type === 'groupArray'"
+        [label]="f.label"
+        [group]="crispy.form"
+        [fieldName]="f.formControlName"
+        [crispy]="getChildrenAsCrispyForm(crispy, f.formControlName)"
+        (formGroupAdded)="formGroupAdded.emit($event)"
+        (formGroupRemoved)="formGroupRemoved.emit($event)"
+      ></app-crispy-mat-form-array>
+      <app-crispy-field-template
+        *ngIf="f.type == 'template'"
+        [crispy]="crispy"
+        [field]="f"
+      ></app-crispy-field-template>
     </span>
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CrispyMatFormComponent implements OnInit, OnDestroy {
+export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit {
   @ContentChildren(CrispyFieldNameDirective)
   fieldTemplates!: QueryList<CrispyFieldNameDirective>;
 
@@ -192,6 +194,15 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy {
   @Input({ required: false }) cffs!: CrispyFormField[];
   @Input({ required: false }) cssClass!: string;
   @Input({ required: false }) multi = false;
+
+  @Output() formGroupAdded = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
+  @Output() formGroupRemoved = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
 
   private _tempForm = new FormGroup({});
 
@@ -203,38 +214,11 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  ngAfterViewInit(): void {
+    // console.log(`CrispyMatFormComponent.ngOnInit - field[0].name: ${this.crispy.fields.at(0)?.formControlName}`);  
+  }
+
   ngOnDestroy(): void {}
-
-  getFieldTemplate(field: CrispyFieldProps): TemplateRef<any> {
-    const fnd = CrispyFieldNameDirective._crispyFieldTemplates.find(
-      (ft) => ft.crispyFieldName.localeCompare(field.formControlName) == 0
-    );
-    // const fnd = this.fieldTemplates.find(ft => ft.crispyFieldName.localeCompare(field.formControlName) == 0);
-    return fnd!.templateRef;
-  }
-
-  /**
-   * Returns the context for the 'template' field type's ng-template. Use it as:
-   * 
-   *  <ng-template let-field='field' let-control='control' let-crispy='crispy'>
-   *  </ng-template>
-   * 
-   * @param field 
-   * @returns 
-   */
-  getFieldTemplateContext(field: CrispyFieldProps): any {
-    const control = this.crispy.form.controls[field.formControlName];
-    // console.log(`getFieldTemplateContext - control: ${field.formControlName}, value: ${JSON.stringify(control.value)}`);
-    return {
-      crispy: this.crispy,
-      field,
-      control
-    }
-  }
-
-  getFieldControl(field: CrispyFieldProps): AbstractControl<any, any> {
-    return this.crispy.form.controls[field.formControlName];
-  }
 
   getChildrenAsCrispyForm(crispy: CrispyForm, fieldName: string): CrispyForm {
     const field: CrispyFieldProps|undefined = crispy.fields.find(
@@ -280,83 +264,108 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy {
 @Component({
   selector: 'app-crispy-mat-form-array',
   template: `
-  <div class="crispy-mat-form-array-wrapper" [formGroup]="group">
-    <div class="form-array-label">{{ label }}</div>
-    <div class="form-array-wrapper" *ngFor="let crispy of crispies; let i=index">
-      <div class="form-array">
-        <crispy-mat-form [crispy]="crispy"></crispy-mat-form>
+    <div class="crispy-mat-form-array-wrapper" [formGroup]="group">
+      <div class="form-array-label">{{ label }}</div>
+      <div
+        class="form-array-wrapper"
+        *ngFor="let crispy of crispies; let i = index"
+      >
+        <div class="form-array">
+          <crispy-mat-form [crispy]="crispy"></crispy-mat-form>
+        </div>
+        <div class="array-control">
+          <button mat-icon-button type="button" (click)="delRow(i)">
+            &#x274C;
+          </button>
+        </div>
       </div>
-      <div class="array-control">
-        <button mat-icon-button type="button" (click)="delRow(i)">&#x274C;</button>
+      <div class="add-row-buttons">
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          (click)="addRow()"
+        >
+          Add Row
+        </button>
       </div>
     </div>
-    <div class="add-row-buttons">
-      <button
-        mat-raised-button
-        color="primary"
-        type="button"
-        (click)="addRow()">Add Row</button>
-    </div>
-  </div>
   `,
-  styles: [`
-    .form-array-wrapper {
-      width: 100% !important;
-      display: flex;
-      flex-direction: row;
-    }
-    .form-array-label {
-      font-size: 1.2em;
-      font-weight: 600;
-      padding: 4px 0;
-    }
-    .form-array {
-      flex-grow: 1;
-    }
-    .array-control {
-      display: flex;
-      flex-direction: row;
-    }
-    .array-control button {
-      font-size: 0.8em;
-      width: 28px !important;
-      height: 28px !important;
-      padding: 4px !important;
-    }
-  `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styles: [
+    `
+      .crispy-mat-form-array-wrapper {
+        padding: 0.5em 0;
+      }
+      .form-array-wrapper {
+        width: 100% !important;
+        display: flex;
+        flex-direction: row;
+      }
+      .form-array-label {
+        font-size: 1.2em;
+        font-weight: 600;
+        padding: 4px 0;
+      }
+      .form-array {
+        flex-grow: 1;
+      }
+      .array-control {
+        display: flex;
+        flex-direction: row;
+      }
+      .array-control button {
+        font-size: 0.8em;
+        width: 28px !important;
+        height: 28px !important;
+        padding: 4px !important;
+      }
+    `,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CrispyMatFormArrayComponent implements OnInit {
-
   @Input({ required: false }) label!: string;
   @Input({ required: true }) group!: FormGroup;
   @Input({ required: true }) fieldName!: string;
   @Input({ required: true }) crispy!: CrispyForm;
 
+  @Output() formGroupAdded = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
+  @Output() formGroupRemoved = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
+
   control!: FormArray;
   crispies: CrispyForm[] = [];
 
-  constructor(private cdr: ChangeDetectorRef) { }
+  constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.control = this.group.controls[this.fieldName] as FormArray;
-    this.addRow();
+    this.addRow(true);
   }
 
-  addRow() {
+  addRow(emit = true) {
     const crispy: CrispyForm = {
       ...this.crispy,
-      form: getFormGroup(this.crispy.fields.map(f => f.field))
+      form: getFormGroup(this.crispy.fields.map((f) => f.field)),
     };
     this.control.push(crispy.form);
-    this.crispies.push(crispy)
+    this.crispies.push(crispy);
+    if (emit) {
+      this.formGroupAdded.emit({ field: this.fieldName, form: crispy.form });
+    }
     this.cdr.markForCheck();
   }
 
   delRow(index: number) {
     if (index < this.crispies.length) {
       this.control.removeAt(index);
-      this.crispies.splice(index, 1);
+      const crispy = this.crispies.splice(index, 1);
+      this.formGroupRemoved.emit({ field: this.fieldName, form: crispy[0].form });
       this.cdr.markForCheck();
     }
   }
