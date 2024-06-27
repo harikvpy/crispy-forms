@@ -284,7 +284,7 @@ export class CrispyCustomFieldComponent
 @Component({
   selector: 'app-crispy-field-template',
   template: `
-  <div [class]="field.cssClass ?? (crispy.fieldCssClass ?? '')">
+  <div [class]="field?.cssClass ?? (crispy?.fieldCssClass ?? '')">
     <ng-template crispyDynamicControl></ng-template>
   </div>
   `,
