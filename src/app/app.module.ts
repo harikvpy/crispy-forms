@@ -1,15 +1,16 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CRISPY_FORMS_CONFIG_PROVIDER, MatErrorTailorControlErrorComponent, CrispyFormsConfig, CrispyMatFormModule } from '@smallpearl/crispy-mat-form';
+import { errorTailorImports, provideErrorTailorConfig } from '@ngneat/error-tailor';
+import { CRISPY_FORMS_CONFIG_PROVIDER, CrispyFormsConfig, CrispyMatFormModule, MatErrorTailorControlErrorComponent } from '@smallpearl/crispy-mat-form';
+import { interval, map, startWith } from 'rxjs';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
-import { errorTailorImports, provideErrorTailorConfig } from '@ngneat/error-tailor';
-import { MatInputModule } from '@angular/material/input';
 
 /**
  * CrispyConfig demonstrator that converts all labels to uppercase.
@@ -17,7 +18,10 @@ import { MatInputModule } from '@angular/material/input';
 const CrispyConfig: CrispyFormsConfig = {
   labelFn: (code: string) => code.toUpperCase(),
   groupArrayConfig: {
-    addRowText: 'ADD ROW'
+    addRowText: interval(3000).pipe(
+      startWith(''),
+      map(() => (Math.floor(Math.random()*100)%10 > 5 ? "ADD ROW" : "+ Row"))
+    )
   }
 };
 

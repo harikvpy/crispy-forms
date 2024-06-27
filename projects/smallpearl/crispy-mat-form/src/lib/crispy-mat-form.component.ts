@@ -22,6 +22,7 @@ import {
 import { CrispyFormField, getCrispyFormHelper, getFormGroup } from './crispy-mat-form-helper';
 import { CrispyFieldProps, CrispyForm } from './crispy-types';
 import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
+import { Observable, of } from 'rxjs';
 
 @Directive({
   selector: 'ng-template.[crispyFieldName]',
@@ -287,7 +288,7 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
           type="button"
           (click)="addRow()"
         >
-          {{ addRowLabel }}
+          {{ addRowLabel|async }}
         </button>
       </div>
     </div>
@@ -295,7 +296,11 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
   styles: [
     `
       .crispy-mat-form-array-wrapper {
-        padding: 0.5em 0;
+        margin: 0.5em 0;
+        /*
+        border: 1px solid lightgrey;
+        border-radius: 4px;
+        */
       }
       .form-array-wrapper {
         width: 100% !important;
@@ -305,7 +310,8 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
       .form-array-label {
         font-size: 1.2em;
         font-weight: 600;
-        padding: 4px 0;
+        padding: 0.3em 0.3em;
+        /* background-color: lightgrey; */
       }
       .form-array {
         flex-grow: 1;
@@ -341,14 +347,20 @@ export class CrispyMatFormArrayComponent implements OnInit {
 
   control!: FormArray;
   crispies: CrispyForm[] = [];
-  addRowLabel = 'Add Row';
+  addRowLabel!: Observable<string>;
 
   constructor(private cdr: ChangeDetectorRef,private injector: Injector) {}
 
   ngOnInit() {
     const crispyConfig = this.injector.get(CRISPY_FORMS_CONFIG_PROVIDER);
-    if (crispyConfig && crispyConfig?.groupArrayConfig && crispyConfig?.groupArrayConfig?.addRowText) {
-      this.addRowLabel = crispyConfig?.groupArrayConfig?.addRowText;
+    if (crispyConfig && crispyConfig?.groupArrayConfig?.addRowText) {
+      if (crispyConfig?.groupArrayConfig?.addRowText instanceof Observable) {
+        this.addRowLabel = crispyConfig.groupArrayConfig.addRowText;
+      } else {
+        this.addRowLabel = of(crispyConfig.groupArrayConfig.addRowText);
+      }
+    } else {
+      this.addRowLabel = of('Add Row');
     }
     this.control = this.group.controls[this.fieldName] as FormArray;
     // Don't add the row directly or else you will get

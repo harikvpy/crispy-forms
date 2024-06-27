@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+import { Observable } from 'rxjs';
 
 type LABEL_FN = (fieldName: string) => string;
 
@@ -6,7 +7,7 @@ export interface CrispyFormsConfig {
   labelFn?: LABEL_FN;
   defaultCssClass?: string;
   groupArrayConfig?: {
-    addRowText?: string;
+    addRowText?: string|Observable<string>;
   }
 }
 
