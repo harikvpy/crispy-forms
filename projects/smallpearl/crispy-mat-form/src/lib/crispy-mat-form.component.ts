@@ -10,6 +10,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  Optional,
   Output,
   QueryList,
   TemplateRef
@@ -286,7 +287,7 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
           type="button"
           (click)="addRow()"
         >
-          Add Row
+          {{ addRowLabel }}
         </button>
       </div>
     </div>
@@ -340,10 +341,15 @@ export class CrispyMatFormArrayComponent implements OnInit {
 
   control!: FormArray;
   crispies: CrispyForm[] = [];
+  addRowLabel = 'Add Row';
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef,private injector: Injector) {}
 
   ngOnInit() {
+    const crispyConfig = this.injector.get(CRISPY_FORMS_CONFIG_PROVIDER);
+    if (crispyConfig && crispyConfig?.groupArrayConfig && crispyConfig?.groupArrayConfig?.addRowText) {
+      this.addRowLabel = crispyConfig?.groupArrayConfig?.addRowText;
+    }
     this.control = this.group.controls[this.fieldName] as FormArray;
     // Don't add the row directly or else you will get
     // ExpressionChangedAfterItHasBeenCheckedError. Add it via a timeout so

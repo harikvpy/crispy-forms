@@ -16,6 +16,9 @@ import { MatInputModule } from '@angular/material/input';
  */
 const CrispyConfig: CrispyFormsConfig = {
   labelFn: (code: string) => code.toUpperCase(),
+  groupArrayConfig: {
+    addRowText: 'ADD ROW'
+  }
 };
 
 @NgModule({
