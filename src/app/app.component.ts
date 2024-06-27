@@ -207,8 +207,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       crispyFormGroupArray(
         'items', [
           crispyTextField('name', '', Validators.required, 'w-40 pe-2', 'Name'),
-          crispyNumberField('qty', 1, Validators.required, 'w-20 pe-2', 'Quantity'),
-          crispyNumberField('unitPrice', 1, Validators.required, 'w-20 pe-2', 'Unit Price'),
+          crispyNumberField('qty', 0, Validators.required, 'w-20 pe-2', 'Quantity'),
+          crispyNumberField('unitPrice', 0, Validators.required, 'w-20 pe-2', 'Unit Price'),
           crispyTextField('total', '', undefined, 'w-20', 'Total'),
         ],
         undefined,
