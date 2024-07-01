@@ -11,6 +11,8 @@ import { interval, map, startWith } from 'rxjs';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
+import { provideDateFnsAdapter } from "@angular/material-date-fns-adapter";
+import { MAT_DATE_FORMATS, MatDateFormats, provideNativeDateAdapter } from '@angular/material/core';
 
 /**
  * CrispyConfig demonstrator that converts all labels to uppercase.
@@ -24,6 +26,18 @@ const CrispyConfig: CrispyFormsConfig = {
     )
   }
 };
+
+const MY_DATE_FORMATS: MatDateFormats = {
+  parse: {
+    dateInput: 'YYYY/MM/DD'
+  },
+  display: {
+    dateInput: 'YYYY/MM/DD',
+    monthYearLabel: 'MM/YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM/YYYY'
+  }
+}
 
 @NgModule({
   declarations: [AppComponent],
@@ -41,22 +55,28 @@ const CrispyConfig: CrispyFormsConfig = {
     errorTailorImports,
   ],
   providers: [
+    provideNativeDateAdapter(MY_DATE_FORMATS),
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
     { provide: CRISPY_FORMS_CONFIG_PROVIDER, useValue: CrispyConfig },
     provideErrorTailorConfig({
       blurPredicate(element) {
-        return element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'MAT-SELECT';
+        return (
+          element.tagName === 'INPUT' ||
+          element.tagName === 'SELECT' ||
+          element.tagName === 'MAT-SELECT'
+        );
       },
       controlErrorComponent: MatErrorTailorControlErrorComponent,
       errors: {
-          useValue: {
-            required: 'This field is required',
-            pattern: "Doesn't match the required pattern",
-            minlength: ({ requiredLength, actualLength }) => 
-                        `Expect ${requiredLength} but got ${actualLength}`,
-            invalidAddress: error => `Address isn't valid`
-          }
-        }
-      }),
+        useValue: {
+          required: 'This field is required',
+          pattern: "Doesn't match the required pattern",
+          minlength: ({ requiredLength, actualLength }) =>
+            `Expect ${requiredLength} but got ${actualLength}`,
+          invalidAddress: (error) => `Address isn't valid`,
+        },
+      },
+    }),
   ],
   bootstrap: [AppComponent],
 })

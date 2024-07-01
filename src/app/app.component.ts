@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -11,6 +11,7 @@ import {
   CrispyMatFormComponent,
   crispyCheckboxField,
   crispyCustomComponentField,
+  crispyDateField,
   crispyDateRangeField,
   crispyFormGroup,
   crispyFormGroupArray,
@@ -66,6 +67,12 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
         Members: <span *ngFor="let m of control.value">{{ m }}&nbsp;</span>
     </ng-template>
 
+    <ng-template crispyFieldName="lineTotal" let-formGroup="formGroup">
+      <div style="text-align: right;">
+        <h3>{{ getLineTotal(formGroup) }}</h3>
+      </div>
+    </ng-template>
+
     <ng-template crispyFieldName="total" let-control="control" let-field="field" let-crispy="crispy" let-formGroup="formGroup">
       <div style="width: 100% !important; display: flex; justify-content: end; padding: 0.4em 1em;">
         <h2>Total: {{ total|async }}</h2>
@@ -75,6 +82,7 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
     <!-- <router-outlet></router-outlet> -->
   `,
   styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit, AfterViewInit {
   cffs!: CrispyFormField[];
@@ -127,6 +135,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.cffs = [
       crispyTextField('firstName', 'Peter', [Validators.required], 'pe-2 w-50'),
       crispyTextField('lastName', 'Parker', undefined, 'w-50'),
+      crispyDateField('date', new Date(), undefined, 'w-100'),
       crispyDateRangeField(
         'publishedOn',
         {
@@ -209,9 +218,13 @@ export class AppComponent implements OnInit, AfterViewInit {
           crispyTextField('name', '', Validators.required, 'w-40 pe-2', 'Name'),
           crispyNumberField('qty', 0, Validators.required, 'w-20 pe-2', 'Quantity'),
           crispyNumberField('unitPrice', 0, Validators.required, 'w-20 pe-2', 'Unit Price'),
-          crispyTextField('total', '', undefined, 'w-20', 'Total'),
+          // crispyTextField('total', '', undefined, 'w-20', 'Total'),
+          crispyTemplateField('lineTotal', 0, undefined, 'w-20')
         ],
-        undefined,
+        [
+          { name: 'Management Fee', qty: 30, unitPrice: 100, lineTotal: 3000 },
+          { name: 'Carpark Fee', qty: 1, unitPrice: 900, lineTotal: 900 },
+        ],
         undefined,
         undefined,
         "Items"
@@ -248,7 +261,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   onFormGroupAdded(event: any) {
     const fgEvent: {field: string, form: FormGroup} = event as {field: string, form: FormGroup};
     // console.log(`form group added - field: ${fgEvent.field}, group: ${fgEvent.form}`);
-    fgEvent.form.controls['total'].disable();
+    // fgEvent.form.controls['total'].disable();
   }
 
   onFormGroupRemoved(event: any) {
@@ -266,5 +279,14 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.crispyComponent.form.value
       )}`
     );
+  }
+
+  getLineTotal(form: FormGroup) {
+    const qty = form.controls['qty'].value;
+    const unitPrice = form.controls['unitPrice'].value;
+    if (qty !== undefined && unitPrice !== undefined) {
+      return (Math.round(qty*unitPrice * 100) / 100).toFixed(2);
+    }
+    return (Math.round(0 * 100) / 100).toFixed(2);
   }
 }
