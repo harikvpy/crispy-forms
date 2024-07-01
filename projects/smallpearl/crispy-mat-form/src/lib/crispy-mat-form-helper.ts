@@ -6,7 +6,7 @@ import {
   AsyncValidatorFn,
   FormArray,
 } from '@angular/forms';
-import { CrispyFieldType, CrispyFieldProps, CrispyForm, SelectOption } from './crispy-types';
+import { CrispyFieldType, CrispyFieldProps, CrispyForm, SelectOption, CrispyFormField } from './crispy-types';
 import { Observable } from 'rxjs';
 
 type TRANSLATE_FN = (code: string, args?: any) => string;
@@ -79,17 +79,6 @@ export function getCrispyFormHelper(
  *  CF('publicationRange', 'daterange', )
  * ]
  */
-export interface CrispyFormField {
-  name: string;
-  type: CrispyFieldType;
-  initial: any;
-  validators?: ValidatorFn | ValidatorFn[];
-  label?: string;
-  hint?: string;
-  cssClass?: string;
-  children?: CrispyFormField[];
-  options?: Partial<CrispyFieldProps>;
-}
 
 export function crispyTextField(
   name: string,
@@ -244,6 +233,7 @@ export function crispyTemplateField(
   cssClass?: string,
   label?: string,
   hint?: string,
+  context?: any
 ): CrispyFormField {
   return {
     type: 'template',
@@ -252,7 +242,8 @@ export function crispyTemplateField(
     validators,
     label,
     hint,
-    cssClass
+    cssClass,
+    context
   };
 
 }

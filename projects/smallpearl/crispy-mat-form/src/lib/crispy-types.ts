@@ -1,6 +1,5 @@
 import { FormGroup, ValidatorFn } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { CrispyFormField } from './crispy-mat-form-helper';
 
 export type CrispyFieldType =
   | 'number'
@@ -21,6 +20,38 @@ export type CrispyFieldType =
 export interface SelectOption {
   label: string;
   value: string | number;
+}
+
+export interface DateRangeOptions {
+  beginRangeLabel?: string; // defaults to 'Start'
+  beginRangeFormControlName: string;
+  beginRangeValidators?: ValidatorFn | ValidatorFn[];
+  endRangeLabel?: string; // defaults to 'End'
+  endRangeFormControlName: string;
+  endRangeValidators?: ValidatorFn | ValidatorFn[];
+}
+
+export interface CustomControlOptions {
+  component: any; // The custom component class object that will be dynamically created.
+  context?: any;
+}
+
+export interface TemplateControlOptions {
+  context?: any;
+}
+
+export interface CrispyFormField {
+  name: string;
+  type: CrispyFieldType;
+  initial?: any;
+  validators?: ValidatorFn | ValidatorFn[];
+  label?: string;
+  hint?: string;
+  cssClass?: string;
+  children?: CrispyFormField[];
+  options?: Partial<CrispyFieldProps>;
+  optionsNew?: SelectOption|DateRangeOptions|CustomControlOptions|TemplateControlOptions;
+  context?: any;
 }
 
 export interface CrispyFieldProps {

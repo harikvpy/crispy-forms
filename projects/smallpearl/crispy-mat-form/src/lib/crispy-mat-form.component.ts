@@ -4,55 +4,23 @@ import {
   ChangeDetectorRef,
   Component,
   ContentChildren,
-  Directive,
   EventEmitter,
   Injector,
   Input,
   OnDestroy,
   OnInit,
-  Optional,
   Output,
-  QueryList,
-  TemplateRef
+  QueryList
 } from '@angular/core';
 import {
   FormArray,
   FormGroup
 } from '@angular/forms';
-import { CrispyFormField, getCrispyFormHelper, getFormGroup } from './crispy-mat-form-helper';
-import { CrispyFieldProps, CrispyForm } from './crispy-types';
-import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
 import { Observable, of } from 'rxjs';
-
-@Directive({
-  selector: 'ng-template.[crispyFieldName]',
-})
-export class CrispyFieldNameDirective implements OnInit, OnDestroy {
-  static _crispyFieldTemplates: Array<CrispyFieldNameDirective> = [];
-
-  @Input()
-  crispyFieldName!: string;
-
-  constructor(public templateRef: TemplateRef<any>) {}
-
-  ngOnInit(): void {
-    CrispyFieldNameDirective._crispyFieldTemplates.push(this);
-    // console.log(`CrispyFieldNameDirective.ngOnInit - field: ${this.crispyFieldName},_crispyFieldTemplates.length: ${CrispyFieldNameDirective._crispyFieldTemplates.length}`);
-  }
-
-  ngOnDestroy(): void {
-    const index = CrispyFieldNameDirective._crispyFieldTemplates.findIndex(
-      (f) => f.crispyFieldName.localeCompare(this.crispyFieldName) == 0,
-      1
-    );
-    // console.log(`CrispyFieldNameDirective.ngOnDestroy(bf) - field: ${this.crispyFieldName}, _crispyFieldTemplates.length: ${CrispyFieldNameDirective._crispyFieldTemplates.length}, index: ${index}`);
-    if (index !== -1) {
-      CrispyFieldNameDirective._crispyFieldTemplates.splice(index, 1);
-      // console.log(`CrispyFieldNameDirective.ngOnDestroy(af) - field: ${this.crispyFieldName}, _crispyFieldTemplates.length: ${CrispyFieldNameDirective._crispyFieldTemplates.length}`);
-    }
-  }
-}
-
+import { getCrispyFormHelper, getFormGroup } from './crispy-mat-form-helper';
+import { CrispyFormField, CrispyFieldProps, CrispyForm } from './crispy-types';
+import { CrispyFieldNameDirective } from './field-name.directive';
+import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
 
 /**
  * `<crispy-mat-form>` is a component that makes creating & rendering angular
@@ -173,6 +141,7 @@ export class CrispyFieldNameDirective implements OnInit, OnDestroy {
         *ngIf="f.type === 'groupArray'"
         [label]="f.label"
         [group]="crispy.form"
+        [initial]="f.field.initial"
         [fieldName]="f.formControlName"
         [crispy]="getChildrenAsCrispyForm(crispy, f.formControlName)"
         (formGroupAdded)="formGroupAdded.emit($event)"
@@ -286,7 +255,7 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
           mat-raised-button
           color="primary"
           type="button"
-          (click)="addRow()"
+          (click)="addRow(undefined)"
         >
           {{ addRowLabel|async }}
         </button>
@@ -335,6 +304,7 @@ export class CrispyMatFormArrayComponent implements OnInit {
   @Input({ required: true }) group!: FormGroup;
   @Input({ required: true }) fieldName!: string;
   @Input({ required: true }) crispy!: CrispyForm;
+  @Input({ required: false }) initial!: Array<any>;
 
   @Output() formGroupAdded = new EventEmitter<{
     field: string;
@@ -369,14 +339,29 @@ export class CrispyMatFormArrayComponent implements OnInit {
     // timer routine) picks it up. This will avoid the error as well.
     // Adding rows when user clicks the 'Add Row' button is okay as the change
     // detect algo loop is run after every user input.
-    setTimeout(() => this.addRow(true));
+    setTimeout(() => {
+      if (this.initial && Array.isArray(this.initial)) {
+        this.initial.forEach(values => {
+          this.addRow(values, true);
+        });
+      }
+      this.addRow(undefined, true);
+    });
   }
 
-  addRow(emit = true) {
+  addRow(initial: any, emit = true) {
     const crispy: CrispyForm = {
       ...this.crispy,
       form: getFormGroup(this.crispy.fields.map((f) => f.field)),
     };
+    // set initial value if it was provided
+    if (initial) {
+      for (const key in initial) {
+        if (crispy.form.controls[key] && initial[key] !== undefined) {
+          crispy.form.controls[key].setValue(initial[key]);
+        }
+      }
+    }
     this.control.push(crispy.form);
     this.crispies.push(crispy);
     if (emit) {

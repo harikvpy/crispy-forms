@@ -1,9 +1,27 @@
-import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, Directive, ElementRef, Input, OnInit, ViewChild, ViewContainerRef, forwardRef } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, UntypedFormGroup } from "@angular/forms";
-import { MatFormField } from "@angular/material/form-field";
-import { Observable, of } from "rxjs";
-import { CrispyFieldNameDirective } from "./crispy-mat-form.component";
-import { CrispyFieldProps, CrispyForm, SelectOption } from "./crispy-types";
+import {
+  AfterContentInit,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ComponentRef,
+  Directive,
+  ElementRef,
+  Input,
+  OnInit,
+  ViewChild,
+  ViewContainerRef,
+  forwardRef,
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  UntypedFormGroup,
+} from '@angular/forms';
+import { MatFormField } from '@angular/material/form-field';
+import { Observable, of } from 'rxjs';
+import { CrispyFieldNameDirective } from './field-name.directive';
+import { CrispyFieldProps, CrispyForm, SelectOption } from './crispy-types';
 
 @Component({
   selector: 'app-crispy-field-input',
@@ -39,7 +57,12 @@ import { CrispyFieldProps, CrispyForm, SelectOption } from "./crispy-types";
         [formControlName]="field.formControlName"
         [controlErrorAnchor]="errorAnchor"
       ></textarea>
-      <mat-error><ng-template controlErrorAnchor #errorAnchor="controlErrorAnchor"></ng-template></mat-error>
+      <mat-error
+        ><ng-template
+          controlErrorAnchor
+          #errorAnchor="controlErrorAnchor"
+        ></ng-template
+      ></mat-error>
     </mat-form-field>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,7 +93,12 @@ export class CrispyInputFieldTypeComponent implements OnInit {
           >{{ option.label }}</mat-option
         >
       </mat-select>
-      <mat-error><ng-template controlErrorAnchor #errorAnchor="controlErrorAnchor"></ng-template></mat-error>
+      <mat-error
+        ><ng-template
+          controlErrorAnchor
+          #errorAnchor="controlErrorAnchor"
+        ></ng-template
+      ></mat-error>
     </mat-form-field>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -102,12 +130,16 @@ export class CrispySelectFieldComponent implements OnInit {
       <mat-date-range-input [formGroup]="rangeFormGroup" [rangePicker]="picker">
         <input
           matStartDate
-          [formControlName]="field.dateRangeOptions?.beginRangeFormControlName || ''"
+          [formControlName]="
+            field.dateRangeOptions?.beginRangeFormControlName || ''
+          "
           [placeholder]="field.dateRangeOptions?.beginRangeLabel ?? 'Start'"
         />
         <input
           matEndDate
-          [formControlName]="field.dateRangeOptions?.endRangeFormControlName || ''"
+          [formControlName]="
+            field.dateRangeOptions?.endRangeFormControlName || ''
+          "
           [placeholder]="field.dateRangeOptions?.endRangeLabel ?? 'End'"
         />
       </mat-date-range-input>
@@ -284,20 +316,21 @@ export class CrispyCustomFieldComponent
 @Component({
   selector: 'app-crispy-field-template',
   template: `
-  <div [class]="'' + field.cssClass ?? (crispy.fieldCssClass ?? '')">
-    <ng-template crispyDynamicControl></ng-template>
-  </div>
+    <div [class]="'' + field.cssClass || crispy.fieldCssClass">
+      <ng-template crispyDynamicControl></ng-template>
+    </div>
   `,
-  styles: [`
-    div {
-      display: inline-flex;
-      flex-direction: column;
-    }
-  `],
+  styles: [
+    `
+      div {
+        display: inline-flex;
+        flex-direction: column;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CrispyTemplateFieldComponent implements OnInit
-{
+export class CrispyTemplateFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
   @Input() field!: CrispyFieldProps;
 
@@ -316,12 +349,15 @@ export class CrispyTemplateFieldComponent implements OnInit
     );
     const templateRef = fnd ? fnd.templateRef : undefined;
     if (templateRef) {
+      const userContext = this.field.field.context ?? {};
+      // console.log(`CrispyTemplateFieldComponent - userContext: ${JSON.stringify(userContext)}`);
       const context = {
+        ...userContext,
         crispy: this.crispy,
         field: this.field,
         control: this.crispy.form.controls[this.field.formControlName],
-        formGroup: this.crispy.form
-      }
+        formGroup: this.crispy.form,
+      };
       const view = this.componentLocation.viewContainerRef.createEmbeddedView(
         templateRef,
         context

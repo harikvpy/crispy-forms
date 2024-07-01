@@ -22,10 +22,10 @@ import {
   CrispyTemplateFieldComponent,
 } from './crispy-internal-components';
 import {
-  CrispyFieldNameDirective,
   CrispyMatFormComponent,
   CrispyMatFormArrayComponent,
 } from './crispy-mat-form.component';
+import { CrispyFieldNameDirective } from './field-name.directive';
 
 @NgModule({
   declarations: [
