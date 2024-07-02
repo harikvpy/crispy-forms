@@ -17,8 +17,8 @@ import {
   FormGroup
 } from '@angular/forms';
 import { Observable, of } from 'rxjs';
-import { getCrispyFormHelper, getFormGroup } from './crispy-mat-form-helper';
-import { CrispyFormField, CrispyFieldProps, CrispyForm } from './crispy-types';
+import { buildCrispyForm, getFormGroup } from './crispy-mat-form-helper';
+import { CrispyFormField, CrispyForm } from './crispy-types';
 import { CrispyFieldNameDirective } from './field-name.directive';
 import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
 
@@ -31,16 +31,16 @@ import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
  * 
  * To illustrate with an example:
  * 
- * `<crispy-mat-form [cffs]="cffs"> </crispy-mat-form>`
+ * `<crispy-mat-form [fields]="fields"> </crispy-mat-form>`
  * 
- * where `cffs` is defined as:
+ * where `fields` is defined as:
  * 
  * ```
  *   @ViewChild(CrispyFormComponent) crispyForm: CrispyFormComponent;
  *   ...
  *   ...
  *   ngOnInit() {
- *     this.cffs = [
+ *     this.fields = [
  *       crispyTextField('firstName', 'Peter', Validators.required, 'pe-2 w-50'),
  *       crispyTextField('lastName', 'Parker', Validators.required, 'w-50'),
  *     ]
@@ -64,7 +64,7 @@ import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
  * ```
  * interface CrispyForm {
  *    form: FormGroup;
- *    fields: CrispyFieldProps[];
+ *    fields: CrispyFormField[];
  * }
  * ```
  * Whereas `form` is the obvious angular's reactive form FormGroup object,
@@ -128,22 +128,22 @@ import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
       <ng-container *ngIf="f.type == 'custom'" [formGroup]="crispy.form">
         <app-crispy-field-custom
           [crispy]="crispy"
-          [formControlName]="f.formControlName"
+          [formControlName]="f.name"
           [field]="f"
         ></app-crispy-field-custom>
       </ng-container>
       <ng-container *ngIf="f.type === 'group'">
         <crispy-mat-form
-          [crispy]="getChildrenAsCrispyForm(crispy, f.formControlName)"
+          [crispy]="getChildrenAsCrispyForm(crispy, f.name)"
         ></crispy-mat-form>
       </ng-container>
       <app-crispy-mat-form-array
         *ngIf="f.type === 'groupArray'"
-        [label]="f.label"
+        [label]="f.label ?? ''"
         [group]="crispy.form"
-        [initial]="f.field.initial"
-        [fieldName]="f.formControlName"
-        [crispy]="getChildrenAsCrispyForm(crispy, f.formControlName)"
+        [initial]="f.initial"
+        [fieldName]="f.name"
+        [crispy]="getChildrenAsCrispyForm(crispy, f.name)"
         (formGroupAdded)="formGroupAdded.emit($event)"
         (formGroupRemoved)="formGroupRemoved.emit($event)"
       ></app-crispy-mat-form-array>
@@ -162,7 +162,7 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
   fieldTemplates!: QueryList<CrispyFieldNameDirective>;
 
   @Input({ required: false }) crispy!: CrispyForm;
-  @Input({ required: false }) cffs!: CrispyFormField[];
+  @Input({ required: false }) fields!: CrispyFormField[];
   @Input({ required: false }) cssClass!: string;
   @Input({ required: false }) multi = false;
 
@@ -180,20 +180,20 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
   constructor(private injector: Injector) {}
 
   ngOnInit(): void {
-    if (this.cffs && !this.crispy) {
-      this.crispy = this.createCrispyFormFromFields(this.cffs, this.cssClass);
+    if (this.fields && !this.crispy) {
+      this.crispy = this.createCrispyFormFromFields(this.fields, this.cssClass);
     }
   }
 
   ngAfterViewInit(): void {
-    // console.log(`CrispyMatFormComponent.ngOnInit - field[0].name: ${this.crispy.fields.at(0)?.formControlName}`);  
+    // console.log(`CrispyMatFormComponent.ngOnInit - field[0].name: ${this.crispy.fields.at(0)?.name}`);  
   }
 
   ngOnDestroy(): void {}
 
   getChildrenAsCrispyForm(crispy: CrispyForm, fieldName: string): CrispyForm {
-    const field: CrispyFieldProps|undefined = crispy.fields.find(
-      (cf) => cf.formControlName == fieldName
+    const field: CrispyFormField|undefined = crispy.fields.find(
+      (cf) => cf.name == fieldName
     );
     const crispyForm = {
       form: crispy.form.controls[fieldName] as FormGroup,
@@ -209,12 +209,12 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
 
   /**
    * Creates CrispyForm object from array of CrispyFormField objects passed
-   * as @Input() cffs.
+   * as @Input() fields.
    *
    * @returns CrispyForm
    */
   private createCrispyFormFromFields(
-    cffs: CrispyFormField[],
+    fields: CrispyFormField[],
     defaultCssClass?: string
   ): CrispyForm {
     const config = this.injector.get(CRISPY_FORMS_CONFIG_PROVIDER, null);
@@ -222,7 +222,7 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
     if (!defaultCssClass) {
       defaultCssClass = config && config.defaultCssClass ? config.defaultCssClass : '';
     }
-    return getCrispyFormHelper(cffs, labelFn, defaultCssClass);
+    return buildCrispyForm(fields, labelFn, defaultCssClass);
   }
 }
 
@@ -352,7 +352,7 @@ export class CrispyMatFormArrayComponent implements OnInit {
   addRow(initial: any, emit = true) {
     const crispy: CrispyForm = {
       ...this.crispy,
-      form: getFormGroup(this.crispy.fields.map((f) => f.field)),
+      form: getFormGroup(this.crispy.fields),
     };
     // set initial value if it was provided
     if (initial) {

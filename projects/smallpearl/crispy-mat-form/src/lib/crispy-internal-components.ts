@@ -21,7 +21,15 @@ import {
 import { MatFormField } from '@angular/material/form-field';
 import { Observable, of } from 'rxjs';
 import { CrispyFieldNameDirective } from './field-name.directive';
-import { CrispyFieldProps, CrispyForm, SelectOption } from './crispy-types';
+import {
+  CrispyFormField,
+  CrispyForm,
+  SelectOptions,
+  SelectOption,
+  DateRangeOptions,
+  CustomControlOptions,
+  TemplateControlOptions,
+} from './crispy-types';
 
 @Component({
   selector: 'app-crispy-field-input',
@@ -37,7 +45,7 @@ import { CrispyFieldProps, CrispyForm, SelectOption } from './crispy-types';
         [type]="field.type"
         matInput
         placeholder="{{ field.label }}"
-        [formControlName]="field.formControlName"
+        [formControlName]="field.name"
         [controlErrorAnchor]="errorAnchor"
       />
       <!-- number type has to specified as a literal during initial declaration. Or else input treats it like a
@@ -47,14 +55,14 @@ import { CrispyFieldProps, CrispyForm, SelectOption } from './crispy-types';
         type="number"
         matInput
         placeholder="{{ field.label }}"
-        [formControlName]="field.formControlName"
+        [formControlName]="field.name"
         [controlErrorAnchor]="errorAnchor"
       />
       <textarea
         *ngIf="field.type == 'textarea'"
         matInput
         placeholder="{{ field.label }}"
-        [formControlName]="field.formControlName"
+        [formControlName]="field.name"
         [controlErrorAnchor]="errorAnchor"
       ></textarea>
       <mat-error
@@ -69,7 +77,7 @@ import { CrispyFieldProps, CrispyForm, SelectOption } from './crispy-types';
 })
 export class CrispyInputFieldTypeComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFieldProps;
+  @Input() field!: CrispyFormField;
   constructor() {}
   ngOnInit() {}
 }
@@ -84,7 +92,7 @@ export class CrispyInputFieldTypeComponent implements OnInit {
       <mat-label>{{ field.label }}</mat-label>
       <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
       <mat-select
-        [formControlName]="field.formControlName"
+        [formControlName]="field.name"
         [controlErrorAnchor]="errorAnchor"
       >
         <mat-option
@@ -105,15 +113,16 @@ export class CrispyInputFieldTypeComponent implements OnInit {
 })
 export class CrispySelectFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFieldProps;
+  @Input() field!: CrispyFormField;
   constructor() {}
   ngOnInit() {}
 
   get options(): Observable<SelectOption[]> {
-    if (Array.isArray(this?.field?.selectOptions?.options)) {
-      return of(this?.field?.selectOptions?.options || []);
-    } else if (this?.field?.selectOptions?.options instanceof Observable) {
-      return this.field.selectOptions.options;
+    const option = this?.field?.options as SelectOptions;
+    if (Array.isArray(option.options)) {
+      return of(option.options || []);
+    } else if (option.options instanceof Observable) {
+      return option.options;
     }
     return of([]);
   }
@@ -131,16 +140,16 @@ export class CrispySelectFieldComponent implements OnInit {
         <input
           matStartDate
           [formControlName]="
-            field.dateRangeOptions?.beginRangeFormControlName || ''
+            options.beginRangeFormControlName || ''
           "
-          [placeholder]="field.dateRangeOptions?.beginRangeLabel ?? 'Start'"
+          [placeholder]="options.beginRangeLabel ?? 'Start'"
         />
         <input
           matEndDate
           [formControlName]="
-            field.dateRangeOptions?.endRangeFormControlName || ''
+            options.endRangeFormControlName || ''
           "
-          [placeholder]="field.dateRangeOptions?.endRangeLabel ?? 'End'"
+          [placeholder]="options.endRangeLabel ?? 'End'"
         />
       </mat-date-range-input>
       <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
@@ -155,12 +164,18 @@ export class CrispySelectFieldComponent implements OnInit {
 })
 export class CrispyDateRangeFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFieldProps;
+  @Input() field!: CrispyFormField;
+  options!: DateRangeOptions;
+
   constructor() {}
-  ngOnInit() {}
+
+  ngOnInit() {
+    this.options = this.field.options as DateRangeOptions;
+  }
+
   get rangeFormGroup() {
     return this.crispy.form.controls[
-      this.field.formControlName
+      this.field.name
     ] as UntypedFormGroup;
   }
 }
@@ -175,7 +190,7 @@ export class CrispyDateRangeFieldComponent implements OnInit {
       <mat-label>{{ field.label }}</mat-label>
       <input
         matInput
-        [formControlName]="field.formControlName"
+        [formControlName]="field.name"
         [matDatepicker]="picker"
       />
       <mat-datepicker-toggle
@@ -190,7 +205,7 @@ export class CrispyDateRangeFieldComponent implements OnInit {
 })
 export class CrispyDateFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFieldProps;
+  @Input() field!: CrispyFormField;
   constructor() {}
   ngOnInit() {}
 }
@@ -201,7 +216,7 @@ export class CrispyDateFieldComponent implements OnInit {
     <span [formGroup]="crispy.form">
       <mat-checkbox
         [class]="field.cssClass ?? (crispy.fieldCssClass ?? '')"
-        [formControlName]="field.formControlName"
+        [formControlName]="field.name"
       >
         {{ field.label }}
         <small *ngIf="field.hint"><br />{{ field.hint }}</small>
@@ -212,7 +227,7 @@ export class CrispyDateFieldComponent implements OnInit {
 })
 export class CrispyCheckboxComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFieldProps;
+  @Input() field!: CrispyFormField;
   constructor() {}
   ngOnInit() {}
 }
@@ -251,7 +266,9 @@ export class CrispyCustomFieldComponent
   implements OnInit, AfterViewInit, AfterContentInit, ControlValueAccessor
 {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFieldProps;
+  @Input() field!: CrispyFormField;
+
+  options!: CustomControlOptions;
 
   @ViewChild(CrispyDynamicControlDirective, { static: true })
   componentLocation!: CrispyDynamicControlDirective;
@@ -267,12 +284,13 @@ export class CrispyCustomFieldComponent
   ) {}
 
   ngOnInit() {
+    this.options = this.field.options as CustomControlOptions;
     if (this.componentLocation) {
       // TODO: Howe can we specify that the component returend by createComponent
       // implements FormFieldControl interface?
       this.component =
         this.componentLocation.viewContainerRef.createComponent<any>(
-          this?.field?.customControlOptions?.component
+          this.options.component
         );
       const input = this._elementRef.nativeElement.querySelector('input');
       input.remove();
@@ -280,7 +298,7 @@ export class CrispyCustomFieldComponent
         // We're assuming that the component is an instance of MatFormField
         this.matFormField._control = this.component.instance;
         this.component.instance.ngControl =
-          this.crispy.form.controls[this.field.formControlName];
+          this.crispy.form.controls[this.field.name];
       }
     }
   }
@@ -332,7 +350,8 @@ export class CrispyCustomFieldComponent
 })
 export class CrispyTemplateFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFieldProps;
+  @Input() field!: CrispyFormField;
+  options!: TemplateControlOptions;
 
   @ViewChild(CrispyDynamicControlDirective, { static: true })
   componentLocation!: CrispyDynamicControlDirective;
@@ -340,22 +359,23 @@ export class CrispyTemplateFieldComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
+    this.options = this.field.options as TemplateControlOptions;
     this.loadTemplate();
   }
 
   private loadTemplate() {
     const fnd = CrispyFieldNameDirective._crispyFieldTemplates.find(
-      (ft) => ft.crispyFieldName.localeCompare(this.field.formControlName) == 0
+      (ft) => ft.crispyFieldName.localeCompare(this.field.name) == 0
     );
     const templateRef = fnd ? fnd.templateRef : undefined;
     if (templateRef) {
-      const userContext = this.field.field.context ?? {};
+      const userContext = this.options?.context ?? {};
       // console.log(`CrispyTemplateFieldComponent - userContext: ${JSON.stringify(userContext)}`);
       const context = {
         ...userContext,
         crispy: this.crispy,
         field: this.field,
-        control: this.crispy.form.controls[this.field.formControlName],
+        control: this.crispy.form.controls[this.field.name],
         formGroup: this.crispy.form,
       };
       const view = this.componentLocation.viewContainerRef.createEmbeddedView(

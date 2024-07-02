@@ -1,3 +1,31 @@
+/**
+ * Crispy Forms is a forms engine that combines form definition and its layout
+ * in a single declaration. It layers over the Angular native reactive forms
+ * and integartes a layout engine which arranges the form's controls as per its
+ * definition in the CrispyFormField object.
+ * 
+ * Typically there's a one-to-one mapping between the reactive form field
+ * and it's layout definition. Therefore, given a layout definition, it's
+ * possible to generate the reactive form control corresponding to that
+ * and then collect all these controls into a FormGroup.
+ *
+ * The FormGroup generated together with the CrispyFields, the CrispyForm
+ * object can be composed and passed as an argument to the
+ * <crispy-mat-form> component.
+ *
+ * We should be able to derive a FormControl or FormGroup instance from an
+ * instance of this class. This will help us build a FormGroup from a
+ * collection of these objects.
+ *
+ * cf = [
+ *  CF('name', 'text),
+ *  CF('age', 'number'),
+ *  CF('password', 'password'),
+ *  CF('confirmPassword', 'password'),
+ *  CF('publicationRange', 'daterange', )
+ * ]
+ */
+
 import {
   ValidatorFn,
   FormControl,
@@ -6,7 +34,15 @@ import {
   AsyncValidatorFn,
   FormArray,
 } from '@angular/forms';
-import { CrispyFieldType, CrispyFieldProps, CrispyForm, SelectOption, CrispyFormField } from './crispy-types';
+import {
+  CrispyFieldType,
+  CrispyFormField,
+  CrispyForm,
+  SelectOption,
+  DateRangeOptions,
+  CustomControlOptions,
+  FieldContext,
+} from './crispy-types';
 import { Observable } from 'rxjs';
 
 type TRANSLATE_FN = (code: string, args?: any) => string;
@@ -25,20 +61,19 @@ const isInputFieldType = (type: CrispyFieldType) =>
   type == 'textarea';
 
 /**
- * A helper function to construct a CrispyForm object from its constituent
+ * A function to construct a CrispyForm object from its constituent
  * field definitions.
  * 
  * @param fields - Array of fields to be included in the form.
  * @param translateFn - String translation function
  * @param fieldCssClass - Global field css class, if per field css class is
- * not specified.
+ * not specified, this will be used.
  * @param validatorOrOpts - Global form validation routine.
  * @param asyncValidator - Global async form validation routine.
  * @returns CrispyForm object that can be passed to `crispy-mat-form` as
  * its `crispy` property value.
  */
-
-export function getCrispyFormHelper(
+export function buildCrispyForm(
   fields: CrispyFormField[],
   translateFn: TRANSLATE_FN,
   fieldCssClass?: string,
@@ -51,34 +86,6 @@ export function getCrispyFormHelper(
     fieldCssClass,
   };
 }
-
-/**
- * An interface that unifies the reactive form field and its CrispyFieldProps
- * interface counterpart.
- *
- * Crispy Forms engine is a reactive form layout engine which arranges the
- * form's controls as per its definition in the CrispyFieldProps object.
- * Typically there's a one-to-one mapping between the reactive form field
- * and it's layout definition. Therefore, given a layout definition, it's
- * possible to generate the reactive form control corresponding to that
- * and then collect all these controls into a FormGroup.
- *
- * The FormGroup generated together with the CrispyFields, the CrispyForm
- * object can be composed and passed as an argument to the
- * <app-crispy-mat-form> component.
- *
- * We should be able to derive a FormControl or FormGroup
- * instance from an instance of this class. This will help us
- * build a FormGroup from a collection of these objects.
- *
- * cf = [
- *  CF('name', 'text),
- *  CF('age', 'number'),
- *  CF('password', 'password'),
- *  CF('confirmPassword', 'password'),
- *  CF('publicationRange', 'daterange', )
- * ]
- */
 
 export function crispyTextField(
   name: string,
@@ -174,15 +181,13 @@ export function crispySelectField(
     label,
     hint,
     cssClass,
-    options: {
-      selectOptions: { options },
-    },
+    options: { options: options },
   };
 }
 
 export function crispyDateRangeField(
   name: string,
-  options: CrispyFieldProps['dateRangeOptions'],
+  options: DateRangeOptions,
   initial: any,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
@@ -197,15 +202,13 @@ export function crispyDateRangeField(
     label,
     hint,
     cssClass,
-    options: {
-      dateRangeOptions: options,
-    },
+    options: options
   };
 }
 
 export function crispyCustomComponentField(
   name: string,
-  options: CrispyFieldProps['customControlOptions'],
+  options: CustomControlOptions,
   initial: any,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
@@ -220,9 +223,7 @@ export function crispyCustomComponentField(
     label,
     hint,
     cssClass,
-    options: {
-      customControlOptions: options,
-    },
+    options: options
   };
 }
 
@@ -233,7 +234,7 @@ export function crispyTemplateField(
   cssClass?: string,
   label?: string,
   hint?: string,
-  context?: any
+  context?: FieldContext
 ): CrispyFormField {
   return {
     type: 'template',
@@ -243,7 +244,9 @@ export function crispyTemplateField(
     label,
     hint,
     cssClass,
-    context
+    options: {
+      context: context
+    }
   };
 
 }
@@ -304,27 +307,28 @@ function getFormControl(cf: CrispyFormField) {
     keys.find((k) => k.localeCompare('initial') == 0 && !!(cf as any)[k]) != undefined;
   if (cf.type === 'daterange') {
     // Special handler for 'daterange' field type
+    const options: DateRangeOptions = cf.options as DateRangeOptions;
     const group = new FormGroup({});
     const beginInitial =
       (hasInitial &&
-        cf.initial[(cf as any).options.dateRangeOptions.beginRangeFormControlName]) ||
+        cf.initial[options.beginRangeFormControlName]) ||
       null;
     group.addControl(
-      (cf as any).options.dateRangeOptions.beginRangeFormControlName,
+      options.beginRangeFormControlName,
       new FormControl<Date | null>(beginInitial, {
         nonNullable: !!beginInitial,
-        validators: (cf as any).options.dateRangeOptions?.beginRangeValidators,
+        validators: options?.beginRangeValidators,
       })
     );
     const endInitial =
       (hasInitial &&
-        cf.initial[(cf as any).options.dateRangeOptions.endRangeFormControlName]) ||
+        cf.initial[options.endRangeFormControlName]) ||
       null;
     group.addControl(
-      (cf as any).options.dateRangeOptions.endRangeFormControlName,
+      options.endRangeFormControlName,
       new FormControl<Date | null>(endInitial, {
         nonNullable: !!endInitial,
-        validators: (cf as any).options.dateRangeOptions?.endRangeValidators,
+        validators: options?.endRangeValidators,
       })
     );
     return group;
@@ -372,19 +376,25 @@ function getCrispyFields(
   cfs: CrispyFormField[],
   translateFn: TRANSLATE_FN,
   defaultFieldCssClass?: string
-): CrispyFieldProps[] {
-  const fields = new Array<CrispyFieldProps>();
+): CrispyFormField[] {
+  const fields = new Array<CrispyFormField>();
   cfs.forEach((cf) => {
     if (!cf.children) {
       fields.push({
-        field: cf,
+        ...cf,
         label: translateFn(cf.label ?? cf.name),
-        hint: cf.hint ? translateFn(cf.hint) : undefined,
-        formControlName: cf.name,
-        type: cf.type,
         cssClass: cf.cssClass ?? defaultFieldCssClass ?? '',
-        ...cf.options,
-      });
+        hint: cf.hint ? translateFn(cf.hint) : undefined,
+    });
+      // fields.push({
+      //   field: cf,
+      //   label: translateFn(cf.label ?? cf.name),
+      //   hint: cf.hint ? translateFn(cf.hint) : undefined,
+      //   formControlName: cf.name,
+      //   type: cf.type,
+      //   cssClass: cf.cssClass ?? defaultFieldCssClass ?? '',
+      //   ...cf.options,
+      // });
     } else {
       const childFields = getCrispyFields(
         cf.children,
@@ -392,12 +402,17 @@ function getCrispyFields(
         defaultFieldCssClass
       );
       fields.push({
-        field: cf,
+        ...cf,
         label: translateFn(cf.label ?? cf.name),
-        type: cf.type,
-        formControlName: cf.name,
-        children: childFields,
-      });
+        children: childFields
+      })
+      // fields.push({
+      //   field: cf,
+      //   label: translateFn(cf.label ?? cf.name),
+      //   type: cf.type,
+      //   formControlName: cf.name,
+      //   children: childFields,
+      // });
     }
   });
   return fields;

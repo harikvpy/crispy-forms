@@ -22,6 +22,10 @@ export interface SelectOption {
   value: string | number;
 }
 
+export interface SelectOptions {
+  options: Array<SelectOption> | Observable<SelectOption[]>;
+}
+
 export interface DateRangeOptions {
   beginRangeLabel?: string; // defaults to 'Start'
   beginRangeFormControlName: string;
@@ -31,13 +35,28 @@ export interface DateRangeOptions {
   endRangeValidators?: ValidatorFn | ValidatorFn[];
 }
 
+export type FieldContext = { [P: string]: any };
+
+/**
+ * Options specific to 'control' CrispyFieldType
+ */
 export interface CustomControlOptions {
   component: any; // The custom component class object that will be dynamically created.
-  context?: any;
+  context?: FieldContext;
 }
 
+/**
+ * Options specific to 'template' CrispyFieldType
+ */
 export interface TemplateControlOptions {
-  context?: any;
+  context?: FieldContext;
+}
+
+/**
+ * Options specific to 'groupArray' CrispyFieldType
+ */
+export interface GroupArrayOptions {
+  context?: FieldContext;
 }
 
 export interface CrispyFormField {
@@ -49,45 +68,16 @@ export interface CrispyFormField {
   hint?: string;
   cssClass?: string;
   children?: CrispyFormField[];
-  options?: Partial<CrispyFieldProps>;
-  optionsNew?: SelectOption|DateRangeOptions|CustomControlOptions|TemplateControlOptions;
-  context?: any;
-}
-
-export interface CrispyFieldProps {
-  field: CrispyFormField;
-  // Label use for the field. Wil be placed in a <mat-label> tag.
-  label: string;
-  // The field type. This controls the type of UI widget used.
-  type: CrispyFieldType;
-  // Related reactive form control's name.
-  formControlName: string;
-  // An optional hint for the field. If specified, will be placed in a <mat-hint> tag.
-  hint?: string;
-  // Additional cssClasses that will be added to the <mat-form-field> wrapper.
-  cssClass?: string;
-  /* Only for 'select' field type. Specifies the individual options. */
-  selectOptions?: {
-    options: Array<SelectOption> | Observable<SelectOption[]>;
-  };
-  /* Only for 'daterange' field type. The member should be self-explantory. */
-  dateRangeOptions?: {
-    beginRangeLabel?: string; // defaults to 'Start'
-    beginRangeFormControlName: string;
-    beginRangeValidators?: ValidatorFn | ValidatorFn[];
-    endRangeLabel?: string; // defaults to 'End'
-    endRangeFormControlName: string;
-    endRangeValidators?: ValidatorFn | ValidatorFn[];
-  };
-  /* Only for 'custom' field type. */
-  customControlOptions?: {
-    component: any; // The custom component class object that will be dynamically created.
-  };
-  children?: CrispyFieldProps[];
+  options?:
+    | SelectOptions
+    | DateRangeOptions
+    | CustomControlOptions
+    | TemplateControlOptions
+    | GroupArrayOptions;
 }
 
 export interface CrispyForm {
   form: FormGroup<any>;
-  fields: CrispyFieldProps[];
+  fields: CrispyFormField[];
   fieldCssClass?: string;
 }
