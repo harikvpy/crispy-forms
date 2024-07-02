@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { LOCALE_ID, AfterViewInit, ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -9,6 +9,7 @@ import {
 import {
   CrispyFormField,
   CrispyMatFormComponent,
+  buildCrispyForm,
   crispyCheckboxField,
   crispyCustomComponentField,
   crispyDateField,
@@ -19,7 +20,7 @@ import {
   crispyPasswordField,
   crispySelectField,
   crispyTemplateField,
-  crispyTextField,
+  crispyTextField
 } from '@smallpearl/crispy-mat-form';
 import { BehaviorSubject, of, tap } from 'rxjs';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
@@ -30,7 +31,7 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
     <h1>Crispy Form Demo</h1>
     <form [formGroup]="crispyComponent.form" (ngSubmit)="onSubmit()" errorTailor>
       <crispy-mat-form
-        [cffs]="cffs"
+        [crispy]="crispy"
         (formGroupAdded)="onFormGroupAdded($event)"
         (formGroupRemoved)="onFormGroupRemoved($event)"
       ></crispy-mat-form>
@@ -85,13 +86,39 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit, AfterViewInit {
-  cffs!: CrispyFormField[];
+  crispy = this.getCrispy();
   @ViewChild(CrispyMatFormComponent, { static: true })
   crispyComponent!: CrispyMatFormComponent;
   total = new BehaviorSubject<number>(0);
   constructor() {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ngAfterViewInit(): void {
+    const items: FormArray = this.crispyComponent.form.controls['items'] as FormArray;
+    if (items) {
+      items.valueChanges.pipe(
+        tap((values: { name: string; qty: number; unitPrice: number; total: number} []) => {
+          let invoiceTotal = 0;
+          values.forEach((value, index: number) => {
+            try {
+              if (value.qty !== undefined && value.unitPrice !== undefined) {
+                const total = value.qty * value.unitPrice;
+                invoiceTotal += total;
+                items.at(index).get('total')?.setValue(total, {emitEvent: false, onlySelf: true});
+              }
+            } catch (error) {
+              
+            }
+          })
+          this.total.next(invoiceTotal);
+          // console.log(`items changed: ${JSON.stringify(values)}`);
+        })
+      ).subscribe();
+    }
+  }
+
+  getCrispy() {
     /**
      * Check if the end date in date range is within this month. If not
      * set error state in the control. Otherwise, clear the error.
@@ -106,12 +133,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
       return null;
     };
-    /**
-     * Compare the two password and if they don't match set error
-     * on the confirmPassword control.
-     * @param fg
-     * @returns
-     */
     const matchPasswords = (fg: FormGroup<any>): ValidationErrors | null => {
       let password = undefined;
       let confirmPassword = undefined;
@@ -132,7 +153,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       fg.controls['confirmPassword'].setErrors({ passwordMismatch: true });
       return null;
     };
-    this.cffs = [
+    const fields: CrispyFormField[] = [
       crispyTextField('firstName', 'Peter', [Validators.required], 'pe-2 w-50'),
       crispyTextField('lastName', 'Parker', undefined, 'w-50'),
       crispyDateField('date', new Date(), undefined, 'w-100'),
@@ -229,35 +250,25 @@ export class AppComponent implements OnInit, AfterViewInit {
         undefined,
         "Items"
       ),
-      crispyTemplateField('total', 0, undefined, 'w-100')
+      {
+        type: 'template',
+        name: 'total',
+        cssClass: 'w-100',
+        initial: 0,
+        options: {
+          context: { customers: []}
+        }
+      }
     ];
+    // const TXFN = (code: string, args: any) => code.toUpperCase();
+    // const crispy = {
+    //   fields,
+    //   translateFn: TXFN,
+    //   template: undefined
+    // }
+    return buildCrispyForm(fields, (code: string, args: any) => code.toUpperCase());
   }
-
-  ngAfterViewInit(): void {
-    const items: FormArray = this.crispyComponent.form.controls['items'] as FormArray;
-    if (items) {
-      items.valueChanges.pipe(
-        tap((values: { name: string; qty: number; unitPrice: number; total: number} []) => {
-          let invoiceTotal = 0;
-          values.forEach((value, index: number) => {
-            try {
-              if (value.qty !== undefined && value.unitPrice !== undefined) {
-                const total = value.qty * value.unitPrice;
-                invoiceTotal += total;
-                // const control: FormControl = items.at(index).get('total') as FormControl;
-                items.at(index).get('total')?.setValue(total, {emitEvent: false, onlySelf: true});
-              }
-            } catch (error) {
-              
-            }
-          })
-          this.total.next(invoiceTotal);
-          // console.log(`items changed: ${JSON.stringify(values)}`);
-        })
-      ).subscribe();
-    }
-  }
-
+  
   onFormGroupAdded(event: any) {
     const fgEvent: {field: string, form: FormGroup} = event as {field: string, form: FormGroup};
     // console.log(`form group added - field: ${fgEvent.field}, group: ${fgEvent.form}`);
