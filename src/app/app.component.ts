@@ -13,6 +13,7 @@ import {
   CrispyMatFormComponent,
   CrispyPassword,
   CrispyRow,
+  CrispySelect,
   CrispyText,
   buildCrispyForm,
   crispyCheckboxField,
@@ -165,9 +166,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           CrispyText('lastName', 'Parker', undefined, undefined, 'Last name'),
         ]
       ),
-      // crispyTextField('firstName', 'Peter', [Validators.required], 'pe-2 w-50'),
-      // crispyTextField('lastName', 'Parker', undefined, 'w-50'),
-      CrispyDate('date', new Date(), undefined, 'w-100'),
+      CrispyDate('date', new Date(), undefined, 'b-red'),
       crispyDateRangeField(
         'publishedOn',
         {
@@ -192,7 +191,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         ]),
         (fg) => matchPasswords(fg as FormGroup)
       ),
-      crispySelectField(
+      CrispySelect(
         'sex',
         [
           { label: 'Male', value: 'M' },
@@ -201,7 +200,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         ],
         'M',
         Validators.required,
-        'pe-2 w-50'
+        'b-green'
       ),
       crispySelectField(
         'status',
@@ -257,7 +256,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         cssClass: 'w-100',
         initial: 0,
         options: {
-          context: { customers: []}
+          templateComponentOptions: {
+            context: { customers: []}
+          }
         }
       }
     ];
