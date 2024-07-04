@@ -7,13 +7,18 @@ import {
   Validators
 } from '@angular/forms';
 import {
+  CrispyCheckbox,
+  CrispyCustomComponent,
   CrispyDate,
+  CrispyDateRange,
   CrispyField,
   CrispyFormGroup,
+  CrispyFormGroupArray,
   CrispyMatFormComponent,
   CrispyPassword,
   CrispyRow,
   CrispySelect,
+  CrispyTemplate,
   CrispyText,
   buildCrispyForm,
   crispyCheckboxField,
@@ -96,6 +101,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild(CrispyMatFormComponent, { static: true })
   crispyComponent!: CrispyMatFormComponent;
   total = new BehaviorSubject<number>(0);
+
   constructor() {}
 
   ngOnInit(): void {}
@@ -160,14 +166,20 @@ export class AppComponent implements OnInit, AfterViewInit {
       return null;
     };
     const fields: CrispyField[] = [
-      CrispyRow(
-        [
-          CrispyText('firstName', 'Peter', Validators.required, undefined, 'First name'),
-          CrispyText('lastName', 'Parker', undefined, undefined, 'Last name'),
-        ]
-      ),
-      CrispyDate('date', new Date(), undefined, 'b-red'),
-      crispyDateRangeField(
+      CrispyRow([
+        CrispyText('firstName', 'Peter', {
+          label: 'First name',
+          validators: Validators.required,
+          cssClass: 'col-12 col-sm-7',
+        }),
+        CrispyText('lastName', 'Parker', {
+          validators: Validators.required,
+          cssClass: 'col-12 col-sm-5',
+          label: 'Last name',
+        }),
+      ]),
+      CrispyDate('date', new Date()),
+      CrispyDateRange(
         'publishedOn',
         {
           beginRangeLabel: 'From',
@@ -179,15 +191,19 @@ export class AppComponent implements OnInit, AfterViewInit {
         {
           published_on__gte: '2023-06-19T16:00:00.000Z',
           published_on__lte: '2023-06-25T16:00:00.000Z',
-        },
-        undefined,
-        'w-100'
+        }
       ),
       CrispyFormGroup(
         'matchingPassword',
         CrispyRow([
-          CrispyPassword('password', '', Validators.required, '', 'Password'),
-          CrispyPassword('confirmPassword', '', Validators.required, '', 'Confirm password'),
+          CrispyPassword('password', '', {
+            validators: Validators.required,
+            label: 'Password',
+          }),
+          CrispyPassword('confirmPassword', '', {
+            validators: Validators.required,
+            label: 'Confirm Password',
+          }),
         ]),
         (fg) => matchPasswords(fg as FormGroup)
       ),
@@ -198,57 +214,65 @@ export class AppComponent implements OnInit, AfterViewInit {
           { label: 'Female', value: 'F' },
           { label: 'Transgender', value: 'T' },
         ],
-        'M',
-        Validators.required,
-        'b-green'
+        { initial: 'M', validators: Validators.required }
       ),
-      crispySelectField(
+      CrispySelect(
         'status',
         of([
           { label: 'Married', value: 'M' },
           { label: 'Single', value: 'S' },
           { label: 'Widow/Widower', value: 'W' },
         ]),
-        'M',
-        Validators.required,
-        'w-50'
+        { initial: 'M', validators: Validators.required }
       ),
       CrispyRow([
-        crispyCustomComponentField(
+        CrispyCustomComponent(
           'telephone',
-          { component: MyTelInput },
-          { area: '618', exchange: '782', subscriber: '2890' }
+          { area: '618', exchange: '782', subscriber: '2890' },
+          { component: MyTelInput }
         ),
-        crispyTemplateField('mobile', {
+        CrispyTemplate('mobile', {
           area: '737',
           exchange: '777',
           subscriber: '0787',
-        }),  
+        }),
       ]),
       // crispyNumberField('age', undefined, undefined, 'w-100'),
-      crispyCheckboxField(
-        'public',
-        false,
-        undefined,
-        'w-50'
-      ),
+      CrispyCheckbox('public', false),
       crispyTemplateField('dummy', [1, 2, 3]),
-      crispyFormGroupArray(
-        'items', [
+      CrispyFormGroupArray(
+        'items',
+        [
           CrispyRow([
-            crispyTextField('name', '', Validators.required, 'w-40 pe-2', 'Name'),
-            crispyNumberField('qty', 0, Validators.required, 'w-20 pe-2', 'Quantity'),
-            crispyNumberField('unitPrice', 0, Validators.required, 'w-20 pe-2', 'Unit Price'),
-            crispyTemplateField('lineTotal', 0, undefined, 'w-20')
-          ])
+            crispyTextField(
+              'name',
+              '',
+              Validators.required,
+              'w-40 pe-2',
+              'Name'
+            ),
+            crispyNumberField(
+              'qty',
+              0,
+              Validators.required,
+              'w-20 pe-2',
+              'Quantity'
+            ),
+            crispyNumberField(
+              'unitPrice',
+              0,
+              Validators.required,
+              'w-20 pe-2',
+              'Unit Price'
+            ),
+            crispyTemplateField('lineTotal', 0, undefined, 'w-20'),
+          ]),
         ],
         [
           { name: 'Management Fee', qty: 30, unitPrice: 100, lineTotal: 3000 },
           { name: 'Carpark Fee', qty: 1, unitPrice: 900, lineTotal: 900 },
         ],
-        undefined,
-        undefined,
-        "Items"
+        { label: 'Line Items' }
       ),
       {
         type: 'template',
@@ -257,17 +281,11 @@ export class AppComponent implements OnInit, AfterViewInit {
         initial: 0,
         options: {
           templateComponentOptions: {
-            context: { customers: []}
-          }
-        }
-      }
+            context: { customers: [] },
+          },
+        },
+      },
     ];
-    // const TXFN = (code: string, args: any) => code.toUpperCase();
-    // const crispy = {
-    //   fields,
-    //   translateFn: TXFN,
-    //   template: undefined
-    // }
     const crispy = buildCrispyForm(fields, (code: string, args: any) => code.toUpperCase());
     return crispy;
   }
