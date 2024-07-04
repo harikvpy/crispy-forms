@@ -56,7 +56,7 @@ export function buildFormGroup(cfs: CrispyField[], fg: FormGroup): FormGroup {
         colWidths.push(`col-sm-${lastColWidth}`);
         buildFormGroup(cf.children, fg);
         cf.children.forEach((field: CrispyField, index: number) => {
-          field.cssClass = (field.cssClass ?? '') + ' ' + colWidths[index];
+          field.cssClass = field.cssClass ?  field.cssClass : colWidths[index];
         });
       }
     }
@@ -618,6 +618,7 @@ export class CrispyRenderFieldComponent implements OnInit {
       <crispy-render-field
         [crispy]="crispy"
         [field]="child"
+        [class]="child.cssClass ? child.cssClass : 'row'"
       ></crispy-render-field>
     </ng-container>
   </div> `,
