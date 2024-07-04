@@ -17,15 +17,12 @@ import {
   forwardRef
 } from '@angular/core';
 import {
-  AbstractControlOptions,
-  AsyncValidatorFn,
   ControlValueAccessor,
   FormArray,
   FormControl,
   FormGroup,
   NG_VALUE_ACCESSOR,
-  UntypedFormGroup,
-  ValidatorFn,
+  UntypedFormGroup
 } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
 import { Observable, of } from 'rxjs';
@@ -34,11 +31,11 @@ import {
   CrispyField,
   CrispyFieldType,
   CrispyForm,
-  CustomControlOptions,
+  CustomComponentOptions,
   DateRangeOptions,
   SelectOption,
   SelectOptions,
-  TemplateControlOptions,
+  TemplateComponentOptions,
 } from './crispy-types';
 import { CrispyFieldNameDirective } from './field-name.directive';
 import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
@@ -105,7 +102,7 @@ function getFormControl(cf: CrispyField) {
     keys.find((k) => k.localeCompare('initial') == 0 && !!(cf as any)[k]) != undefined;
   if (cf.type === 'daterange') {
     // Special handler for 'daterange' field type
-    const options: DateRangeOptions = cf.options as DateRangeOptions;
+    const options: DateRangeOptions = cf.options?.dateRangeOptions!;
     const group = new FormGroup({});
     const beginInitial =
       (hasInitial &&
@@ -236,7 +233,7 @@ export class CrispySelectFieldComponent implements OnInit {
   ngOnInit() {}
 
   get options(): Observable<SelectOption[]> {
-    const option = this?.field?.options as SelectOptions;
+    const option = this?.field?.options?.selectOptions!;
     if (Array.isArray(option.options)) {
       return of(option.options || []);
     } else if (option.options instanceof Observable) {
@@ -288,7 +285,7 @@ export class CrispyDateRangeFieldComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    this.options = this.field.options as DateRangeOptions;
+    this.options = this.field.options?.dateRangeOptions!;
   }
 
   get rangeFormGroup() {
@@ -386,7 +383,7 @@ export class CrispyCustomFieldComponent
   @Input() crispy!: CrispyForm;
   @Input() field!: CrispyField;
 
-  options!: CustomControlOptions;
+  options!: CustomComponentOptions;
 
   @ViewChild(CrispyDynamicControlDirective, { static: true })
   componentLocation!: CrispyDynamicControlDirective;
@@ -402,7 +399,7 @@ export class CrispyCustomFieldComponent
   ) {}
 
   ngOnInit() {
-    this.options = this.field.options as CustomControlOptions;
+    this.options = this.field.options?.customComponentOptions!;
     if (this.componentLocation) {
       // TODO: Howe can we specify that the component returend by createComponent
       // implements FormFieldControl interface?
@@ -469,7 +466,7 @@ export class CrispyCustomFieldComponent
 export class CrispyTemplateFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
   @Input() field!: CrispyField;
-  options!: TemplateControlOptions;
+  options!: TemplateComponentOptions;
 
   @ViewChild(CrispyDynamicControlDirective, { static: true })
   componentLocation!: CrispyDynamicControlDirective;
@@ -477,7 +474,7 @@ export class CrispyTemplateFieldComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    this.options = this.field.options as TemplateControlOptions;
+    this.options = this.field.options?.templateComponentOptions!
     this.loadTemplate();
   }
 
@@ -606,22 +603,6 @@ export class CrispyRenderFieldComponent implements OnInit {
       };
     }
   }
-
-  // getChildrenAsCrispyForm(crispy: CrispyForm, field: CrispyField): CrispyForm {
-  //   if (!this.groupCrispyForm) {
-  //     this.groupCrispyForm = buildCrispyForm(field.children ?? [], (code, args) => code, field?.cssClass, field.validators);
-  //   }
-  //   // const field: CrispyField|undefined = crispy.fields.find(
-  //   //   (cf) => cf.name == fieldName
-  //   // );
-  //   const crispyForm = buildCrispyForm(field.children ?? [], (code, args) => code, field?.cssClass, field.validators)
-  //   // const crispyForm = {
-  //   //   form: crispy.form.controls[field.name] as FormGroup,
-  //   //   field: field?.children || [],
-  //   //   fieldCssClass: crispy.fieldCssClass,
-  //   // };
-  //   return crispyForm;
-  // }
 
   get form(): FormGroup<any> {
     return this.crispy ? this.crispy.form : this._tempForm;

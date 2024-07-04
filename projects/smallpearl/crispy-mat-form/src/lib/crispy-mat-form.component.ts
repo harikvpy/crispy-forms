@@ -141,29 +141,6 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
 
   ngOnDestroy(): void {}
 
-  // get form(): FormGroup|undefined {
-  //   if (this.wrapperDiv) {
-  //     return this.wrapperDiv.crispy.form;
-  //   }
-  //   return undefined;
-  // }
-/*
-  getChildrenAsCrispyForm(crispy: CrispyForm, fieldName: string): CrispyForm {
-    const field: CrispyField|undefined = crispy.fields.find(
-      (cf) => cf.name == fieldName
-    );
-    const crispyForm = {
-      form: crispy.form.controls[fieldName] as FormGroup,
-      fields: field?.children || [],
-      fieldCssClass: crispy.fieldCssClass,
-    };
-    return crispyForm;
-  }
-
-  get form(): FormGroup<any> {
-    return this.crispy ? this.crispy.form : this._tempForm;
-  }
-*/
   /**
    * Creates CrispyForm object from array of CrispyField objects passed
    * as @Input() fields.

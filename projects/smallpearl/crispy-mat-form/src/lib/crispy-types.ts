@@ -42,7 +42,7 @@ export type FieldContext = { [P: string]: any };
 /**
  * Options specific to 'control' CrispyFieldType
  */
-export interface CustomControlOptions {
+export interface CustomComponentOptions {
   component: any; // The custom component class object that will be dynamically created.
   context?: FieldContext;
 }
@@ -50,7 +50,7 @@ export interface CustomControlOptions {
 /**
  * Options specific to 'template' CrispyFieldType
  */
-export interface TemplateControlOptions {
+export interface TemplateComponentOptions {
   context?: FieldContext;
 }
 
@@ -70,12 +70,13 @@ export interface CrispyField {
   hint?: string;
   cssClass?: string;
   children?: CrispyField[];
-  options?:
-    | SelectOptions
-    | DateRangeOptions
-    | CustomControlOptions
-    | TemplateControlOptions
-    | GroupArrayOptions;
+  options?: {
+    selectOptions?: SelectOptions,
+    dateRangeOptions?: DateRangeOptions,
+    customComponentOptions?: CustomComponentOptions,
+    templateComponentOptions?: TemplateComponentOptions,
+    groupArrayOptions?: GroupArrayOptions
+  }
 }
 
 export interface CrispyForm {
