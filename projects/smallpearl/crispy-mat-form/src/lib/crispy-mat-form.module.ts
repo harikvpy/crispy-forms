@@ -21,6 +21,8 @@ import {
   CrispySelectFieldComponent,
   CrispyTemplateFieldComponent,
   CrispyRenderFieldComponent,
+  CrispyDivComponent,
+  CrispyRowComponent,
 } from './crispy-internal-components';
 import {
   CrispyMatFormComponent,
@@ -42,6 +44,8 @@ import { CrispyFieldNameDirective } from './field-name.directive';
     CrispyCheckboxComponent,
     CrispyTemplateFieldComponent,
     CrispyRenderFieldComponent,
+    CrispyDivComponent,
+    CrispyRowComponent,
     MatErrorTailorControlErrorComponent,
   ],
   imports: [

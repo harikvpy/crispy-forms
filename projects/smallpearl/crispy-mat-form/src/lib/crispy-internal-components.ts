@@ -488,3 +488,51 @@ export class CrispyRenderFieldComponent implements OnInit {
     return this.crispy ? this.crispy.form : this._tempForm;
   }
 }
+
+
+@Component({
+  selector: 'crispy-div',
+  template: `
+  <div [class]="field.cssClass ?? 'w-100'">
+    <ng-container *ngFor="let child of field.children">
+      <crispy-render-field
+        [crispy]="crispy"
+        [field]="field"
+      ></crispy-render-field>
+    </ng-container>
+  </div> `,
+  styles: `
+  .w-100 { width: 100% !important }
+  `
+})
+export class CrispyDivComponent implements OnInit {
+  @Input({ required: true }) crispy!: CrispyForm;
+  @Input({ required: true }) field!: CrispyField;
+
+  constructor() {}
+
+  ngOnInit() {}
+}
+
+
+@Component({
+  selector: 'crispy-row',
+  template: `
+  <div [class]="'row ' + field.cssClass ? field.cssClass : ''">
+    <ng-container *ngFor="let child of field.children">
+      <crispy-render-field
+        [crispy]="crispy"
+        [field]="field"
+      ></crispy-render-field>
+    </ng-container>
+  </div> `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CrispyRowComponent implements OnInit {
+  @Input({ required: true }) crispy!: CrispyForm;
+  @Input({ required: true }) field!: CrispyField;
+
+  constructor() {}
+
+  ngOnInit() {}
+}
