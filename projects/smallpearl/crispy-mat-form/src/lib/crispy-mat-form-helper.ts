@@ -44,62 +44,9 @@ import {
   FieldContext,
 } from './crispy-types';
 import { Observable } from 'rxjs';
+import { buildFormGroup } from './crispy-internal-components';
 
 type TRANSLATE_FN = (code: string, args?: any) => string;
-
-/**
- * Returns true if the given type is of HTML input field type.
- * @param type
- * @returns
- */
-const isInputFieldType = (type: CrispyFieldType) =>
-  type == 'text' ||
-  type == 'number' ||
-  type == 'email' ||
-  type == 'password' ||
-  type == 'search' ||
-  type == 'textarea';
-
-// V2 - imported from crispy-test
-function buildFormGroup(cfs: CrispyField[], fg: FormGroup): FormGroup {
-  cfs.forEach((cf) => {
-    if (cf.type === 'row') {
-      // All the children of this row should be distributed equally in the
-      // row. Use 12 columns/# of children to get the width of each column.      
-      if (cf.children) {
-        const colWidth = Math.floor(12/cf.children.length);
-        const lastColWidth = colWidth + (12 - cf.children.length*colWidth);
-        const colWidths: string[] = [];
-        for (let index = 0; index < cf.children.length-1; index++) {
-          colWidths.push(`col-sm-${colWidth}`);
-        }
-        colWidths.push(`col-sm-${lastColWidth}`);
-        buildFormGroup(cf.children, fg);
-        cf.children.forEach((field: CrispyField, index: number) => {
-          field.cssClass = (field.cssClass ?? '') + ' ' + colWidths[index];
-        });
-      }
-    }
-    else if (cf.type === 'div') {
-      if (cf.children) {
-        buildFormGroup(cf.children, fg);
-      }
-    } else {
-      if (cf.type === 'group') {
-        if (cf.children) {
-          const subFg = new FormGroup({});
-          fg.addControl(cf.name, buildFormGroup(cf.children, subFg));
-        }
-      } else if (cf.type === 'groupArray') {
-        const fa = new FormArray<FormGroup>([])
-        fg.addControl(cf.name, fa);
-      } else {
-        fg.addControl(cf.name, getFormControl(cf));
-      }
-    }
-  });
-  return fg;
-}
 
 /**
  * A function to construct a CrispyForm object from its constituent
@@ -134,12 +81,6 @@ export function buildCrispyForm(
     field,
     fieldCssClass: ''
   }
-
-  // return {
-  //   form: getFormGroup(field, validatorOrOpts, asyncValidator),
-  //   fields: getCrispyFields(field, translateFn, fieldCssClass),
-  //   fieldCssClass,
-  // };
 }
 
 export function CrispyDiv(
@@ -453,20 +394,18 @@ export function crispyFormGroup(
 
 export function CrispyFormGroup(
   name: string,
-  fields: CrispyField[],
-  initial?: any,
-  validators?: ValidatorFn | ValidatorFn[],
-  cssClass?: string
+  fields: CrispyField|CrispyField[],
+  validators?: ValidatorFn | ValidatorFn[]
 ): CrispyField {
   return {
     type: 'group',
     name,
-    initial,
+    initial: undefined,
     validators,
     label: undefined,
     hint: undefined,
-    cssClass,
-    children: fields,
+    cssClass: undefined,
+    children: Array.isArray(fields) ? fields : [fields],
   };
 }
 export function crispyFormGroupArray(
@@ -498,77 +437,6 @@ export function crispyCheckboxField(
   hint?: string,
 ): CrispyField {
   return { type: 'checkbox', name, initial, validators, label, hint, cssClass };
-}
-
-function getFormControl(cf: CrispyField) {
-  const keys = Object.keys(cf);
-  const hasInitial =
-    keys.find((k) => k.localeCompare('initial') == 0 && !!(cf as any)[k]) != undefined;
-  if (cf.type === 'daterange') {
-    // Special handler for 'daterange' field type
-    const options: DateRangeOptions = cf.options as DateRangeOptions;
-    const group = new FormGroup({});
-    const beginInitial =
-      (hasInitial &&
-        cf.initial[options.beginRangeFormControlName]) ||
-      null;
-    group.addControl(
-      options.beginRangeFormControlName,
-      new FormControl<Date | null>(beginInitial, {
-        nonNullable: !!beginInitial,
-        validators: options?.beginRangeValidators,
-      })
-    );
-    const endInitial =
-      (hasInitial &&
-        cf.initial[options.endRangeFormControlName]) ||
-      null;
-    group.addControl(
-      options.endRangeFormControlName,
-      new FormControl<Date | null>(endInitial, {
-        nonNullable: !!endInitial,
-        validators: options?.endRangeValidators,
-      })
-    );
-    return group;
-  } else {
-    if (cf.type === 'number') {
-      return new FormControl<number>(hasInitial ? cf.initial : undefined,
-        hasInitial
-          ? { nonNullable: true, validators: cf.validators }
-          : { validators: cf.validators }
-      );
-    }
-    return new FormControl<string>(
-      cf.type === 'checkbox'
-        ? !!cf?.initial
-        : (hasInitial ? cf.initial : isInputFieldType(cf.type) ? '' : undefined),
-      hasInitial
-        ? { nonNullable: true, validators: cf.validators }
-        : { validators: cf.validators }
-    );
-  }
-}
-
-export function getFormGroup(
-  cfs: CrispyField[],
-  validatorOrOpts?: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null,
-  asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | null
-): FormGroup {
-  const fg = new FormGroup({}, validatorOrOpts, asyncValidator);
-  cfs.forEach((cf) => {
-    if (!cf.children) {
-      fg.addControl(cf.name, getFormControl(cf));
-    } else {
-      if (cf.type === 'group') {
-        fg.addControl(cf.name, getFormGroup(cf.children, cf.validators));
-      } else if (cf.type === 'groupArray') {
-        const fa = new FormArray<FormGroup>([])
-        fg.addControl(cf.name, fa);
-      }
-    }
-  });
-  return fg;
 }
 
 function getCrispyFields(

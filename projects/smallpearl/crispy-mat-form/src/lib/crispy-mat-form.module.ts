@@ -10,25 +10,25 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { errorTailorImports } from '@ngneat/error-tailor';
-import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.component';
 import {
   CrispyCheckboxComponent,
   CrispyCustomFieldComponent,
   CrispyDateFieldComponent,
   CrispyDateRangeFieldComponent,
+  CrispyDivComponent,
   CrispyDynamicControlDirective,
   CrispyInputFieldTypeComponent,
-  CrispySelectFieldComponent,
-  CrispyTemplateFieldComponent,
+  CrispyMatFormArrayComponent,
   CrispyRenderFieldComponent,
-  CrispyDivComponent,
   CrispyRowComponent,
+  CrispySelectFieldComponent,
+  CrispyTemplateFieldComponent
 } from './crispy-internal-components';
 import {
   CrispyMatFormComponent,
-  CrispyMatFormArrayComponent,
 } from './crispy-mat-form.component';
 import { CrispyFieldNameDirective } from './field-name.directive';
+import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.component';
 
 @NgModule({
   declarations: [

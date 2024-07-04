@@ -8,6 +8,7 @@ import {
   Directive,
   ElementRef,
   EventEmitter,
+  Injector,
   Input,
   OnInit,
   Output,
@@ -16,15 +17,22 @@ import {
   forwardRef
 } from '@angular/core';
 import {
+  AbstractControlOptions,
+  AsyncValidatorFn,
   ControlValueAccessor,
+  FormArray,
+  FormControl,
   FormGroup,
   NG_VALUE_ACCESSOR,
   UntypedFormGroup,
+  ValidatorFn,
 } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
 import { Observable, of } from 'rxjs';
+import { CrispyDiv } from './crispy-mat-form-helper';
 import {
   CrispyField,
+  CrispyFieldType,
   CrispyForm,
   CustomControlOptions,
   DateRangeOptions,
@@ -33,7 +41,113 @@ import {
   TemplateControlOptions,
 } from './crispy-types';
 import { CrispyFieldNameDirective } from './field-name.directive';
-import { CrispyDiv, buildCrispyForm } from './crispy-mat-form-helper';
+import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
+
+// V2 - imported from crispy-test
+export function buildFormGroup(cfs: CrispyField[], fg: FormGroup): FormGroup {
+  cfs.forEach((cf) => {
+    if (cf.type === 'row') {
+      // All the children of this row should be distributed equally in the
+      // row. Use 12 columns/# of children to get the width of each column.      
+      if (cf.children) {
+        const colWidth = Math.floor(12/cf.children.length);
+        const lastColWidth = colWidth + (12 - cf.children.length*colWidth);
+        const colWidths: string[] = [];
+        for (let index = 0; index < cf.children.length-1; index++) {
+          colWidths.push(`col-sm-${colWidth}`);
+        }
+        colWidths.push(`col-sm-${lastColWidth}`);
+        buildFormGroup(cf.children, fg);
+        cf.children.forEach((field: CrispyField, index: number) => {
+          field.cssClass = (field.cssClass ?? '') + ' ' + colWidths[index];
+        });
+      }
+    }
+    else if (cf.type === 'div') {
+      if (cf.children) {
+        buildFormGroup(cf.children, fg);
+      }
+    } else {
+      if (cf.type === 'group') {
+        if (cf.children) {
+          const subFg = new FormGroup({}, cf.validators);
+          fg.addControl(cf.name, buildFormGroup(cf.children, subFg));
+        }
+      } else if (cf.type === 'groupArray') {
+        const fa = new FormArray<FormGroup>([], cf.validators)
+        fg.addControl(cf.name, fa);
+      } else {
+        fg.addControl(cf.name, getFormControl(cf));
+      }
+    }
+  });
+  return fg;
+}
+
+
+/**
+ * Returns true if the given type is of HTML input field type.
+ * @param type
+ * @returns
+ */
+const isInputFieldType = (type: CrispyFieldType) =>
+  type == 'text' ||
+  type == 'number' ||
+  type == 'email' ||
+  type == 'password' ||
+  type == 'search' ||
+  type == 'textarea';
+
+
+function getFormControl(cf: CrispyField) {
+  const keys = Object.keys(cf);
+  const hasInitial =
+    keys.find((k) => k.localeCompare('initial') == 0 && !!(cf as any)[k]) != undefined;
+  if (cf.type === 'daterange') {
+    // Special handler for 'daterange' field type
+    const options: DateRangeOptions = cf.options as DateRangeOptions;
+    const group = new FormGroup({});
+    const beginInitial =
+      (hasInitial &&
+        cf.initial[options.beginRangeFormControlName]) ||
+      null;
+    group.addControl(
+      options.beginRangeFormControlName,
+      new FormControl<Date | null>(beginInitial, {
+        nonNullable: !!beginInitial,
+        validators: options?.beginRangeValidators,
+      })
+    );
+    const endInitial =
+      (hasInitial &&
+        cf.initial[options.endRangeFormControlName]) ||
+      null;
+    group.addControl(
+      options.endRangeFormControlName,
+      new FormControl<Date | null>(endInitial, {
+        nonNullable: !!endInitial,
+        validators: options?.endRangeValidators,
+      })
+    );
+    return group;
+  } else {
+    if (cf.type === 'number') {
+      return new FormControl<number>(hasInitial ? cf.initial : undefined,
+        hasInitial
+          ? { nonNullable: true, validators: cf.validators }
+          : { validators: cf.validators }
+      );
+    }
+    return new FormControl<string>(
+      cf.type === 'checkbox'
+        ? !!cf?.initial
+        : (hasInitial ? cf.initial : isInputFieldType(cf.type) ? '' : undefined),
+      hasInitial
+        ? { nonNullable: true, validators: cf.validators }
+        : { validators: cf.validators }
+    );
+  }
+}
 
 @Component({
   selector: 'app-crispy-field-input',
@@ -444,7 +558,7 @@ export class CrispyTemplateFieldComponent implements OnInit {
       </ng-container>
       <ng-container *ngIf="field.type === 'group'">
         <crispy-mat-form
-          [crispy]="groupCrispyForm"
+          [crispy]="groupCrispy"
         ></crispy-mat-form>
       </ng-container>
       <app-crispy-mat-form-array
@@ -452,8 +566,8 @@ export class CrispyTemplateFieldComponent implements OnInit {
         [label]="field.label ?? ''"
         [group]="crispy.form"
         [initial]="field.initial"
-        [fieldName]="field.name"
-        [crispy]="groupCrispyForm"
+        [field]="field"
+        [crispy]="crispy"
         (formGroupAdded)="formGroupAdded.emit($event)"
         (formGroupRemoved)="formGroupRemoved.emit($event)"
       ></app-crispy-mat-form-array>
@@ -479,18 +593,17 @@ export class CrispyRenderFieldComponent implements OnInit {
   }>();
 
   private _tempForm = new FormGroup({});
-  groupCrispyForm!: CrispyForm;
+  groupCrispy!: CrispyForm;
 
   constructor() {}
 
   ngOnInit() {
-    if (this.field.type === 'group' || this.field.type === 'groupArray') {
-      this.groupCrispyForm = buildCrispyForm(
-        CrispyDiv('', this.field.children ?? []),
-        (code, args) => code,
-        this.field?.cssClass,
-        this.field.validators
-      );
+    if (this.field.type === 'group') {
+      this.groupCrispy = {
+        form: this.crispy.form.controls[this.field.name] as FormGroup,
+        field: CrispyDiv('', this.field.children ?? []),
+        fieldCssClass: '',
+      };
     }
   }
 
@@ -562,4 +675,162 @@ export class CrispyRowComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {}
+}
+
+
+/**
+ * A component to render an array of crispy forms. This can come handy in
+ * uses cases such as Invoice -> Line Items. Essentially this component would
+ * take a CrispyForm object as input and build a FormArray consisting of many
+ * instances of this object. 
+ */
+@Component({
+  selector: 'app-crispy-mat-form-array',
+  template: `
+    <div class="crispy-mat-form-array-wrapper" [formGroup]="group">
+      <div class="form-array-label">{{ label }}</div>
+      <div
+        class="form-array-wrapper"
+        *ngFor="let crispy of crispies; let i = index"
+      >
+        <div class="form-array">
+          <crispy-mat-form [crispy]="crispy"></crispy-mat-form>
+        </div>
+        <div class="array-control">
+          <button mat-icon-button type="button" (click)="delRow(i)">
+            &#x274C;
+          </button>
+        </div>
+      </div>
+      <div class="add-row-buttons">
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          (click)="addRow(undefined)"
+        >
+          {{ addRowLabel|async }}
+        </button>
+      </div>
+    </div>
+  `,
+  styles: [
+    `
+      .crispy-mat-form-array-wrapper {
+        margin: 0.5em 0;
+        /*
+        border: 1px solid lightgrey;
+        border-radius: 4px;
+        */
+      }
+      .form-array-wrapper {
+        width: 100% !important;
+        display: flex;
+        flex-direction: row;
+      }
+      .form-array-label {
+        font-size: 1.2em;
+        font-weight: 600;
+        padding: 0.3em 0.3em;
+        /* background-color: lightgrey; */
+      }
+      .form-array {
+        flex-grow: 1;
+      }
+      .array-control {
+        display: flex;
+        flex-direction: row;
+      }
+      .array-control button {
+        font-size: 0.8em;
+        width: 28px !important;
+        height: 28px !important;
+        padding: 4px !important;
+      }
+    `,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CrispyMatFormArrayComponent implements OnInit {
+  // This is the label for the form array element
+  @Input({ required: false }) label!: string;
+  @Input({ required: true }) group!: FormGroup;
+  @Input({ required: true }) field!: CrispyField;
+  @Input({ required: true }) crispy!: CrispyForm;
+  @Input({ required: false }) initial!: Array<any>;
+
+  @Output() formGroupAdded = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
+  @Output() formGroupRemoved = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
+
+  control!: FormArray;
+  crispies: CrispyForm[] = [];
+  addRowLabel!: Observable<string>;
+
+  constructor(private cdr: ChangeDetectorRef,private injector: Injector) {}
+
+  ngOnInit() {
+    const crispyConfig = this.injector.get(CRISPY_FORMS_CONFIG_PROVIDER);
+    if (crispyConfig && crispyConfig?.groupArrayConfig?.addRowText) {
+      if (crispyConfig?.groupArrayConfig?.addRowText instanceof Observable) {
+        this.addRowLabel = crispyConfig.groupArrayConfig.addRowText;
+      } else {
+        this.addRowLabel = of(crispyConfig.groupArrayConfig.addRowText);
+      }
+    } else {
+      this.addRowLabel = of('Add Row');
+    }
+    this.control = this.group.controls[this.field.name] as FormArray;
+    // Don't add the row directly or else you will get
+    // ExpressionChangedAfterItHasBeenCheckedError. Add it via a timeout so
+    // that the natural change detect algo (that happens after the
+    // timer routine) picks it up. This will avoid the error as well.
+    // Adding rows when user clicks the 'Add Row' button is okay as the change
+    // detect algo loop is run after every user input.
+    setTimeout(() => {
+      if (this.initial && Array.isArray(this.initial)) {
+        this.initial.forEach(values => {
+          this.addRow(values, true);
+        });
+      }
+      this.addRow(undefined, true);
+    });
+  }
+
+  addRow(initial: any, emit = true) {
+    if (this.field.children) {
+      const crispy: CrispyForm = {
+        form: buildFormGroup(this.field.children!, new FormGroup({}, this.field.validators)),
+        field: Array.isArray(this.field.children) ? CrispyDiv('', this.field.children) : this.field.children
+      };
+      // set initial value if it was provided
+      if (initial) {
+        for (const key in initial) {
+          if (crispy.form.controls[key] && initial[key] !== undefined) {
+            crispy.form.controls[key].setValue(initial[key]);
+          }
+        }
+      }
+      this.control.push(crispy.form);
+      this.crispies.push(crispy);
+      if (emit) {
+        this.formGroupAdded.emit({ field: this.field.name, form: crispy.form });
+      }
+      this.cdr.markForCheck();
+    }
+  }
+
+  delRow(index: number) {
+    if (index < this.crispies.length) {
+      this.control.removeAt(index);
+      const crispy = this.crispies.splice(index, 1);
+      this.formGroupRemoved.emit({ field: this.field.name, form: crispy[0].form });
+      this.cdr.markForCheck();
+    }
+  }
 }

@@ -161,7 +161,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const fields: CrispyField[] = [
       CrispyRow(
         [
-          CrispyText('firstName', 'Peter', undefined, undefined, 'First name'),
+          CrispyText('firstName', 'Peter', Validators.required, undefined, 'First name'),
           CrispyText('lastName', 'Parker', undefined, undefined, 'Last name'),
         ]
       ),
@@ -186,13 +186,10 @@ export class AppComponent implements OnInit, AfterViewInit {
       ),
       CrispyFormGroup(
         'matchingPassword',
-        [
-          CrispyRow([
-            CrispyPassword('password'),
-            CrispyPassword('confirmPassword'),  
-          ])
-        ],
-        undefined,
+        CrispyRow([
+          CrispyPassword('password', '', Validators.required, '', 'Password'),
+          CrispyPassword('confirmPassword', '', Validators.required, '', 'Confirm password'),
+        ]),
         (fg) => matchPasswords(fg as FormGroup)
       ),
       crispySelectField(
@@ -229,7 +226,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           subscriber: '0787',
         }),  
       ]),
-      crispyNumberField('age', undefined, undefined, 'w-100'),
+      // crispyNumberField('age', undefined, undefined, 'w-100'),
       crispyCheckboxField(
         'public',
         false,
@@ -239,11 +236,12 @@ export class AppComponent implements OnInit, AfterViewInit {
       crispyTemplateField('dummy', [1, 2, 3]),
       crispyFormGroupArray(
         'items', [
-          crispyTextField('name', '', Validators.required, 'w-40 pe-2', 'Name'),
-          crispyNumberField('qty', 0, Validators.required, 'w-20 pe-2', 'Quantity'),
-          crispyNumberField('unitPrice', 0, Validators.required, 'w-20 pe-2', 'Unit Price'),
-          // crispyTextField('total', '', undefined, 'w-20', 'Total'),
-          crispyTemplateField('lineTotal', 0, undefined, 'w-20')
+          CrispyRow([
+            crispyTextField('name', '', Validators.required, 'w-40 pe-2', 'Name'),
+            crispyNumberField('qty', 0, Validators.required, 'w-20 pe-2', 'Quantity'),
+            crispyNumberField('unitPrice', 0, Validators.required, 'w-20 pe-2', 'Unit Price'),
+            crispyTemplateField('lineTotal', 0, undefined, 'w-20')
+          ])
         ],
         [
           { name: 'Management Fee', qty: 30, unitPrice: 100, lineTotal: 3000 },
