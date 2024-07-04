@@ -7,9 +7,13 @@ import {
   Validators
 } from '@angular/forms';
 import {
+  CrispyDate,
   CrispyField,
+  CrispyFormGroup,
   CrispyMatFormComponent,
+  CrispyPassword,
   CrispyRow,
+  CrispyText,
   buildCrispyForm,
   crispyCheckboxField,
   crispyCustomComponentField,
@@ -58,7 +62,7 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
 
     <ng-template crispyFieldName="mobile" let-formGroup="formGroup">
       <span *ngIf="formGroup" [formGroup]="formGroup">
-        <mat-form-field>
+        <mat-form-field class="w-100">
           <mat-label>My Telephone</mat-label>
           <my-tel-input formControlName="mobile"></my-tel-input>
         </mat-form-field>
@@ -157,13 +161,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     const fields: CrispyField[] = [
       CrispyRow(
         [
-          crispyTextField('firstName', 'Peter', undefined, undefined, 'First name'),
-          crispyTextField('lastName', 'Parker', undefined, undefined, 'Last name'),
+          CrispyText('firstName', 'Peter', undefined, undefined, 'First name'),
+          CrispyText('lastName', 'Parker', undefined, undefined, 'Last name'),
         ]
       ),
       // crispyTextField('firstName', 'Peter', [Validators.required], 'pe-2 w-50'),
       // crispyTextField('lastName', 'Parker', undefined, 'w-50'),
-      crispyDateField('date', new Date(), undefined, 'w-100'),
+      CrispyDate('date', new Date(), undefined, 'w-100'),
       crispyDateRangeField(
         'publishedOn',
         {
@@ -180,21 +184,13 @@ export class AppComponent implements OnInit, AfterViewInit {
         undefined,
         'w-100'
       ),
-      crispyFormGroup(
+      CrispyFormGroup(
         'matchingPassword',
         [
-          crispyPasswordField(
-            'password',
-            '',
-            undefined, // [Validators.required, Validators.minLength(8)],
-            'pe-2 w-50'
-          ),
-          crispyPasswordField(
-            'confirmPassword',
-            '',
-            undefined, // [Validators.required, Validators.minLength(8)],
-            'w-50'
-          ),
+          CrispyRow([
+            CrispyPassword('password'),
+            CrispyPassword('confirmPassword'),  
+          ])
         ],
         undefined,
         (fg) => matchPasswords(fg as FormGroup)
@@ -221,18 +217,18 @@ export class AppComponent implements OnInit, AfterViewInit {
         Validators.required,
         'w-50'
       ),
-      crispyCustomComponentField(
-        'telephone',
-        { component: MyTelInput },
-        { area: '618', exchange: '782', subscriber: '2890' },
-        undefined,
-        'pe-2 w-50'
-      ),
-      crispyTemplateField('mobile', {
-        area: '737',
-        exchange: '777',
-        subscriber: '0787',
-      }, undefined, 'w-50'),
+      CrispyRow([
+        crispyCustomComponentField(
+          'telephone',
+          { component: MyTelInput },
+          { area: '618', exchange: '782', subscriber: '2890' }
+        ),
+        crispyTemplateField('mobile', {
+          area: '737',
+          exchange: '777',
+          subscriber: '0787',
+        }),  
+      ]),
       crispyNumberField('age', undefined, undefined, 'w-100'),
       crispyCheckboxField(
         'public',

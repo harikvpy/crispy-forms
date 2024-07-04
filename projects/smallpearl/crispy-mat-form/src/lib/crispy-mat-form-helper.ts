@@ -161,7 +161,7 @@ export function CrispyRow(
   return {
     type: 'row',
     name: '',
-    cssClass: 'row ' + (cssClass ? cssClass : ''),
+    cssClass: cssClass ? cssClass : 'row',
     children: Array.isArray(children) ? children : [children],
   };
 }
@@ -184,7 +184,7 @@ export function CrispyText(
   cssClass?: string,
   label?: string,
   hint?: string,
-) {
+): CrispyField {
   return { type: 'text', name, initial, validators, label, hint, cssClass };
 }
 
@@ -450,6 +450,25 @@ export function crispyFormGroup(
   };
 }
 
+
+export function CrispyFormGroup(
+  name: string,
+  fields: CrispyField[],
+  initial?: any,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string
+): CrispyField {
+  return {
+    type: 'group',
+    name,
+    initial,
+    validators,
+    label: undefined,
+    hint: undefined,
+    cssClass,
+    children: fields,
+  };
+}
 export function crispyFormGroupArray(
   name: string,
   fields: CrispyField[],
