@@ -2,7 +2,7 @@
  * Crispy Forms is a forms engine that combines form definition and its layout
  * in a single declaration. It layers over the Angular native reactive forms
  * and integartes a layout engine which arranges the form's controls as per its
- * definition in the CrispyFormField object.
+ * definition in the CrispyField object.
  * 
  * Typically there's a one-to-one mapping between the reactive form field
  * and it's layout definition. Therefore, given a layout definition, it's
@@ -36,7 +36,7 @@ import {
 } from '@angular/forms';
 import {
   CrispyFieldType,
-  CrispyFormField,
+  CrispyField,
   CrispyForm,
   SelectOption,
   DateRangeOptions,
@@ -74,7 +74,7 @@ const isInputFieldType = (type: CrispyFieldType) =>
  * its `crispy` property value.
  */
 export function buildCrispyForm(
-  fields: CrispyFormField[],
+  fields: CrispyField[],
   translateFn: TRANSLATE_FN,
   fieldCssClass?: string,
   validatorOrOpts?: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null,
@@ -94,7 +94,7 @@ export function crispyTextField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return { type: 'text', name, initial, validators, label, hint, cssClass };
 }
 
@@ -105,7 +105,7 @@ export function crispyNumberField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return { type: 'number', name, initial, validators, label, hint, cssClass };
 }
 
@@ -116,7 +116,7 @@ export function crispyEmailField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return { type: 'email', name, initial, validators, label, hint, cssClass };
 }
 
@@ -127,7 +127,7 @@ export function crispyDateField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return { type: 'date', name, initial, validators, label, hint, cssClass };
 }
 
@@ -138,7 +138,7 @@ export function crispyTextareaField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return { type: 'textarea', name, initial, validators, label, hint, cssClass };
 }
 
@@ -149,7 +149,7 @@ export function crispySearchField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return { type: 'search', name, initial, validators, label, hint, cssClass };
 }
 
@@ -160,7 +160,7 @@ export function crispyPasswordField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return { type: 'password', name, initial, validators, label, hint, cssClass };
 }
 
@@ -172,7 +172,7 @@ export function crispySelectField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return {
     type: 'select',
     name,
@@ -193,7 +193,7 @@ export function crispyDateRangeField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return {
     type: 'daterange',
     name,
@@ -214,7 +214,7 @@ export function crispyCustomComponentField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return {
     type: 'custom',
     name,
@@ -235,7 +235,7 @@ export function crispyTemplateField(
   label?: string,
   hint?: string,
   context?: FieldContext
-): CrispyFormField {
+): CrispyField {
   return {
     type: 'template',
     name,
@@ -253,11 +253,11 @@ export function crispyTemplateField(
 
 export function crispyFormGroup(
   name: string,
-  fields: CrispyFormField[],
+  fields: CrispyField[],
   initial?: any,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string
-): CrispyFormField {
+): CrispyField {
   return {
     type: 'group',
     name,
@@ -272,12 +272,12 @@ export function crispyFormGroup(
 
 export function crispyFormGroupArray(
   name: string,
-  fields: CrispyFormField[],
+  fields: CrispyField[],
   initial?: any,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string
-): CrispyFormField {
+): CrispyField {
   return {
     type: 'groupArray',
     name,
@@ -297,11 +297,11 @@ export function crispyCheckboxField(
   cssClass?: string,
   label?: string,
   hint?: string,
-): CrispyFormField {
+): CrispyField {
   return { type: 'checkbox', name, initial, validators, label, hint, cssClass };
 }
 
-function getFormControl(cf: CrispyFormField) {
+function getFormControl(cf: CrispyField) {
   const keys = Object.keys(cf);
   const hasInitial =
     keys.find((k) => k.localeCompare('initial') == 0 && !!(cf as any)[k]) != undefined;
@@ -352,7 +352,7 @@ function getFormControl(cf: CrispyFormField) {
 }
 
 export function getFormGroup(
-  cfs: CrispyFormField[],
+  cfs: CrispyField[],
   validatorOrOpts?: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null,
   asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | null
 ): FormGroup {
@@ -373,11 +373,11 @@ export function getFormGroup(
 }
 
 function getCrispyFields(
-  cfs: CrispyFormField[],
+  cfs: CrispyField[],
   translateFn: TRANSLATE_FN,
   defaultFieldCssClass?: string
-): CrispyFormField[] {
-  const fields = new Array<CrispyFormField>();
+): CrispyField[] {
+  const fields = new Array<CrispyField>();
   cfs.forEach((cf) => {
     if (!cf.children) {
       fields.push({

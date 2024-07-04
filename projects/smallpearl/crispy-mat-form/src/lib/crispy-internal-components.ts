@@ -7,29 +7,32 @@ import {
   ComponentRef,
   Directive,
   ElementRef,
+  EventEmitter,
   Input,
   OnInit,
+  Output,
   ViewChild,
   ViewContainerRef,
-  forwardRef,
+  forwardRef
 } from '@angular/core';
 import {
   ControlValueAccessor,
+  FormGroup,
   NG_VALUE_ACCESSOR,
   UntypedFormGroup,
 } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
 import { Observable, of } from 'rxjs';
-import { CrispyFieldNameDirective } from './field-name.directive';
 import {
-  CrispyFormField,
+  CrispyField,
   CrispyForm,
-  SelectOptions,
-  SelectOption,
-  DateRangeOptions,
   CustomControlOptions,
+  DateRangeOptions,
+  SelectOption,
+  SelectOptions,
   TemplateControlOptions,
 } from './crispy-types';
+import { CrispyFieldNameDirective } from './field-name.directive';
 
 @Component({
   selector: 'app-crispy-field-input',
@@ -77,7 +80,7 @@ import {
 })
 export class CrispyInputFieldTypeComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFormField;
+  @Input() field!: CrispyField;
   constructor() {}
   ngOnInit() {}
 }
@@ -113,7 +116,7 @@ export class CrispyInputFieldTypeComponent implements OnInit {
 })
 export class CrispySelectFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFormField;
+  @Input() field!: CrispyField;
   constructor() {}
   ngOnInit() {}
 
@@ -164,7 +167,7 @@ export class CrispySelectFieldComponent implements OnInit {
 })
 export class CrispyDateRangeFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFormField;
+  @Input() field!: CrispyField;
   options!: DateRangeOptions;
 
   constructor() {}
@@ -205,7 +208,7 @@ export class CrispyDateRangeFieldComponent implements OnInit {
 })
 export class CrispyDateFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFormField;
+  @Input() field!: CrispyField;
   constructor() {}
   ngOnInit() {}
 }
@@ -227,7 +230,7 @@ export class CrispyDateFieldComponent implements OnInit {
 })
 export class CrispyCheckboxComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFormField;
+  @Input() field!: CrispyField;
   constructor() {}
   ngOnInit() {}
 }
@@ -266,7 +269,7 @@ export class CrispyCustomFieldComponent
   implements OnInit, AfterViewInit, AfterContentInit, ControlValueAccessor
 {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFormField;
+  @Input() field!: CrispyField;
 
   options!: CustomControlOptions;
 
@@ -350,7 +353,7 @@ export class CrispyCustomFieldComponent
 })
 export class CrispyTemplateFieldComponent implements OnInit {
   @Input() crispy!: CrispyForm;
-  @Input() field!: CrispyFormField;
+  @Input() field!: CrispyField;
   options!: TemplateControlOptions;
 
   @ViewChild(CrispyDynamicControlDirective, { static: true })
@@ -383,5 +386,105 @@ export class CrispyTemplateFieldComponent implements OnInit {
         context
       );
     }
+  }
+}
+
+@Component({
+  selector: 'crispy-render-field',
+  template: `
+      <app-crispy-field-input
+        *ngIf="
+          field.type == 'text' ||
+          field.type == 'number' ||
+          field.type == 'email' ||
+          field.type == 'password' ||
+          field.type == 'search' ||
+          field.type == 'textarea'
+        "
+        [crispy]="crispy"
+        [field]="field"
+      ></app-crispy-field-input>
+      <app-crispy-field-select
+        *ngIf="field.type == 'select'"
+        [crispy]="crispy"
+        [field]="field"
+      ></app-crispy-field-select>
+      <app-crispy-field-daterange
+        *ngIf="field.type == 'daterange'"
+        [crispy]="crispy"
+        [field]="field"
+      ></app-crispy-field-daterange>
+      <app-crispy-field-date
+        *ngIf="field.type == 'date'"
+        [crispy]="crispy"
+        [field]="field"
+      ></app-crispy-field-date>
+      <app-crispy-field-checkbox
+        *ngIf="field.type == 'checkbox'"
+        [crispy]="crispy"
+        [field]="field"
+      ></app-crispy-field-checkbox>
+      <ng-container *ngIf="field.type == 'custom'" [formGroup]="crispy.form">
+        <app-crispy-field-custom
+          [crispy]="crispy"
+          [formControlName]="field.name"
+          [field]="field"
+        ></app-crispy-field-custom>
+      </ng-container>
+      <ng-container *ngIf="field.type === 'group'">
+        <crispy-mat-form
+          [crispy]="getChildrenAsCrispyForm(crispy, field.name)"
+        ></crispy-mat-form>
+      </ng-container>
+      <app-crispy-mat-form-array
+        *ngIf="field.type === 'groupArray'"
+        [label]="field.label ?? ''"
+        [group]="crispy.form"
+        [initial]="field.initial"
+        [fieldName]="field.name"
+        [crispy]="getChildrenAsCrispyForm(crispy, field.name)"
+        (formGroupAdded)="formGroupAdded.emit($event)"
+        (formGroupRemoved)="formGroupRemoved.emit($event)"
+      ></app-crispy-mat-form-array>
+      <app-crispy-field-template
+        *ngIf="field.type == 'template'"
+        [crispy]="crispy"
+        [field]="field"
+      ></app-crispy-field-template>  
+  `
+})
+export class CrispyRenderFieldComponent implements OnInit {
+  @Input({ required: true }) crispy!: CrispyForm;
+  @Input({ required: true }) field!: CrispyField;
+
+  @Output() formGroupAdded = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
+  @Output() formGroupRemoved = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
+
+  private _tempForm = new FormGroup({});
+
+  constructor() {}
+
+  ngOnInit() { }
+
+  getChildrenAsCrispyForm(crispy: CrispyForm, fieldName: string): CrispyForm {
+    const field: CrispyField|undefined = crispy.fields.find(
+      (cf) => cf.name == fieldName
+    );
+    const crispyForm = {
+      form: crispy.form.controls[fieldName] as FormGroup,
+      fields: field?.children || [],
+      fieldCssClass: crispy.fieldCssClass,
+    };
+    return crispyForm;
+  }
+
+  get form(): FormGroup<any> {
+    return this.crispy ? this.crispy.form : this._tempForm;
   }
 }

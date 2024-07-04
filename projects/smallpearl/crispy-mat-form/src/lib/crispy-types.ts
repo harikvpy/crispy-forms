@@ -2,6 +2,8 @@ import { FormGroup, ValidatorFn } from '@angular/forms';
 import { Observable } from 'rxjs';
 
 export type CrispyFieldType =
+  | 'div'
+  | 'row'
   | 'number'
   | 'text'
   | 'email'
@@ -59,7 +61,7 @@ export interface GroupArrayOptions {
   context?: FieldContext;
 }
 
-export interface CrispyFormField {
+export interface CrispyField {
   name: string;
   type: CrispyFieldType;
   initial?: any;
@@ -67,7 +69,7 @@ export interface CrispyFormField {
   label?: string;
   hint?: string;
   cssClass?: string;
-  children?: CrispyFormField[];
+  children?: CrispyField[];
   options?:
     | SelectOptions
     | DateRangeOptions
@@ -78,6 +80,6 @@ export interface CrispyFormField {
 
 export interface CrispyForm {
   form: FormGroup<any>;
-  fields: CrispyFormField[];
+  fields: CrispyField[];
   fieldCssClass?: string;
 }

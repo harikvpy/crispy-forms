@@ -224,9 +224,9 @@ For `template` field type, the `ng-template` should be defined as:
 
 The task of defining a FormGroup and then specifying its layout via `CrispyForm.fields` can soon become quite repetitive and tedious. Besides, this process spreads the logic of the form across two different declarations, even though they are closely related to each other. So to streamline the process, the library component comes with a few helper methods that can be used to define the form & its layout in one declaration.
 
-This is facilitated by the `CrispyFormField` interface, which is defined as:
+This is facilitated by the `CrispyField` interface, which is defined as:
 ```
-export interface CrispyFormField {
+export interface CrispyField {
   name: string;
   type: CrispyFieldType;
   initial: any;
@@ -234,14 +234,14 @@ export interface CrispyFormField {
   label?: string;
   hint?: string;
   cssClass?: string;
-  children?: CrispyFormField[];
+  children?: CrispyField[];
   options?: Partial<CrispyFieldProps>;
 }
 ```
 
-Just like each field in a reactive form is defined via a `FormControl` instance, in crispy forms, each field is defined by a `CrispyFormField` object definition. You define an array of `CrispyFormField` objects and then pass it as the first argument to `getCrispyFormHelper` function, also provided by the library. `getCrispyFormHelper` will create the `FormGroup` and also its layout definition, returning a `Crispy` object. This object can then passed to `crispy-mat-form` component.
+Just like each field in a reactive form is defined via a `FormControl` instance, in crispy forms, each field is defined by a `CrispyField` object definition. You define an array of `CrispyField` objects and then pass it as the first argument to `getCrispyFormHelper` function, also provided by the library. `getCrispyFormHelper` will create the `FormGroup` and also its layout definition, returning a `Crispy` object. This object can then passed to `crispy-mat-form` component.
 
-Alternatively, `crispy-mat-form` also takes the array of `CrispyFormField` as a parameter in which case the component would internall call `getCrispyFormHelper` to convert that into a `Crispy` object.
+Alternatively, `crispy-mat-form` also takes the array of `CrispyField` as a parameter in which case the component would internall call `getCrispyFormHelper` to convert that into a `Crispy` object.
 
 The following example illustrates the latter approach:
 
@@ -274,7 +274,7 @@ template: `
 `,
 })
 export class AppComponent implements OnInit {
-  cffs!: CrispyFormField[];
+  cffs!: CrispyField[];
   @ViewChild(CrispyMatFormComponent, { static: true }) crispyComponent!: CrispyMatFormComponent;
 
   ngOnInit() {
@@ -297,7 +297,7 @@ export class AppComponent implements OnInit {
 ```
 
 ## Field functions
-To ease the process further, instead of defining an array of `CrispyFormField` objects, the library comes with a series of helper functions that would return a `CrispyFormField` object from its arguments. Using these functions is easier as each function comes with own brief parameter documentation which will be available during its definition via the editor's context-sensitive help feature. Also using functions allows the library to ensure that the `CrispyFormField` definition for the field type is accurate and is complete (as required `CrispyFormField` object fields are make mandatory in the function's parameter declaration.
+To ease the process further, instead of defining an array of `CrispyField` objects, the library comes with a series of helper functions that would return a `CrispyField` object from its arguments. Using these functions is easier as each function comes with own brief parameter documentation which will be available during its definition via the editor's context-sensitive help feature. Also using functions allows the library to ensure that the `CrispyField` definition for the field type is accurate and is complete (as required `CrispyField` object fields are make mandatory in the function's parameter declaration.
 
 This table lists the functions and their corresponding field type:
 

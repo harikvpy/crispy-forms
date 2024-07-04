@@ -1,4 +1,4 @@
-import { LOCALE_ID, AfterViewInit, ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -7,7 +7,7 @@ import {
   Validators
 } from '@angular/forms';
 import {
-  CrispyFormField,
+  CrispyField,
   CrispyMatFormComponent,
   buildCrispyForm,
   crispyCheckboxField,
@@ -153,7 +153,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       fg.controls['confirmPassword'].setErrors({ passwordMismatch: true });
       return null;
     };
-    const fields: CrispyFormField[] = [
+    const fields: CrispyField[] = [
       crispyTextField('firstName', 'Peter', [Validators.required], 'pe-2 w-50'),
       crispyTextField('lastName', 'Parker', undefined, 'w-50'),
       crispyDateField('date', new Date(), undefined, 'w-100'),
