@@ -341,8 +341,8 @@ export function crispyDateRangeField(
 export function CrispyDateRange(
   name: string,
   dateRangeOptions: DateRangeOptions,
-  options: Partial<CrispyField>,
   initial?: any,
+  options?: Partial<CrispyField>,
 ): CrispyField {
   return {
     ...(options ?? {}),
@@ -380,8 +380,8 @@ export function crispyCustomComponentField(
 
 export function CrispyCustomComponent(
   name: string,
-  customComponentOptions?: CustomComponentOptions,
   initial?: any,
+  customComponentOptions?: CustomComponentOptions,
   options?: Partial<CrispyField>,
 ): CrispyField {
   return {
@@ -422,6 +422,7 @@ export function crispyTemplateField(
 
 export function CrispyTemplate(
   name: string,
+  initial?: any,
   templateComponentOptions?: TemplateComponentOptions,
   options?: Partial<CrispyField>,
 ): CrispyField {
@@ -429,6 +430,7 @@ export function CrispyTemplate(
     ...(options ?? {}),
     type: 'template',
     name,
+    initial,
     options: {
       templateComponentOptions
     }
@@ -526,6 +528,6 @@ export function CrispyCheckbox(
     ...(options ?? {}),
     type: 'checkbox',
     name,
-    initial
+    initial: !!initial
   };
 }
