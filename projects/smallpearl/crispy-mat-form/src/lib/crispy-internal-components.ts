@@ -33,12 +33,13 @@ import {
   TemplateControlOptions,
 } from './crispy-types';
 import { CrispyFieldNameDirective } from './field-name.directive';
+import { buildCrispyForm } from './crispy-mat-form-helper';
 
 @Component({
   selector: 'app-crispy-field-input',
   template: `
     <mat-form-field
-      [class]="field.cssClass ?? (crispy.fieldCssClass ?? '')"
+      class="w-100"
       [formGroup]="crispy.form"
     >
       <mat-label>{{ field.label }}</mat-label>
@@ -89,7 +90,7 @@ export class CrispyInputFieldTypeComponent implements OnInit {
   selector: 'app-crispy-field-select',
   template: `
     <mat-form-field
-      [class]="field.cssClass ?? (crispy.fieldCssClass ?? '')"
+      class="w-100"
       [formGroup]="crispy.form"
     >
       <mat-label>{{ field.label }}</mat-label>
@@ -135,7 +136,7 @@ export class CrispySelectFieldComponent implements OnInit {
   selector: 'app-crispy-field-daterange',
   template: `
     <mat-form-field
-      [class]="field.cssClass ?? (crispy.fieldCssClass ?? '')"
+      class="w-100"
       [formGroup]="crispy.form"
     >
       <mat-label>{{ field.label }}</mat-label>
@@ -187,7 +188,7 @@ export class CrispyDateRangeFieldComponent implements OnInit {
   selector: 'app-crispy-field-date',
   template: `
     <mat-form-field
-      [class]="field.cssClass ?? (crispy.fieldCssClass ?? '')"
+      class="w-100"
       [formGroup]="crispy.form"
     >
       <mat-label>{{ field.label }}</mat-label>
@@ -247,7 +248,7 @@ export class CrispyDynamicControlDirective {
   template: `
     <mat-form-field
       #matFormField
-      [class]="field.cssClass ?? (crispy.fieldCssClass ?? '')"
+      class="w-100"
       [formGroup]="crispy.form"
     >
       <mat-label>{{ field.label }}</mat-label>
@@ -392,6 +393,16 @@ export class CrispyTemplateFieldComponent implements OnInit {
 @Component({
   selector: 'crispy-render-field',
   template: `
+      <crispy-row
+        *ngIf="field.type == 'row'"
+        [crispy]="crispy"
+        [field]="field"
+      ></crispy-row>
+      <crispy-div
+        *ngIf="field.type == 'div'"
+        [crispy]="crispy"
+        [field]="field"
+      ></crispy-div>
       <app-crispy-field-input
         *ngIf="
           field.type == 'text' ||
@@ -433,7 +444,7 @@ export class CrispyTemplateFieldComponent implements OnInit {
       </ng-container>
       <ng-container *ngIf="field.type === 'group'">
         <crispy-mat-form
-          [crispy]="getChildrenAsCrispyForm(crispy, field.name)"
+          [crispy]="getChildrenAsCrispyForm(crispy, field)"
         ></crispy-mat-form>
       </ng-container>
       <app-crispy-mat-form-array
@@ -442,7 +453,7 @@ export class CrispyTemplateFieldComponent implements OnInit {
         [group]="crispy.form"
         [initial]="field.initial"
         [fieldName]="field.name"
-        [crispy]="getChildrenAsCrispyForm(crispy, field.name)"
+        [crispy]="getChildrenAsCrispyForm(crispy, field)"
         (formGroupAdded)="formGroupAdded.emit($event)"
         (formGroupRemoved)="formGroupRemoved.emit($event)"
       ></app-crispy-mat-form-array>
@@ -472,15 +483,16 @@ export class CrispyRenderFieldComponent implements OnInit {
 
   ngOnInit() { }
 
-  getChildrenAsCrispyForm(crispy: CrispyForm, fieldName: string): CrispyForm {
-    const field: CrispyField|undefined = crispy.fields.find(
-      (cf) => cf.name == fieldName
-    );
-    const crispyForm = {
-      form: crispy.form.controls[fieldName] as FormGroup,
-      fields: field?.children || [],
-      fieldCssClass: crispy.fieldCssClass,
-    };
+  getChildrenAsCrispyForm(crispy: CrispyForm, field: CrispyField): CrispyForm {
+    // const field: CrispyField|undefined = crispy.fields.find(
+    //   (cf) => cf.name == fieldName
+    // );
+    const crispyForm = buildCrispyForm(field.children ?? [], (code, args) => code, field?.cssClass, field.validators)
+    // const crispyForm = {
+    //   form: crispy.form.controls[field.name] as FormGroup,
+    //   field: field?.children || [],
+    //   fieldCssClass: crispy.fieldCssClass,
+    // };
     return crispyForm;
   }
 
@@ -497,7 +509,7 @@ export class CrispyRenderFieldComponent implements OnInit {
     <ng-container *ngFor="let child of field.children">
       <crispy-render-field
         [crispy]="crispy"
-        [field]="field"
+        [field]="child"
       ></crispy-render-field>
     </ng-container>
   </div> `,
@@ -522,7 +534,8 @@ export class CrispyDivComponent implements OnInit {
     <ng-container *ngFor="let child of field.children">
       <crispy-render-field
         [crispy]="crispy"
-        [field]="field"
+        [field]="child"
+        [class]="child.cssClass ?? ''"
       ></crispy-render-field>
     </ng-container>
   </div> `,

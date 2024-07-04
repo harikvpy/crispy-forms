@@ -80,6 +80,6 @@ export interface CrispyField {
 
 export interface CrispyForm {
   form: FormGroup<any>;
-  fields: CrispyField[];
+  field: CrispyField;  // |CrispyField[];
   fieldCssClass?: string;
 }

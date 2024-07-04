@@ -10,7 +10,8 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  QueryList
+  QueryList,
+  ViewChild
 } from '@angular/core';
 import {
   FormArray,
@@ -21,6 +22,7 @@ import { buildCrispyForm, getFormGroup } from './crispy-mat-form-helper';
 import { CrispyField, CrispyForm } from './crispy-types';
 import { CrispyFieldNameDirective } from './field-name.directive';
 import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
+import { CrispyDivComponent } from './crispy-internal-components';
 
 /**
  * `<crispy-mat-form>` is a component that makes creating & rendering angular
@@ -92,71 +94,16 @@ import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
 @Component({
   selector: 'crispy-mat-form',
   template: `
-    <span *ngFor="let f of crispy.fields">
+    <crispy-div
+      [crispy]="crispy"
+      [field]="crispy.field"
+    ></crispy-div>
+    <!-- <span *ngFor="let f of crispy.fields">
       <crispy-render-field
       [crispy]="crispy"
       [field]="f"
       ></crispy-render-field>
-      <!-- <app-crispy-field-input
-        *ngIf="
-          f.type == 'text' ||
-          f.type == 'number' ||
-          f.type == 'email' ||
-          f.type == 'password' ||
-          f.type == 'search' ||
-          f.type == 'textarea'
-        "
-        [crispy]="crispy"
-        [field]="f"
-      ></app-crispy-field-input>
-      <app-crispy-field-select
-        *ngIf="f.type == 'select'"
-        [crispy]="crispy"
-        [field]="f"
-      ></app-crispy-field-select>
-      <app-crispy-field-daterange
-        *ngIf="f.type == 'daterange'"
-        [crispy]="crispy"
-        [field]="f"
-      ></app-crispy-field-daterange>
-      <app-crispy-field-date
-        *ngIf="f.type == 'date'"
-        [crispy]="crispy"
-        [field]="f"
-      ></app-crispy-field-date>
-      <app-crispy-field-checkbox
-        *ngIf="f.type == 'checkbox'"
-        [crispy]="crispy"
-        [field]="f"
-      ></app-crispy-field-checkbox>
-      <ng-container *ngIf="f.type == 'custom'" [formGroup]="crispy.form">
-        <app-crispy-field-custom
-          [crispy]="crispy"
-          [formControlName]="f.name"
-          [field]="f"
-        ></app-crispy-field-custom>
-      </ng-container>
-      <ng-container *ngIf="f.type === 'group'">
-        <crispy-mat-form
-          [crispy]="getChildrenAsCrispyForm(crispy, f.name)"
-        ></crispy-mat-form>
-      </ng-container>
-      <app-crispy-mat-form-array
-        *ngIf="f.type === 'groupArray'"
-        [label]="f.label ?? ''"
-        [group]="crispy.form"
-        [initial]="f.initial"
-        [fieldName]="f.name"
-        [crispy]="getChildrenAsCrispyForm(crispy, f.name)"
-        (formGroupAdded)="formGroupAdded.emit($event)"
-        (formGroupRemoved)="formGroupRemoved.emit($event)"
-      ></app-crispy-mat-form-array>
-      <app-crispy-field-template
-        *ngIf="f.type == 'template'"
-        [crispy]="crispy"
-        [field]="f"
-      ></app-crispy-field-template> -->
-    </span>
+    </span> -->
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -179,6 +126,8 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
     form: FormGroup;
   }>();
 
+  @ViewChild(CrispyDivComponent) wrapperDiv!: CrispyDivComponent;
+
   private _tempForm = new FormGroup({});
 
   constructor(private injector: Injector) {}
@@ -195,6 +144,13 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
 
   ngOnDestroy(): void {}
 
+  // get form(): FormGroup|undefined {
+  //   if (this.wrapperDiv) {
+  //     return this.wrapperDiv.crispy.form;
+  //   }
+  //   return undefined;
+  // }
+/*
   getChildrenAsCrispyForm(crispy: CrispyForm, fieldName: string): CrispyForm {
     const field: CrispyField|undefined = crispy.fields.find(
       (cf) => cf.name == fieldName
@@ -210,7 +166,7 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
   get form(): FormGroup<any> {
     return this.crispy ? this.crispy.form : this._tempForm;
   }
-
+*/
   /**
    * Creates CrispyForm object from array of CrispyField objects passed
    * as @Input() fields.
@@ -354,6 +310,7 @@ export class CrispyMatFormArrayComponent implements OnInit {
   }
 
   addRow(initial: any, emit = true) {
+    /*
     const crispy: CrispyForm = {
       ...this.crispy,
       form: getFormGroup(this.crispy.fields),
@@ -372,6 +329,7 @@ export class CrispyMatFormArrayComponent implements OnInit {
       this.formGroupAdded.emit({ field: this.fieldName, form: crispy.form });
     }
     this.cdr.markForCheck();
+    */
   }
 
   delRow(index: number) {

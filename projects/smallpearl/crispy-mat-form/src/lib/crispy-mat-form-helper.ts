@@ -60,11 +60,52 @@ const isInputFieldType = (type: CrispyFieldType) =>
   type == 'search' ||
   type == 'textarea';
 
+// V2 - imported from crispy-test
+function buildFormGroup(cfs: CrispyField[], fg: FormGroup): FormGroup {
+  cfs.forEach((cf) => {
+    if (cf.type === 'row') {
+      // All the children of this row should be distributed equally in the
+      // row. Use 12 columns/# of children to get the width of each column.      
+      if (cf.children) {
+        const colWidth = Math.floor(12/cf.children.length);
+        const lastColWidth = colWidth + (12 - cf.children.length*colWidth);
+        const colWidths: string[] = [];
+        for (let index = 0; index < cf.children.length-1; index++) {
+          colWidths.push(`col-sm-${colWidth}`);
+        }
+        colWidths.push(`col-sm-${lastColWidth}`);
+        buildFormGroup(cf.children, fg);
+        cf.children.forEach((field: CrispyField, index: number) => {
+          field.cssClass = (field.cssClass ?? '') + ' ' + colWidths[index];
+        });
+      }
+    }
+    else if (cf.type === 'div') {
+      if (cf.children) {
+        buildFormGroup(cf.children, fg);
+      }
+    } else {
+      if (cf.type === 'group') {
+        if (cf.children) {
+          const subFg = new FormGroup({});
+          fg.addControl(cf.name, buildFormGroup(cf.children, subFg));
+        }
+      } else if (cf.type === 'groupArray') {
+        const fa = new FormArray<FormGroup>([])
+        fg.addControl(cf.name, fa);
+      } else {
+        fg.addControl(cf.name, getFormControl(cf));
+      }
+    }
+  });
+  return fg;
+}
+
 /**
  * A function to construct a CrispyForm object from its constituent
  * field definitions.
  * 
- * @param fields - Array of fields to be included in the form.
+ * @param field - Array of fields to be included in the form.
  * @param translateFn - String translation function
  * @param fieldCssClass - Global field css class, if per field css class is
  * not specified, this will be used.
@@ -74,16 +115,54 @@ const isInputFieldType = (type: CrispyFieldType) =>
  * its `crispy` property value.
  */
 export function buildCrispyForm(
-  fields: CrispyField[],
+  field: CrispyField|CrispyField[],
   translateFn: TRANSLATE_FN,
   fieldCssClass?: string,
   validatorOrOpts?: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null,
   asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | null
 ): CrispyForm {
+
+  if (Array.isArray(field)) {
+    field = CrispyDiv(
+      'container',
+      field
+    );
+  }
+  const fg = new FormGroup({}, validatorOrOpts, asyncValidator);
   return {
-    form: getFormGroup(fields, validatorOrOpts, asyncValidator),
-    fields: getCrispyFields(fields, translateFn, fieldCssClass),
-    fieldCssClass,
+    form: buildFormGroup([field], fg),
+    field,
+    fieldCssClass: ''
+  }
+
+  // return {
+  //   form: getFormGroup(field, validatorOrOpts, asyncValidator),
+  //   fields: getCrispyFields(field, translateFn, fieldCssClass),
+  //   fieldCssClass,
+  // };
+}
+
+export function CrispyDiv(
+  cssClass: string,
+  children: CrispyField | CrispyField[]
+): CrispyField {
+  return {
+    type: 'div',
+    name: '',
+    cssClass,
+    children: Array.isArray(children) ? children : [children],
+  };
+}
+
+export function CrispyRow(
+  children: CrispyField | CrispyField[],
+  cssClass?: string,
+): CrispyField {
+  return {
+    type: 'row',
+    name: '',
+    cssClass: 'row ' + (cssClass ? cssClass : ''),
+    children: Array.isArray(children) ? children : [children],
   };
 }
 
@@ -98,9 +177,31 @@ export function crispyTextField(
   return { type: 'text', name, initial, validators, label, hint, cssClass };
 }
 
+export function CrispyText(
+  name: string,
+  initial?: string,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+) {
+  return { type: 'text', name, initial, validators, label, hint, cssClass };
+}
+
 export function crispyNumberField(
   name: string,
   initial: number|undefined,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyField {
+  return { type: 'number', name, initial, validators, label, hint, cssClass };
+}
+
+export function CrispyNumber(
+  name: string,
+  initial?: number,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
@@ -120,6 +221,17 @@ export function crispyEmailField(
   return { type: 'email', name, initial, validators, label, hint, cssClass };
 }
 
+export function CrispyEmail(
+  name: string,
+  initial?: string,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyField {
+  return { type: 'email', name, initial, validators, label, hint, cssClass };
+}
+
 export function crispyDateField(
   name: string,
   initial: Date,
@@ -131,9 +243,32 @@ export function crispyDateField(
   return { type: 'date', name, initial, validators, label, hint, cssClass };
 }
 
+export function CrispyDate(
+  name: string,
+  initial?: Date,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyField {
+  return { type: 'date', name, initial, validators, label, hint, cssClass };
+}
+
+
 export function crispyTextareaField(
   name: string,
   initial: string,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyField {
+  return { type: 'textarea', name, initial, validators, label, hint, cssClass };
+}
+
+export function CrispyTextarea(
+  name: string,
+  initial?: string,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
@@ -153,9 +288,32 @@ export function crispySearchField(
   return { type: 'search', name, initial, validators, label, hint, cssClass };
 }
 
+
+export function CrispySearch(
+  name: string,
+  initial?: string,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyField {
+  return { type: 'search', name, initial, validators, label, hint, cssClass };
+}
+
 export function crispyPasswordField(
   name: string,
   initial = '',
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyField {
+  return { type: 'password', name, initial, validators, label, hint, cssClass };
+}
+
+export function CrispyPassword(
+  name: string,
+  initial?: string,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
@@ -168,6 +326,28 @@ export function crispySelectField(
   name: string,
   options: SelectOption[]|Observable<SelectOption[]>,
   initial: any,
+  validators?: ValidatorFn | ValidatorFn[],
+  cssClass?: string,
+  label?: string,
+  hint?: string,
+): CrispyField {
+  return {
+    type: 'select',
+    name,
+    initial,
+    validators,
+    label,
+    hint,
+    cssClass,
+    options: { options: options },
+  };
+}
+
+
+export function CrispySelect(
+  name: string,
+  options: SelectOption[]|Observable<SelectOption[]>,
+  initial?: string | number,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,

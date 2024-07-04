@@ -9,6 +9,7 @@ import {
 import {
   CrispyField,
   CrispyMatFormComponent,
+  CrispyRow,
   buildCrispyForm,
   crispyCheckboxField,
   crispyCustomComponentField,
@@ -29,7 +30,7 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
   selector: 'app-root',
   template: `
     <h1>Crispy Form Demo</h1>
-    <form [formGroup]="crispyComponent.form" (ngSubmit)="onSubmit()" errorTailor>
+    <form [formGroup]="crispy.form" (ngSubmit)="onSubmit()" errorTailor>
       <crispy-mat-form
         [crispy]="crispy"
         (formGroupAdded)="onFormGroupAdded($event)"
@@ -48,7 +49,7 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="crispyComponent.form.invalid"
+          [disabled]="crispy.form.invalid"
         >
           Submit
         </button>
@@ -95,7 +96,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    const items: FormArray = this.crispyComponent.form.controls['items'] as FormArray;
+    const items: FormArray = this.crispy.form?.controls['items'] as FormArray;
     if (items) {
       items.valueChanges.pipe(
         tap((values: { name: string; qty: number; unitPrice: number; total: number} []) => {
@@ -154,8 +155,14 @@ export class AppComponent implements OnInit, AfterViewInit {
       return null;
     };
     const fields: CrispyField[] = [
-      crispyTextField('firstName', 'Peter', [Validators.required], 'pe-2 w-50'),
-      crispyTextField('lastName', 'Parker', undefined, 'w-50'),
+      CrispyRow(
+        [
+          crispyTextField('firstName', 'Peter', undefined, undefined, 'First name'),
+          crispyTextField('lastName', 'Parker', undefined, undefined, 'Last name'),
+        ]
+      ),
+      // crispyTextField('firstName', 'Peter', [Validators.required], 'pe-2 w-50'),
+      // crispyTextField('lastName', 'Parker', undefined, 'w-50'),
       crispyDateField('date', new Date(), undefined, 'w-100'),
       crispyDateRangeField(
         'publishedOn',
@@ -266,7 +273,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     //   translateFn: TXFN,
     //   template: undefined
     // }
-    return buildCrispyForm(fields, (code: string, args: any) => code.toUpperCase());
+    const crispy = buildCrispyForm(fields, (code: string, args: any) => code.toUpperCase());
+    return crispy;
   }
   
   onFormGroupAdded(event: any) {
@@ -281,13 +289,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   onReset() {
-    this.crispyComponent.form.reset();
+    this.crispy.form?.reset();
   }
 
   onSubmit() {
     console.log(
       `onSubmit - form.value: ${JSON.stringify(
-        this.crispyComponent.form.value
+        this.crispy.form?.value
       )}`
     );
   }
