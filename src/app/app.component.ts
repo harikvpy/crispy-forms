@@ -15,23 +15,13 @@ import {
   CrispyFormGroup,
   CrispyFormGroupArray,
   CrispyMatFormComponent,
+  CrispyNumber,
   CrispyPassword,
   CrispyRow,
   CrispySelect,
   CrispyTemplate,
   CrispyText,
-  buildCrispyForm,
-  crispyCheckboxField,
-  crispyCustomComponentField,
-  crispyDateField,
-  crispyDateRangeField,
-  crispyFormGroup,
-  crispyFormGroupArray,
-  crispyNumberField,
-  crispyPasswordField,
-  crispySelectField,
-  crispyTemplateField,
-  crispyTextField
+  buildCrispy
 } from '@smallpearl/crispy-mat-form';
 import { BehaviorSubject, of, tap } from 'rxjs';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
@@ -198,11 +188,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         CrispyRow([
           CrispyPassword('password', '', {
             validators: Validators.required,
-            label: 'Password',
           }),
           CrispyPassword('confirmPassword', '', {
             validators: Validators.required,
-            label: 'Confirm Password',
           }),
         ]),
         (fg) => matchPasswords(fg as FormGroup)
@@ -237,35 +225,26 @@ export class AppComponent implements OnInit, AfterViewInit {
           subscriber: '0787',
         }),
       ]),
-      // crispyNumberField('age', undefined, undefined, 'w-100'),
+      CrispyNumber('age'),
       CrispyCheckbox('public', false),
-      crispyTemplateField('dummy', [1, 2, 3]),
+      CrispyTemplate('dummy', [1, 2, 3]),
       CrispyFormGroupArray(
         'items',
         [
           CrispyRow([
-            crispyTextField(
-              'name',
-              '',
-              Validators.required,
-              'w-40 pe-2',
-              'Name'
-            ),
-            crispyNumberField(
-              'qty',
-              0,
-              Validators.required,
-              'w-20 pe-2',
-              'Quantity'
-            ),
-            crispyNumberField(
-              'unitPrice',
-              0,
-              Validators.required,
-              'w-20 pe-2',
-              'Unit Price'
-            ),
-            crispyTemplateField('lineTotal', 0, undefined, 'w-20'),
+            CrispyText('name', '', {
+              validators: Validators.required,
+              label: 'Name'
+            }),
+            CrispyNumber('qty', 0, {
+              validators: Validators.required,
+              label: 'Quantity'
+            }),
+            CrispyNumber('unitPrice', 0,{
+              validators: Validators.required,
+              label: 'Unit Price'
+            }),
+            CrispyTemplate('lineTotal', 0),
           ]),
         ],
         [
@@ -286,10 +265,10 @@ export class AppComponent implements OnInit, AfterViewInit {
         },
       },
     ];
-    const crispy = buildCrispyForm(fields, (code: string, args: any) => code.toUpperCase());
+    const crispy = buildCrispy(fields);
     return crispy;
   }
-  
+
   onFormGroupAdded(event: any) {
     const fgEvent: {field: string, form: FormGroup} = event as {field: string, form: FormGroup};
     // console.log(`form group added - field: ${fgEvent.field}, group: ${fgEvent.form}`);
