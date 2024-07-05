@@ -1,8 +1,9 @@
 /**
  * Crispy Forms is a forms engine that combines form definition and its layout
- * in a single declaration. It layers over the Angular native reactive forms
- * and integartes a layout engine which arranges the form's controls as per its
- * definition in the CrispyField object.
+ * in a single declaration, all from TypeScript code. Naturally it layers over
+ * the Angular native reactive forms, but integartes a layout engine which
+ * arranges the form's controls as per its definition in the CrispyField
+ * object.
  * 
  * Typically there's a one-to-one mapping between the reactive form field
  * and it's layout definition. Therefore, given a layout definition, it's
@@ -27,25 +28,22 @@
  */
 
 import {
-  ValidatorFn,
-  FormControl,
-  FormGroup,
   AbstractControlOptions,
   AsyncValidatorFn,
-  FormArray,
+  FormGroup,
+  ValidatorFn
 } from '@angular/forms';
-import {
-  CrispyFieldType,
-  CrispyField,
-  CrispyForm,
-  SelectOption,
-  DateRangeOptions,
-  CustomComponentOptions,
-  FieldContext,
-  TemplateComponentOptions,
-} from './crispy-types';
 import { Observable } from 'rxjs';
 import { buildFormGroup } from './crispy-internal-components';
+import {
+  CrispyField,
+  CrispyForm,
+  CustomComponentOptions,
+  DateRangeOptions,
+  FieldContext,
+  SelectOption,
+  TemplateComponentOptions
+} from './crispy-types';
 
 type TRANSLATE_FN = (code: string, args?: any) => string;
 
@@ -62,10 +60,8 @@ type TRANSLATE_FN = (code: string, args?: any) => string;
  * @returns CrispyForm object that can be passed to `crispy-mat-form` as
  * its `crispy` property value.
  */
-export function buildCrispyForm(
+export function buildCrispy(
   field: CrispyField|CrispyField[],
-  translateFn: TRANSLATE_FN,
-  fieldCssClass?: string,
   validatorOrOpts?: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null,
   asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | null
 ): CrispyForm {
@@ -203,7 +199,6 @@ export function CrispyDate(
     initial
   };
 }
-
 
 export function crispyTextareaField(
   name: string,

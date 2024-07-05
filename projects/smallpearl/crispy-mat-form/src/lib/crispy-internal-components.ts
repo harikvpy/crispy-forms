@@ -147,7 +147,7 @@ function getFormControl(cf: CrispyField) {
 }
 
 @Component({
-  selector: 'app-crispy-field-input',
+  selector: 'crispy-field-input',
   template: `
     <mat-form-field
       class="w-100"
@@ -198,7 +198,7 @@ export class CrispyInputFieldTypeComponent implements OnInit {
 }
 
 @Component({
-  selector: 'app-crispy-field-select',
+  selector: 'crispy-field-select',
   template: `
     <mat-form-field
       class="w-100"
@@ -244,7 +244,7 @@ export class CrispySelectFieldComponent implements OnInit {
 }
 
 @Component({
-  selector: 'app-crispy-field-daterange',
+  selector: 'crispy-field-daterange',
   template: `
     <mat-form-field
       class="w-100"
@@ -296,7 +296,7 @@ export class CrispyDateRangeFieldComponent implements OnInit {
 }
 
 @Component({
-  selector: 'app-crispy-field-date',
+  selector: 'crispy-field-date',
   template: `
     <mat-form-field
       class="w-100"
@@ -326,7 +326,7 @@ export class CrispyDateFieldComponent implements OnInit {
 }
 
 @Component({
-  selector: 'app-crispy-field-checkbox',
+  selector: 'crispy-field-checkbox',
   template: `
     <span [formGroup]="crispy.form">
       <mat-checkbox
@@ -355,7 +355,7 @@ export class CrispyDynamicControlDirective {
 }
 
 @Component({
-  selector: 'app-crispy-field-custom',
+  selector: 'crispy-field-custom',
   template: `
     <mat-form-field
       #matFormField
@@ -447,7 +447,7 @@ export class CrispyCustomFieldComponent
 }
 
 @Component({
-  selector: 'app-crispy-field-template',
+  selector: 'crispy-field-template',
   template: `
     <div [class]="'w-100 ' + field.cssClass || crispy.fieldCssClass">
       <ng-template crispyDynamicControl></ng-template>
@@ -514,7 +514,7 @@ export class CrispyTemplateFieldComponent implements OnInit {
         [crispy]="crispy"
         [field]="field"
       ></crispy-div>
-      <app-crispy-field-input
+      <crispy-field-input
         *ngIf="
           field.type == 'text' ||
           field.type == 'number' ||
@@ -525,40 +525,40 @@ export class CrispyTemplateFieldComponent implements OnInit {
         "
         [crispy]="crispy"
         [field]="field"
-      ></app-crispy-field-input>
-      <app-crispy-field-select
+      ></crispy-field-input>
+      <crispy-field-select
         *ngIf="field.type == 'select'"
         [crispy]="crispy"
         [field]="field"
-      ></app-crispy-field-select>
-      <app-crispy-field-daterange
+      ></crispy-field-select>
+      <crispy-field-daterange
         *ngIf="field.type == 'daterange'"
         [crispy]="crispy"
         [field]="field"
-      ></app-crispy-field-daterange>
-      <app-crispy-field-date
+      ></crispy-field-daterange>
+      <crispy-field-date
         *ngIf="field.type == 'date'"
         [crispy]="crispy"
         [field]="field"
-      ></app-crispy-field-date>
-      <app-crispy-field-checkbox
+      ></crispy-field-date>
+      <crispy-field-checkbox
         *ngIf="field.type == 'checkbox'"
         [crispy]="crispy"
         [field]="field"
-      ></app-crispy-field-checkbox>
+      ></crispy-field-checkbox>
       <ng-container *ngIf="field.type == 'custom'" [formGroup]="crispy.form">
-        <app-crispy-field-custom
+        <crispy-field-custom
           [crispy]="crispy"
           [formControlName]="field.name"
           [field]="field"
-        ></app-crispy-field-custom>
+        ></crispy-field-custom>
       </ng-container>
       <ng-container *ngIf="field.type === 'group'">
         <crispy-mat-form
           [crispy]="groupCrispy"
         ></crispy-mat-form>
       </ng-container>
-      <app-crispy-mat-form-array
+      <crispy-form-array
         *ngIf="field.type === 'groupArray'"
         [label]="field.label ?? ''"
         [group]="crispy.form"
@@ -567,12 +567,12 @@ export class CrispyTemplateFieldComponent implements OnInit {
         [crispy]="crispy"
         (formGroupAdded)="formGroupAdded.emit($event)"
         (formGroupRemoved)="formGroupRemoved.emit($event)"
-      ></app-crispy-mat-form-array>
-      <app-crispy-field-template
+      ></crispy-form-array>
+      <crispy-field-template
         *ngIf="field.type == 'template'"
         [crispy]="crispy"
         [field]="field"
-      ></app-crispy-field-template>  
+      ></crispy-field-template>  
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -667,9 +667,9 @@ export class CrispyRowComponent implements OnInit {
  * instances of this object. 
  */
 @Component({
-  selector: 'app-crispy-mat-form-array',
+  selector: 'crispy-form-array',
   template: `
-    <div class="crispy-mat-form-array-wrapper" [formGroup]="group">
+    <div class="crispy-form-array-wrapper" [formGroup]="group">
       <div class="form-array-label">{{ label }}</div>
       <div
         class="form-array-wrapper"
@@ -698,7 +698,7 @@ export class CrispyRowComponent implements OnInit {
   `,
   styles: [
     `
-      .crispy-mat-form-array-wrapper {
+      .crispy-form-array-wrapper {
         margin: 0.5em 0;
         /*
         border: 1px solid lightgrey;

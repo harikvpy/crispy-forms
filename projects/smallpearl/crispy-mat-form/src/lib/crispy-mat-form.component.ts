@@ -16,10 +16,11 @@ import {
   FormGroup
 } from '@angular/forms';
 import { CrispyDivComponent } from './crispy-internal-components';
-import { buildCrispyForm } from './crispy-mat-form-helper';
+import { buildCrispy } from './crispy-mat-form-helper';
 import { CrispyField, CrispyForm } from './crispy-types';
 import { CrispyFieldNameDirective } from './field-name.directive';
-import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
+import { CRISPY_FORMS_CONFIG_PROVIDER, CrispyFormsConfig } from './providers';
+import { DEFAULT_CRISPY_CONFIG, DEFAULT_LABEL_FN } from './config';
 
 /**
  * `<crispy-mat-form>` is a component that makes creating & rendering angular
@@ -109,10 +110,13 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
   @ContentChildren(CrispyFieldNameDirective)
   fieldTemplates!: QueryList<CrispyFieldNameDirective>;
 
-  @Input({ required: false }) crispy!: CrispyForm;
+  /**
+   * @deprecated
+   */
   @Input({ required: false }) fields!: CrispyField[];
+
+  @Input({ required: false }) crispy!: CrispyForm;
   @Input({ required: false }) cssClass!: string;
-  @Input({ required: false }) multi = false;
 
   @Output() formGroupAdded = new EventEmitter<{
     field: string;
@@ -125,14 +129,13 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
 
   @ViewChild(CrispyDivComponent) wrapperDiv!: CrispyDivComponent;
 
-  private _tempForm = new FormGroup({});
-
   constructor(private injector: Injector) {}
 
   ngOnInit(): void {
     if (this.fields && !this.crispy) {
       this.crispy = this.createCrispyFormFromFields(this.fields, this.cssClass);
     }
+    this.initFieldLabels();
   }
 
   ngAfterViewInit(): void {
@@ -141,7 +144,32 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
 
   ngOnDestroy(): void {}
 
+  private initFieldLabels() {
+    const crispyConfig = this.injector.get(CRISPY_FORMS_CONFIG_PROVIDER, DEFAULT_CRISPY_CONFIG);
+    if (this.crispy && crispyConfig) {
+      const labelFn: CrispyFormsConfig['labelFn'] = crispyConfig.labelFn
+        ? crispyConfig.labelFn
+        : DEFAULT_LABEL_FN;
+      const setFieldLabel = (field: CrispyField) => {
+        if (!field.label && field.name) {
+          field.label = labelFn(field.name);
+        }
+        if (field.children) {
+          field.children.forEach(child => {
+            if (child.type !== 'group') {
+              setFieldLabel(child);
+            }
+          });
+        }
+      }
+      setFieldLabel(this.crispy.field);
+    }
+  }
+
   /**
+   * @deprecated - Use `crispy` property to specify CrispyForm as input
+   * instead of `fields`.
+   *
    * Creates CrispyForm object from array of CrispyField objects passed
    * as @Input() fields.
    *
@@ -156,6 +184,6 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
     if (!defaultCssClass) {
       defaultCssClass = config && config.defaultCssClass ? config.defaultCssClass : '';
     }
-    return buildCrispyForm(fields, labelFn, defaultCssClass);
+    return buildCrispy(fields);
   }
 }

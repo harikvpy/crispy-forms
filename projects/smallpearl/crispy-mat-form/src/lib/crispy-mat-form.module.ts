@@ -22,11 +22,9 @@ import {
   CrispyRenderFieldComponent,
   CrispyRowComponent,
   CrispySelectFieldComponent,
-  CrispyTemplateFieldComponent
+  CrispyTemplateFieldComponent,
 } from './crispy-internal-components';
-import {
-  CrispyMatFormComponent,
-} from './crispy-mat-form.component';
+import { CrispyMatFormComponent } from './crispy-mat-form.component';
 import { CrispyFieldNameDirective } from './field-name.directive';
 import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.component';
 
@@ -61,11 +59,11 @@ import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.co
     MatCheckboxModule,
     errorTailorImports,
   ],
-  exports: [CrispyFieldNameDirective, CrispyMatFormComponent, MatErrorTailorControlErrorComponent],
-  providers: [
-    // provideErrorTailorConfig({
-    //   controlErrorComponent: CrispyControlErrorComponent,
-    // })
+  exports: [
+    CrispyFieldNameDirective,
+    CrispyMatFormComponent,
+    MatErrorTailorControlErrorComponent,
   ],
+  providers: [],
 })
 export class CrispyMatFormModule {}
