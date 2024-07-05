@@ -1,10 +1,16 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
   FormGroup,
   ValidationErrors,
-  Validators
+  Validators,
 } from '@angular/forms';
 import {
   CrispyCheckbox,
@@ -22,7 +28,7 @@ import {
   CrispySelect,
   CrispyTemplate,
   CrispyText,
-  buildCrispy
+  buildCrispy,
 } from '@smallpearl/crispy-mat-form';
 import { BehaviorSubject, of, tap } from 'rxjs';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
@@ -66,26 +72,46 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
       </span>
     </ng-template>
 
-    <ng-template crispyFieldName="dummy" let-control="control" let-field="field" let-crispy="crispy" let-formGroup="formGroup">
-        Members: <span *ngFor="let m of control.value">{{ m }}&nbsp;</span>
+    <ng-template
+      crispyFieldName="dummy"
+      let-control="control"
+      let-field="field"
+      let-crispy="crispy"
+      let-formGroup="formGroup"
+    >
+      Members: <span *ngFor="let m of control.value">{{ m }}&nbsp;</span>
     </ng-template>
 
-    <ng-template crispyFieldName="lineTotal" let-formGroup="formGroup">
+    <ng-template
+      crispyFieldName="lineTotal"
+      let-formGroup="formGroup"
+      let-control="control"
+    >
       <div style="text-align: right;">
-        <h3>{{ getLineTotal(formGroup) }}</h3>
+        <h3>{{ asCurrency(control.value) }}</h3>
       </div>
     </ng-template>
 
-    <ng-template crispyFieldName="total" let-control="control" let-field="field" let-crispy="crispy" let-formGroup="formGroup">
-      <div style="width: 100% !important; display: flex; justify-content: end; padding: 0.4em 1em;">
-        <h2>Total: {{ total|async }}</h2>
+    <ng-template
+      crispyFieldName="total"
+      let-control="control"
+      let-field="field"
+      let-crispy="crispy"
+      let-formGroup="formGroup"
+    >
+      <div
+        style="width: 100% !important; display: flex; justify-content: end; padding: 0.4em 1em;"
+      >
+        <h2 *ngIf="total | async as invoiceTotal">
+          Total: {{ asCurrency(invoiceTotal) }}
+        </h2>
       </div>
     </ng-template>
 
     <!-- <router-outlet></router-outlet> -->
   `,
   styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit, AfterViewInit {
   crispy = this.getCrispy();
@@ -100,24 +126,36 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     const items: FormArray = this.crispy.form?.controls['items'] as FormArray;
     if (items) {
-      items.valueChanges.pipe(
-        tap((values: { name: string; qty: number; unitPrice: number; total: number} []) => {
-          let invoiceTotal = 0;
-          values.forEach((value, index: number) => {
-            try {
-              if (value.qty !== undefined && value.unitPrice !== undefined) {
-                const total = value.qty * value.unitPrice;
-                invoiceTotal += total;
-                items.at(index).get('total')?.setValue(total, {emitEvent: false, onlySelf: true});
-              }
-            } catch (error) {
-              
+      items.valueChanges
+        .pipe(
+          tap(
+            (
+              values: {
+                name: string;
+                qty: number;
+                unitPrice: number;
+                total: number;
+              }[]
+            ) => {
+              let invoiceTotal = 0;
+              values.forEach((value, index: number) => {
+                const lineTotal = Number(value.qty) * Number(value.unitPrice);
+                invoiceTotal += lineTotal;
+                const totalControl = (items.at(index) as FormGroup).controls[
+                  'total'
+                ];
+                (items.at(index) as FormGroup).controls['lineTotal']?.setValue(
+                  lineTotal,
+                  { emitEvent: false }
+                );
+              });
+              this.crispy.form.controls['total'].setValue(invoiceTotal);
+              this.total.next(invoiceTotal);
+              // console.log(`invoice total: ${invoiceTotal}`);
             }
-          })
-          this.total.next(invoiceTotal);
-          // console.log(`items changed: ${JSON.stringify(values)}`);
-        })
-      ).subscribe();
+          )
+        )
+        .subscribe();
     }
   }
 
@@ -186,10 +224,10 @@ export class AppComponent implements OnInit, AfterViewInit {
         'matchingPassword',
         CrispyRow([
           CrispyPassword('password', '', {
-            validators: Validators.required,
+            // validators: Validators.required,
           }),
           CrispyPassword('confirmPassword', '', {
-            validators: Validators.required,
+            // validators: Validators.required,
           }),
         ]),
         (fg) => matchPasswords(fg as FormGroup)
@@ -233,15 +271,15 @@ export class AppComponent implements OnInit, AfterViewInit {
           CrispyRow([
             CrispyText('name', '', {
               validators: Validators.required,
-              label: 'Name'
+              label: 'Name',
             }),
             CrispyNumber('qty', 0, {
               validators: Validators.required,
-              label: 'Quantity'
+              label: 'Quantity',
             }),
-            CrispyNumber('unitPrice', 0,{
+            CrispyNumber('unitPrice', 0, {
               validators: Validators.required,
-              label: 'Unit Price'
+              label: 'Unit Price',
             }),
             CrispyTemplate('lineTotal', 0),
           ]),
@@ -252,17 +290,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         ],
         { label: 'Line Items' }
       ),
-      {
-        type: 'template',
-        name: 'total',
-        cssClass: 'w-100',
-        initial: 0,
-        options: {
-          templateComponentOptions: {
-            context: { customers: [] },
-          },
-        },
-      },
+      CrispyTemplate('total', 0, {
+        context: { customers: [] },
+      }),
     ];
     const crispy = buildCrispy(
       CrispyDiv('container', fields),
@@ -274,14 +304,23 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   onFormGroupAdded(event: any) {
-    const fgEvent: {field: string, form: FormGroup} = event as {field: string, form: FormGroup};
-    // console.log(`form group added - field: ${fgEvent.field}, group: ${fgEvent.form}`);
-    // fgEvent.form.controls['total'].disable();
+    const fgEvent: { field: string; form: FormGroup } = event as {
+      field: string;
+      form: FormGroup;
+    };
+    console.log(
+      `form group added - field: ${fgEvent.field}, group valid?: ${fgEvent.form.valid}`
+    );
   }
 
   onFormGroupRemoved(event: any) {
-    const fgEvent: {field: string, form: FormGroup} = event as {field: string, form: FormGroup};
-    // console.log(`form group removed - field: ${fgEvent.field}, group: ${fgEvent.form}`);
+    const fgEvent: { field: string; form: FormGroup } = event as {
+      field: string;
+      form: FormGroup;
+    };
+    console.log(
+      `form group removed - field: ${fgEvent.field}, group: ${fgEvent.form}`
+    );
   }
 
   onReset() {
@@ -290,18 +329,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   onSubmit() {
     console.log(
-      `onSubmit - form.value: ${JSON.stringify(
-        this.crispy.form?.value
-      )}`
+      `onSubmit - form.value: ${JSON.stringify(this.crispy.form?.value)}`
     );
   }
 
-  getLineTotal(form: FormGroup) {
-    const qty = form.controls['qty'].value;
-    const unitPrice = form.controls['unitPrice'].value;
-    if (qty !== undefined && unitPrice !== undefined) {
-      return (Math.round(qty*unitPrice * 100) / 100).toFixed(2);
-    }
-    return (Math.round(0 * 100) / 100).toFixed(2);
+  asCurrency(value: number) {
+    return (Math.round(value * 100) / 100).toFixed(2);
   }
 }
