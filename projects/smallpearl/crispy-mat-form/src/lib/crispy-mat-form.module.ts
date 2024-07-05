@@ -18,7 +18,7 @@ import {
   CrispyDivComponent,
   CrispyDynamicControlDirective,
   CrispyInputFieldTypeComponent,
-  CrispyMatFormArrayComponent,
+  CrispyFormArrayComponent,
   CrispyRenderFieldComponent,
   CrispyRowComponent,
   CrispySelectFieldComponent,
@@ -32,7 +32,7 @@ import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.co
   declarations: [
     CrispyFieldNameDirective,
     CrispyMatFormComponent,
-    CrispyMatFormArrayComponent,
+    CrispyFormArrayComponent,
     CrispySelectFieldComponent,
     CrispyInputFieldTypeComponent,
     CrispyDateRangeFieldComponent,

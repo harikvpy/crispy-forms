@@ -95,6 +95,8 @@ import { DEFAULT_CRISPY_CONFIG, DEFAULT_LABEL_FN } from './config';
     <crispy-div
       [crispy]="crispy"
       [field]="crispy.field"
+      (formGroupAdded)="formGroupAdded.emit($event)"
+      (formGroupRemoved)="formGroupRemoved.emit($event)"
     ></crispy-div>
     <!-- <span *ngFor="let f of crispy.fields">
       <crispy-render-field

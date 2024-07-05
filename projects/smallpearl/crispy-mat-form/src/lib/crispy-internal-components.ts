@@ -628,16 +628,27 @@ export class CrispyRenderFieldComponent implements OnInit {
         [crispy]="crispy"
         [field]="child"
         [class]="child.cssClass ? child.cssClass : 'row'"
+        (formGroupAdded)="formGroupAdded.emit($event)"
+        (formGroupRemoved)="formGroupRemoved.emit($event)"
       ></crispy-render-field>
     </ng-container>
   </div> `,
   styles: `
   .w-100 { width: 100% !important }
-  `
+  `,
 })
 export class CrispyDivComponent implements OnInit {
   @Input({ required: true }) crispy!: CrispyForm;
   @Input({ required: true }) field!: CrispyField;
+
+  @Output() formGroupAdded = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
+  @Output() formGroupRemoved = new EventEmitter<{
+    field: string;
+    form: FormGroup;
+  }>();
 
   constructor() {}
 
@@ -742,7 +753,7 @@ export class CrispyRowComponent implements OnInit {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CrispyMatFormArrayComponent implements OnInit {
+export class CrispyFormArrayComponent implements OnInit {
   // This is the label for the form array element
   @Input({ required: false }) label!: string;
   @Input({ required: true }) group!: FormGroup;
