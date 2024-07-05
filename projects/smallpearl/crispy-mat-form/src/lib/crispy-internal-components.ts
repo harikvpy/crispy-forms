@@ -34,14 +34,26 @@ import {
   CustomComponentOptions,
   DateRangeOptions,
   SelectOption,
-  SelectOptions,
   TemplateComponentOptions,
 } from './crispy-types';
 import { CrispyFieldNameDirective } from './field-name.directive';
 import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
 
-// V2 - imported from crispy-test
-export function buildFormGroup(cfs: CrispyField[], fg: FormGroup): FormGroup {
+/**
+ * Core of the crispy-forms library. This recursively iterates through the
+ * CrispyFields (and its children) and creates the relevant AbstractControl
+ * specialization for the field and adds them to the FormGroup object in
+ * argument 2.
+ * 
+ * @param cfs Fields to be processed
+ * @param fg FormGroup to which AbstractControl specialization is to be added.
+ * @returns FormGroup object passed in arg 2.
+ */
+export function buildFormGroup(cfs: CrispyField[], fg: FormGroup, colDivCssClassTemplate?: string): FormGroup {
+  const colClass = colDivCssClassTemplate ? colDivCssClassTemplate : 'col-sm-{width}';
+  const COLUMN_CSS_CLASS = (width: number): string => {
+    return colClass.replace('{width}', `${width}`);
+  }
   cfs.forEach((cf) => {
     if (cf.type === 'row') {
       // All the children of this row should be distributed equally in the
@@ -51,24 +63,23 @@ export function buildFormGroup(cfs: CrispyField[], fg: FormGroup): FormGroup {
         const lastColWidth = colWidth + (12 - cf.children.length*colWidth);
         const colWidths: string[] = [];
         for (let index = 0; index < cf.children.length-1; index++) {
-          colWidths.push(`col-sm-${colWidth}`);
+          colWidths.push(COLUMN_CSS_CLASS(colWidth));
         }
-        colWidths.push(`col-sm-${lastColWidth}`);
-        buildFormGroup(cf.children, fg);
+        colWidths.push(COLUMN_CSS_CLASS(lastColWidth));
+        buildFormGroup(cf.children, fg, colDivCssClassTemplate);
         cf.children.forEach((field: CrispyField, index: number) => {
           field.cssClass = field.cssClass ?  field.cssClass : colWidths[index];
         });
       }
-    }
-    else if (cf.type === 'div') {
+    } else if (cf.type === 'div') {
       if (cf.children) {
-        buildFormGroup(cf.children, fg);
+        buildFormGroup(cf.children, fg, colDivCssClassTemplate);
       }
     } else {
       if (cf.type === 'group') {
         if (cf.children) {
           const subFg = new FormGroup({}, cf.validators);
-          fg.addControl(cf.name, buildFormGroup(cf.children, subFg));
+          fg.addControl(cf.name, buildFormGroup(cf.children, subFg, colDivCssClassTemplate));
         }
       } else if (cf.type === 'groupArray') {
         const fa = new FormArray<FormGroup>([], cf.validators)
@@ -80,7 +91,6 @@ export function buildFormGroup(cfs: CrispyField[], fg: FormGroup): FormGroup {
   });
   return fg;
 }
-
 
 /**
  * Returns true if the given type is of HTML input field type.
@@ -94,7 +104,6 @@ const isInputFieldType = (type: CrispyFieldType) =>
   type == 'password' ||
   type == 'search' ||
   type == 'textarea';
-
 
 function getFormControl(cf: CrispyField) {
   const keys = Object.keys(cf);

@@ -24,8 +24,6 @@ export const DEFAULT_LABEL_FN = (value: string): string => {
 // Default crispy config
 export const DEFAULT_CRISPY_CONFIG: CrispyFormsConfig = {
   labelFn: (code: string) => DEFAULT_LABEL_FN(code),
-  defaultWrapperDivCssClass: 'container',
-  defaultColDivCssClassTemplate: 'col-sm-{width}',
   groupArrayConfig: {
     addRowText: 'Add Row'
   }

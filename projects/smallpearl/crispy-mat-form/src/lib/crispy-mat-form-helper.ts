@@ -63,7 +63,8 @@ type TRANSLATE_FN = (code: string, args?: any) => string;
 export function buildCrispy(
   field: CrispyField|CrispyField[],
   validatorOrOpts?: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null,
-  asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | null
+  asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | null,
+  colDivCssClassTemplate?: string,
 ): CrispyForm {
 
   if (Array.isArray(field)) {
@@ -74,7 +75,7 @@ export function buildCrispy(
   }
   const fg = new FormGroup({}, validatorOrOpts, asyncValidator);
   return {
-    form: buildFormGroup([field], fg),
+    form: buildFormGroup([field], fg, colDivCssClassTemplate),
     field,
     fieldCssClass: ''
   }
