@@ -1,13 +1,112 @@
-# CrispyMatForm
+<p align="center">
+  <img width="20%" height="20%" src="./logo.svg">
+</p>
 
-Crispy forms is a library to dynamically layout the controls of an Angular reactive form based on simple layout definition. The name is derived from the [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms) library which provides a similar feature, but for the Django backend.
+<br />
 
-The library depends on Angular Material and all the fields used in the form are to be compatible wth the `<mat-form-field>` interface. That is the field controls will be wrapped in a `<mat-form-field>` tag and therefore should conform to the `MatFormFieldControl<>` interface.
+> Quick and crispy Angular forms, including layout, all from TypeScript!
+
+Crispy Forms is a forms engine that combines form definition and its layout in a single declaration, all from TypeScript code. It is built over Angular's Reactive Forms, but integrates a layout engine which renders the form created from the declaration.
+
+So instead of this :
+```
+import { Component } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/reactive-forms';
+
+@Component({
+  selector: 'app-registration-form',
+  template: `
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="col-12 col-md-6">
+          <mat-form-field>
+            <mat-label>First name</mat-label>
+            <input matInput [formControlName]="firstName" placeholder="First name">
+          </mat-form-field>
+        </div>
+        <div class="col-12 col-md-6">
+          <mat-form-field>
+            <mat-label>Last name</mat-label>
+            <input matInput [formControlName]="lastName" placeholder="Last name">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12>
+          <mat-form-field>
+            <mat-label>Email</mat-label>
+            <input type="email" matInput [formControlName]="email" placeholder="Ex. pat@example.com">
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+  `
+})
+export class RegistrationFormComponent {
+  form!: FormGroup;
+  constructor(formBuilder: FormBuilder) {
+    this.form = formBuilder.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', Validators.required]
+    })
+  }
+  onSubmit() {
+    console.log(this.form.value);
+  }
+}
+```
+
+With Crispy Forms, you can do this:
+```
+import { Component } from '@angular/core';
+import { CrispyDiv, CrispyText, CrispyEmail, buildCrispy } from '@smallpearl/crispy-mat-form';
+
+@Component({
+  selector: 'app-registration-form',
+  template: `
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <crispy-mat-form [crispy]="crispy"></crispy-mat-form>
+    </form>
+  `
+})
+export class RegistrationFormComponent {
+  crispy!: CrispyForm = CrispyDiv('container', [
+    CrispyRow([
+      CrispyText('firstName', 'Peter', {
+        validators: Validators.required,
+        label: 'First name',
+      }),
+      CrispyText('lastName', 'Parker', {
+        validators: Validators.required,
+        label: 'Last name',
+      }),
+    ]),
+    CrispyEmail('email', '', {
+      validators: Validators.required,
+      label: 'Email',
+    })
+  ]);
+  constructor(formBuilder: FormBuilder) {
+    this.form = formBuilder.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', Validators.required]
+    })
+  }
+  onSubmit() {
+    console.log(this.crispy.form.value);
+  }
+}
+```
 
 # Dependencies
 
-* Angular ^15.2.0
-* Angular Material ^15.2.0
+* Angular ≥^15.0.0
+* Angular Material, ≥^15.0.0
+
+# Getting started
+
 
 # How to use
 
@@ -379,6 +478,23 @@ We're using Error Tailor's `controlErrorAnchor` directive to customize its behav
 
 # Sample code
 The demo project in the workspace shows a rather comprehensive example of how the component can be used to efficiently design forms and then process their value in your code. Particularly, you may want to pay attention to the form validators that abstracts all of the business logic of the form's data.
+
+# Advantages
+
+* All the controls are defined in *compiled* TypeScript which protects you from typos and other mistakes that can occur in HTML's declarative syntax.
+* Library takes care of the layout saving you from having to deal with HTML code and remembering the minute declarative syntax details for each Material control type.
+* Insulation from changes made to Material library between successive versions as this would only require updates to the Crispy Forms library.
+
+When you have a project consisting of tens (or even hundreds) of forms, this can increase your productivity tremendously while making the code more maintainable & therefore more robust.
+
+# Background
+The project is inspired by the [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms) which provides a similar feature, but for the Django backend. This explains the `crispy` part in its name.
+
+Currently, the library exclusively uses [Angular Material](https://material.angular.io/) components for its widgets. Material was chosen as it can be seen as an extension to the core Angular package, is well supported and does provide an exhaustive library of components that ought to satisfy most use cases. That said, it's quite feasible to adapt the library to support a different component library or even abstract the component library support as an independent module which can then be selected by the client via a global configuration.
+
+Note that though it uses Angular Material components, Crispy Forms also includes support for user developed custom components. These may be provided to the engine via named templates from client code and specified using the `CrispyTemplate` function.
+
+# Motivation
 
 # TODO
   * Unit tests
