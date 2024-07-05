@@ -30,15 +30,8 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
  */
 const CrispyConfig: CrispyFormsConfig = {
   labelFn: (code: string) => code.toUpperCase(),
-  defaultWrapperDivCssClass: 'container-fluid',
-  defaultColDivCssClassTemplate: 'col-md-{width}',
   groupArrayConfig: {
-    addRowText: interval(3000).pipe(
-      startWith(''),
-      map(() =>
-        Math.floor(Math.random() * 100) % 10 > 5 ? 'ADD ROW' : '+ Row'
-      )
-    ),
+    addRowText: 'ADD ROW'
   },
 };
 

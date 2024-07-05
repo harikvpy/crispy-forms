@@ -11,6 +11,7 @@ import {
   CrispyCustomComponent,
   CrispyDate,
   CrispyDateRange,
+  CrispyDiv,
   CrispyField,
   CrispyFormGroup,
   CrispyFormGroupArray,
@@ -160,11 +161,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         CrispyText('firstName', 'Peter', {
           label: 'First name',
           validators: Validators.required,
-          cssClass: 'col-12 col-sm-7',
         }),
         CrispyText('lastName', 'Parker', {
           validators: Validators.required,
-          cssClass: 'col-12 col-sm-5',
           label: 'Last name',
         }),
       ]),
@@ -265,7 +264,12 @@ export class AppComponent implements OnInit, AfterViewInit {
         },
       },
     ];
-    const crispy = buildCrispy(fields);
+    const crispy = buildCrispy(
+      CrispyDiv('container', fields),
+      undefined,
+      undefined,
+      'col-sm-{width}'
+    );
     return crispy;
   }
 
