@@ -4,7 +4,7 @@
  * the Angular native reactive forms, but integartes a layout engine which
  * arranges the form's controls as per its definition in the CrispyField
  * object.
- * 
+ *
  * Typically there's a one-to-one mapping between the reactive form field
  * and it's layout definition. Therefore, given a layout definition, it's
  * possible to generate the reactive form control corresponding to that
@@ -31,7 +31,7 @@ import {
   AbstractControlOptions,
   AsyncValidatorFn,
   FormGroup,
-  ValidatorFn
+  ValidatorFn,
 } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { buildFormGroup } from './crispy-internal-components';
@@ -42,44 +42,9 @@ import {
   DateRangeOptions,
   FieldContext,
   SelectOption,
-  TemplateComponentOptions
+  TemplateComponentOptions,
 } from './crispy-types';
 
-type TRANSLATE_FN = (code: string, args?: any) => string;
-
-/**
- * A function to construct a CrispyForm object from its constituent
- * field definitions.
- * 
- * @param field - Array of fields to be included in the form.
- * @param translateFn - String translation function
- * @param fieldCssClass - Global field css class, if per field css class is
- * not specified, this will be used.
- * @param validatorOrOpts - Global form validation routine.
- * @param asyncValidator - Global async form validation routine.
- * @returns CrispyForm object that can be passed to `crispy-mat-form` as
- * its `crispy` property value.
- */
-export function buildCrispy(
-  field: CrispyField|CrispyField[],
-  validatorOrOpts?: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null,
-  asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | null,
-  colDivCssClassTemplate?: string,
-): CrispyForm {
-
-  if (Array.isArray(field)) {
-    field = CrispyDiv(
-      'container',
-      field
-    );
-  }
-  const fg = new FormGroup({}, validatorOrOpts, asyncValidator);
-  return {
-    form: buildFormGroup([field], fg, colDivCssClassTemplate),
-    field,
-    fieldCssClass: ''
-  }
-}
 
 export function CrispyDiv(
   cssClass: string,
@@ -95,7 +60,7 @@ export function CrispyDiv(
 
 export function CrispyRow(
   children: CrispyField | CrispyField[],
-  cssClass?: string,
+  cssClass?: string
 ): CrispyField {
   return {
     type: 'row',
@@ -111,7 +76,7 @@ export function crispyTextField(
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return { type: 'text', name, initial, validators, label, hint, cssClass };
 }
@@ -122,20 +87,20 @@ export function CrispyText(
   options?: Partial<CrispyField>
 ): CrispyField {
   return {
-    ...options ?? {},
+    ...(options ?? {}),
     type: 'text',
     name,
-    initial
+    initial,
   };
 }
 
 export function crispyNumberField(
   name: string,
-  initial: number|undefined,
+  initial: number | undefined,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return { type: 'number', name, initial, validators, label, hint, cssClass };
 }
@@ -149,7 +114,7 @@ export function CrispyNumber(
     ...(options ?? {}),
     type: 'number',
     name,
-    initial
+    initial,
   };
 }
 
@@ -159,7 +124,7 @@ export function crispyEmailField(
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return { type: 'email', name, initial, validators, label, hint, cssClass };
 }
@@ -169,11 +134,11 @@ export function CrispyEmail(
   initial?: string,
   options?: Partial<CrispyField>
 ): CrispyField {
-  return { 
+  return {
     ...(options ?? {}),
     type: 'email',
     name,
-    initial
+    initial,
   };
 }
 
@@ -183,7 +148,7 @@ export function crispyDateField(
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return { type: 'date', name, initial, validators, label, hint, cssClass };
 }
@@ -197,7 +162,7 @@ export function CrispyDate(
     ...(options ?? {}),
     type: 'date',
     name,
-    initial
+    initial,
   };
 }
 
@@ -207,7 +172,7 @@ export function crispyTextareaField(
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return { type: 'textarea', name, initial, validators, label, hint, cssClass };
 }
@@ -221,7 +186,7 @@ export function CrispyTextarea(
     ...(options ?? {}),
     type: 'textarea',
     name,
-    initial
+    initial,
   };
 }
 
@@ -231,7 +196,7 @@ export function crispySearchField(
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return { type: 'search', name, initial, validators, label, hint, cssClass };
 }
@@ -245,7 +210,7 @@ export function CrispySearch(
     ...(options ?? {}),
     type: 'search',
     name,
-    initial
+    initial,
   };
 }
 
@@ -255,7 +220,7 @@ export function crispyPasswordField(
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return { type: 'password', name, initial, validators, label, hint, cssClass };
 }
@@ -269,18 +234,18 @@ export function CrispyPassword(
     ...(options ?? {}),
     type: 'password',
     name,
-    initial
+    initial,
   };
 }
 
 export function crispySelectField(
   name: string,
-  options: SelectOption[]|Observable<SelectOption[]>,
+  options: SelectOption[] | Observable<SelectOption[]>,
   initial: any,
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return {
     type: 'select',
@@ -290,24 +255,24 @@ export function crispySelectField(
     label,
     hint,
     cssClass,
-    options: { 
-      selectOptions: { options: options }
-    }
+    options: {
+      selectOptions: { options: options },
+    },
   };
 }
 
 export function CrispySelect(
   name: string,
-  selectOptions: SelectOption[]|Observable<SelectOption[]>,
+  selectOptions: SelectOption[] | Observable<SelectOption[]>,
   options?: Partial<CrispyField>
 ): CrispyField {
   return {
-    ...options ?? {},
+    ...(options ?? {}),
     type: 'select',
     name,
     options: {
       selectOptions: { options: selectOptions },
-    }
+    },
   };
 }
 
@@ -318,7 +283,7 @@ export function crispyDateRangeField(
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return {
     type: 'daterange',
@@ -329,8 +294,8 @@ export function crispyDateRangeField(
     hint,
     cssClass,
     options: {
-      dateRangeOptions: options
-    }
+      dateRangeOptions: options,
+    },
   };
 }
 
@@ -338,7 +303,7 @@ export function CrispyDateRange(
   name: string,
   dateRangeOptions: DateRangeOptions,
   initial?: any,
-  options?: Partial<CrispyField>,
+  options?: Partial<CrispyField>
 ): CrispyField {
   return {
     ...(options ?? {}),
@@ -346,8 +311,8 @@ export function CrispyDateRange(
     name,
     initial,
     options: {
-      dateRangeOptions
-    }
+      dateRangeOptions,
+    },
   };
 }
 
@@ -358,7 +323,7 @@ export function crispyCustomComponentField(
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return {
     type: 'custom',
@@ -369,8 +334,8 @@ export function crispyCustomComponentField(
     hint,
     cssClass,
     options: {
-      customComponentOptions: options
-    }
+      customComponentOptions: options,
+    },
   };
 }
 
@@ -378,7 +343,7 @@ export function CrispyCustomComponent(
   name: string,
   initial?: any,
   customComponentOptions?: CustomComponentOptions,
-  options?: Partial<CrispyField>,
+  options?: Partial<CrispyField>
 ): CrispyField {
   return {
     ...(options ?? {}),
@@ -386,8 +351,8 @@ export function CrispyCustomComponent(
     name,
     initial,
     options: {
-      customComponentOptions
-    }
+      customComponentOptions,
+    },
   };
 }
 
@@ -410,9 +375,9 @@ export function crispyTemplateField(
     cssClass,
     options: {
       templateComponentOptions: {
-        context: context
-      }
-    }
+        context: context,
+      },
+    },
   };
 }
 
@@ -420,7 +385,7 @@ export function CrispyTemplate(
   name: string,
   initial?: any,
   templateComponentOptions?: TemplateComponentOptions,
-  options?: Partial<CrispyField>,
+  options?: Partial<CrispyField>
 ): CrispyField {
   return {
     ...(options ?? {}),
@@ -428,8 +393,8 @@ export function CrispyTemplate(
     name,
     initial,
     options: {
-      templateComponentOptions
-    }
+      templateComponentOptions,
+    },
   };
 }
 
@@ -454,7 +419,7 @@ export function crispyFormGroup(
 
 export function CrispyFormGroup(
   name: string,
-  fields: CrispyField|CrispyField[],
+  fields: CrispyField | CrispyField[],
   validators?: ValidatorFn | ValidatorFn[]
 ): CrispyField {
   return {
@@ -493,14 +458,14 @@ export function CrispyFormGroupArray(
   name: string,
   children: CrispyField[],
   initial?: any,
-  options?: Partial<CrispyField>,
+  options?: Partial<CrispyField>
 ): CrispyField {
   return {
     ...(options ?? {}),
     type: 'groupArray',
     name,
     initial,
-    children
+    children,
   };
 }
 
@@ -510,7 +475,7 @@ export function crispyCheckboxField(
   validators?: ValidatorFn | ValidatorFn[],
   cssClass?: string,
   label?: string,
-  hint?: string,
+  hint?: string
 ): CrispyField {
   return { type: 'checkbox', name, initial, validators, label, hint, cssClass };
 }
@@ -518,12 +483,12 @@ export function crispyCheckboxField(
 export function CrispyCheckbox(
   name: string,
   initial?: boolean,
-  options?: Partial<CrispyField>,
+  options?: Partial<CrispyField>
 ): CrispyField {
   return {
     ...(options ?? {}),
     type: 'checkbox',
     name,
-    initial: !!initial
+    initial: !!initial,
   };
 }

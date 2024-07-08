@@ -37,7 +37,17 @@ import {
   TemplateComponentOptions,
 } from './crispy-types';
 import { CrispyFieldNameDirective } from './field-name.directive';
-import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
+import { CRISPY_FORMS_CONFIG_PROVIDER, CrispyFormsConfig } from './providers';
+import { DEFAULT_CRISPY_CONFIG } from './config';
+
+
+export function safeGetCrispyConfig(injector: Injector): CrispyFormsConfig {
+  const crispyConfig = injector.get(CRISPY_FORMS_CONFIG_PROVIDER);
+  return {
+    ...DEFAULT_CRISPY_CONFIG,
+    ...crispyConfig
+  }
+}
 
 /**
  * Core of the crispy-forms library. This recursively iterates through the
@@ -49,40 +59,49 @@ import { CRISPY_FORMS_CONFIG_PROVIDER } from './providers';
  * @param fg FormGroup to which AbstractControl specialization is to be added.
  * @returns FormGroup object passed in arg 2.
  */
-export function buildFormGroup(cfs: CrispyField[], fg: FormGroup, colDivCssClassTemplate?: string): FormGroup {
-  const colClass = colDivCssClassTemplate ? colDivCssClassTemplate : 'col-sm-{width}';
+export function buildFormGroup(
+  cfs: CrispyField[],
+  fg: FormGroup,
+  rowCssClass: string,
+  numberOfColsPerRow: number,
+  colDivCssClassTemplate: string
+): FormGroup {
+  const colClass = colDivCssClassTemplate;
   const COLUMN_CSS_CLASS = (width: number): string => {
     return colClass.replace('{width}', `${width}`);
-  }
+  };
   cfs.forEach((cf) => {
     if (cf.type === 'row') {
       // All the children of this row should be distributed equally in the
-      // row. Use 12 columns/# of children to get the width of each column.      
+      // row. Use 12 columns/# of children to get the width of each column.
       if (cf.children) {
-        const colWidth = Math.floor(12/cf.children.length);
-        const lastColWidth = colWidth + (12 - cf.children.length*colWidth);
+        const colWidth = Math.floor(12 / cf.children.length);
+        const lastColWidth = colWidth + (12 - cf.children.length * colWidth);
         const colWidths: string[] = [];
-        for (let index = 0; index < cf.children.length-1; index++) {
+        for (let index = 0; index < cf.children.length - 1; index++) {
           colWidths.push(COLUMN_CSS_CLASS(colWidth));
         }
         colWidths.push(COLUMN_CSS_CLASS(lastColWidth));
-        buildFormGroup(cf.children, fg, colDivCssClassTemplate);
+        buildFormGroup(cf.children, fg, rowCssClass, numberOfColsPerRow, colDivCssClassTemplate);
         cf.children.forEach((field: CrispyField, index: number) => {
-          field.cssClass = field.cssClass ?  field.cssClass : colWidths[index];
+          field.cssClass = field.cssClass ? field.cssClass : colWidths[index];
         });
       }
     } else if (cf.type === 'div') {
       if (cf.children) {
-        buildFormGroup(cf.children, fg, colDivCssClassTemplate);
+        buildFormGroup(cf.children, fg, rowCssClass, numberOfColsPerRow, colDivCssClassTemplate);
       }
     } else {
       if (cf.type === 'group') {
         if (cf.children) {
           const subFg = new FormGroup({}, cf.validators);
-          fg.addControl(cf.name, buildFormGroup(cf.children, subFg, colDivCssClassTemplate));
+          fg.addControl(
+            cf.name,
+            buildFormGroup(cf.children, subFg, rowCssClass, numberOfColsPerRow, colDivCssClassTemplate)
+          );
         }
       } else if (cf.type === 'groupArray') {
-        const fa = new FormArray<FormGroup>([], cf.validators)
+        const fa = new FormArray<FormGroup>([], cf.validators);
         fg.addControl(cf.name, fa);
       } else {
         fg.addControl(cf.name, getFormControl(cf));
@@ -659,7 +678,7 @@ export class CrispyDivComponent implements OnInit {
 @Component({
   selector: 'crispy-row',
   template: `
-  <div [class]="field.cssClass ? field.cssClass : 'row'">
+  <div [class]="field.cssClass ? field.cssClass : rowCssClass">
     <ng-container *ngFor="let child of field.children">
       <crispy-render-field
         [crispy]="crispy"
@@ -674,7 +693,10 @@ export class CrispyRowComponent implements OnInit {
   @Input({ required: true }) crispy!: CrispyForm;
   @Input({ required: true }) field!: CrispyField;
 
-  constructor() {}
+  rowCssClass: string = 'row';
+  constructor(injector: Injector) {
+    this.rowCssClass = safeGetCrispyConfig(injector).defaultRowCssClass!;
+  }
 
   ngOnInit() {}
 }
@@ -774,7 +796,7 @@ export class CrispyFormArrayComponent implements OnInit {
   crispies: CrispyForm[] = [];
   addRowLabel!: Observable<string>;
 
-  constructor(private cdr: ChangeDetectorRef,private injector: Injector) {}
+  constructor(private cdr: ChangeDetectorRef, private injector: Injector) {}
 
   ngOnInit() {
     const crispyConfig = this.injector.get(CRISPY_FORMS_CONFIG_PROVIDER);
@@ -805,9 +827,16 @@ export class CrispyFormArrayComponent implements OnInit {
   }
 
   addRow(initial: any, emit = true) {
+    const crispyConfig = safeGetCrispyConfig(this.injector);
     if (this.field.children) {
       const crispy: CrispyForm = {
-        form: buildFormGroup(this.field.children!, new FormGroup({}, this.field.validators)),
+        form: buildFormGroup(
+          this.field.children!,
+          new FormGroup({}, this.field.validators),
+          crispyConfig.defaultRowCssClass!,
+          crispyConfig.numberOfColsPerRow!,
+          crispyConfig.defaultColDivCssClassTemplate!
+        ),
         field: Array.isArray(this.field.children) ? CrispyDiv('', this.field.children) : this.field.children
       };
       // set initial value if it was provided

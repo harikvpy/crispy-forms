@@ -20,7 +20,6 @@ import {
   CrispyMatFormModule,
   MatErrorTailorControlErrorComponent,
 } from '@smallpearl/crispy-mat-form';
-import { interval, map, startWith } from 'rxjs';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
@@ -33,6 +32,10 @@ const CrispyConfig: CrispyFormsConfig = {
   groupArrayConfig: {
     addRowText: 'ADD ROW'
   },
+  defaultContainerCssClass: 'container',
+  defaultRowCssClass: 'row',
+  numberOfColsPerRow: 12,
+  defaultColDivCssClassTemplate: 'col-md-{width}'
 };
 
 const MY_DATE_FORMATS: MatDateFormats = {

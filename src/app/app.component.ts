@@ -13,6 +13,7 @@ import {
   Validators,
 } from '@angular/forms';
 import {
+  CrispyBuilder,
   CrispyCheckbox,
   CrispyCustomComponent,
   CrispyDate,
@@ -27,8 +28,7 @@ import {
   CrispyRow,
   CrispySelect,
   CrispyTemplate,
-  CrispyText,
-  buildCrispy,
+  CrispyText
 } from '@smallpearl/crispy-mat-form';
 import { BehaviorSubject, of, tap } from 'rxjs';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
@@ -119,7 +119,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   crispyComponent!: CrispyMatFormComponent;
   total = new BehaviorSubject<number>(0);
 
-  constructor() {}
+  constructor(private crispyBuilder: CrispyBuilder) {}
 
   ngOnInit(): void {}
 
@@ -294,13 +294,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         context: { customers: [] },
       }),
     ];
-    const crispy = buildCrispy(
-      CrispyDiv('container', fields),
-      undefined,
-      undefined,
-      'col-sm-{width}'
-    );
-    return crispy;
+    return this.crispyBuilder.build(fields);
   }
 
   onFormGroupAdded(event: any) {

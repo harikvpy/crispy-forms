@@ -15,12 +15,10 @@ import {
 import {
   FormGroup
 } from '@angular/forms';
-import { CrispyDivComponent } from './crispy-internal-components';
-import { buildCrispy } from './crispy-mat-form-helper';
+import { CrispyBuilder } from './builder';
+import { CrispyDivComponent, safeGetCrispyConfig } from './crispy-internal-components';
 import { CrispyField, CrispyForm } from './crispy-types';
 import { CrispyFieldNameDirective } from './field-name.directive';
-import { CRISPY_FORMS_CONFIG_PROVIDER, CrispyFormsConfig } from './providers';
-import { DEFAULT_CRISPY_CONFIG, DEFAULT_LABEL_FN } from './config';
 
 /**
  * `<crispy-mat-form>` is a component that makes creating & rendering angular
@@ -131,11 +129,11 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
 
   @ViewChild(CrispyDivComponent) wrapperDiv!: CrispyDivComponent;
 
-  constructor(private injector: Injector) {}
+  constructor(private injector: Injector, private builder: CrispyBuilder) {}
 
   ngOnInit(): void {
     if (this.fields && !this.crispy) {
-      this.crispy = this.createCrispyFormFromFields(this.fields, this.cssClass);
+      this.crispy = this.createCrispyFormFromFields(this.fields);
     }
     this.initFieldLabels();
   }
@@ -147,11 +145,9 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
   ngOnDestroy(): void {}
 
   private initFieldLabels() {
-    const crispyConfig = this.injector.get(CRISPY_FORMS_CONFIG_PROVIDER, DEFAULT_CRISPY_CONFIG);
-    if (this.crispy && crispyConfig) {
-      const labelFn: CrispyFormsConfig['labelFn'] = crispyConfig.labelFn
-        ? crispyConfig.labelFn
-        : DEFAULT_LABEL_FN;
+    const crispyConfig = safeGetCrispyConfig(this.injector);
+    if (this.crispy) {
+      const labelFn = crispyConfig.labelFn!;
       const setFieldLabel = (field: CrispyField) => {
         if (!field.label && field.name) {
           field.label = labelFn(field.name);
@@ -170,22 +166,14 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
 
   /**
    * @deprecated - Use `crispy` property to specify CrispyForm as input
-   * instead of `fields`.
+   * instead of the `fields` property.
    *
    * Creates CrispyForm object from array of CrispyField objects passed
    * as @Input() fields.
    *
    * @returns CrispyForm
    */
-  private createCrispyFormFromFields(
-    fields: CrispyField[],
-    defaultCssClass?: string
-  ): CrispyForm {
-    const config = this.injector.get(CRISPY_FORMS_CONFIG_PROVIDER, null);
-    const labelFn = config && config.labelFn ? config.labelFn : (code: string) => code;
-    if (!defaultCssClass) {
-      defaultCssClass = config && config.defaultCssClass ? config.defaultCssClass : '';
-    }
-    return buildCrispy(fields);
+  private createCrispyFormFromFields(fields: CrispyField[]): CrispyForm {
+    return this.builder.build(fields);
   }
 }

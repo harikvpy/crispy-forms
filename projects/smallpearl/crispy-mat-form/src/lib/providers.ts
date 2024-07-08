@@ -19,6 +19,24 @@ export interface CrispyFormsConfig {
   groupArrayConfig?: {
     addRowText?: string|Observable<string>;
   },
+  /**
+   * Defaults to 12 cols per row.
+   */
+  numberOfColsPerRow?: number;
+  /**
+   * Defaults to 'container', if not specified.
+   */
+  defaultContainerCssClass?: string;
+  /**
+   * Defaults to 'row', if not specified.
+   */
+  defaultRowCssClass?: string;
+  /**
+   * Defaults to 'col-sm-{width}. {width} gets replaced with the column width
+   * calculated based on the number of cols per each row rounded up to the
+   * nearest whole number.
+   */
+  defaultColDivCssClassTemplate?: string;
 }
 
 export const CRISPY_FORMS_CONFIG_PROVIDER = new InjectionToken<CrispyFormsConfig>(
