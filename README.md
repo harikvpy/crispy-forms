@@ -312,17 +312,20 @@ The `type` member decides the nature of the object and the UI widget that it wil
   | groupArray | A `FormArray` object consisting of multiple `FormGroup` objects |
 
 ## Field Functions
+#### Helper functions
 Field functions are simple helper functions that return a valid `CrispyField` object corresponding to the field type that the function stands for. Using these functions, instead of building `CrispyField` objects directly, will make your form code more readable and consequently far more maintainable. Also using the functions ensures that the client code has a high chance of being insulated from any changes to the library implementation code.
 
+#### Categorized into two
 Field functions can be categorized into two -- container functions and field functions. Container functions yield a `CrispyField` object that acts as a container for other CrispyField objects whereas field functions result in a CrispyField object that maps to a Material component. This sounds complex, but once you start using these functions, they are so intuitive that you won't even realize this difference.
 
+#### Uniform signature
 All field functions have a somewhat uniform signature. The first two parameters for all these functions are
 * form field name, that will be the `formControlName` input
 * An optional initial value for the corresponding `FormControl`
 
 If the field function requires any custom parameters such as name of a custom component or options for `mat-select`, this will be the third parameter.
 
-The final parameter is a `Partial<CrispyField>`, which is an optional paramter. This partial includes parameters such as field's label, it's hint, user specified CSS class, etc. This is specified as a partial to allow the client code to specify only the required optional property values and omit the non-required ones. Note that even through `CrispyField` includes properties such as `name` and `initial`, values for these two properties will always be taken from the first two arguments to the field function.
+The final parameter is a `Partial<CrispyField>`, which is an optional paramter. This partial includes values for the field's label, it's hint, user specified CSS class, etc. This is specified as a partial to allow the client code to specify only the required optional property values and omit the non-required ones. Note that even through `CrispyField` includes properties such as `name` and `initial`, values for these two properties will always be taken from the first two arguments to the field function.
 
 ### CrispyDiv
 ```
