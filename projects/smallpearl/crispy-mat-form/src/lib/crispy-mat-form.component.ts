@@ -90,26 +90,20 @@ import { CrispyFieldNameDirective } from './field-name.directive';
 @Component({
   selector: 'crispy-mat-form',
   template: `
-    <crispy-div
+    <crispy-mat-form-impl
+    [crispy]="crispy"
+    ></crispy-mat-form-impl>
+    <!-- <crispy-div
       [crispy]="crispy"
       [field]="crispy.field"
       (formGroupAdded)="formGroupAdded.emit($event)"
       (formGroupRemoved)="formGroupRemoved.emit($event)"
-    ></crispy-div>
-    <!-- <span *ngFor="let f of crispy.fields">
-      <crispy-render-field
-      [crispy]="crispy"
-      [field]="f"
-      ></crispy-render-field>
-    </span> -->
+    ></crispy-div> -->
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ContentChildren(CrispyFieldNameDirective)
-  fieldTemplates!: QueryList<CrispyFieldNameDirective>;
-
   /**
    * @deprecated
    */

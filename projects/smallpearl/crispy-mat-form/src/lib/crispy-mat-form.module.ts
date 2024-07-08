@@ -17,12 +17,13 @@ import {
   CrispyDateRangeFieldComponent,
   CrispyDivComponent,
   CrispyDynamicControlDirective,
-  CrispyInputFieldTypeComponent,
   CrispyFormArrayComponent,
-  CrispyRenderFieldComponent,
+  CrispyInputFieldTypeComponent,
+  CrispyMatFormImplComponent,
   CrispyRowComponent,
   CrispySelectFieldComponent,
   CrispyTemplateFieldComponent,
+  CrispyRenderFieldComponent
 } from './crispy-internal-components';
 import { CrispyMatFormComponent } from './crispy-mat-form.component';
 import { CrispyFieldNameDirective } from './field-name.directive';
@@ -44,6 +45,7 @@ import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.co
     CrispyRenderFieldComponent,
     CrispyDivComponent,
     CrispyRowComponent,
+    CrispyMatFormImplComponent,
     MatErrorTailorControlErrorComponent,
   ],
   imports: [

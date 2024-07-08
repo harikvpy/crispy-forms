@@ -1,24 +1,3 @@
-/**
- * Crispy Forms is a forms engine that combines form definition and its layout
- * in a single declaration, all from TypeScript code. Naturally it layers over
- * the Angular native reactive forms, but integartes a layout engine which
- * arranges the form's controls as per its definition in the CrispyField
- * object.
- *
- * Typically there's a one-to-one mapping between the reactive form field
- * and it's layout definition. Therefore, given a layout definition, it's
- * possible to generate the reactive form control corresponding to that
- * and then collect all these controls into a FormGroup.
- *
- * The FormGroup generated together with the CrispyFields, the CrispyForm
- * object can be composed and passed as an argument to the
- * <crispy-mat-form> component.
- *
- * We should be able to derive a FormControl or FormGroup instance from an
- * instance of this class. This will help us build a FormGroup from a
- * collection of these objects.
- */
-
 import {
   ValidatorFn
 } from '@angular/forms';
