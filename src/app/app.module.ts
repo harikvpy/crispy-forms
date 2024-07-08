@@ -28,12 +28,13 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
  * CrispyConfig demonstrator that converts all labels to uppercase.
  */
 const CrispyConfig: CrispyFormsConfig = {
-  labelFn: (code: string) => code.toUpperCase(),
+  translateFn: (code: string) => code.toUpperCase(),
   groupArrayConfig: {
     addRowText: 'ADD ROW'
   },
   defaultContainerCssClass: 'container',
   defaultRowCssClass: 'row',
+  defaultColCssClass: 'col-12',
   numberOfColsPerRow: 12,
   defaultColDivCssClassTemplate: 'col-md-{width}'
 };
