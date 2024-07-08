@@ -147,7 +147,7 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
   private initFieldLabels() {
     const crispyConfig = safeGetCrispyConfig(this.injector);
     if (this.crispy) {
-      const labelFn = crispyConfig.labelFn!;
+      const labelFn = crispyConfig.translateFn!;
       const setFieldLabel = (field: CrispyField) => {
         if (!field.label && field.name) {
           field.label = labelFn(field.name);

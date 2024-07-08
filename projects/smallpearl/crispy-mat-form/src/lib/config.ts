@@ -23,13 +23,14 @@ export const DEFAULT_LABEL_FN = (value: string): string => {
 
 // Default crispy config
 export const DEFAULT_CRISPY_CONFIG: CrispyFormsConfig = {
-  labelFn: (code: string) => DEFAULT_LABEL_FN(code),
+  translateFn: (code: string) => DEFAULT_LABEL_FN(code),
   groupArrayConfig: {
     addRowText: 'Add Row'
   },
   // These come from bootstrap convention.
   defaultContainerCssClass: 'container',
   defaultRowCssClass: 'row',
-  numberOfColsPerRow: 12, // 
+  defaultColCssClass: 'col-12',
+  numberOfColsPerRow: 12,
   defaultColDivCssClassTemplate: 'col-sm-{width}'
 }

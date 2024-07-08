@@ -63,6 +63,7 @@ export function buildFormGroup(
   cfs: CrispyField[],
   fg: FormGroup,
   rowCssClass: string,
+  colCssClass: string,
   numberOfColsPerRow: number,
   colDivCssClassTemplate: string
 ): FormGroup {
@@ -82,14 +83,14 @@ export function buildFormGroup(
           colWidths.push(COLUMN_CSS_CLASS(colWidth));
         }
         colWidths.push(COLUMN_CSS_CLASS(lastColWidth));
-        buildFormGroup(cf.children, fg, rowCssClass, numberOfColsPerRow, colDivCssClassTemplate);
+        buildFormGroup(cf.children, fg, rowCssClass, colCssClass, numberOfColsPerRow, colDivCssClassTemplate);
         cf.children.forEach((field: CrispyField, index: number) => {
-          field.cssClass = field.cssClass ? field.cssClass : colWidths[index];
+          field.cssClass = field.cssClass ? field.cssClass : (colCssClass + ' ' + colWidths[index]);
         });
       }
     } else if (cf.type === 'div') {
       if (cf.children) {
-        buildFormGroup(cf.children, fg, rowCssClass, numberOfColsPerRow, colDivCssClassTemplate);
+        buildFormGroup(cf.children, fg, rowCssClass, colCssClass, numberOfColsPerRow, colDivCssClassTemplate);
       }
     } else {
       if (cf.type === 'group') {
@@ -97,7 +98,7 @@ export function buildFormGroup(
           const subFg = new FormGroup({}, cf.validators);
           fg.addControl(
             cf.name,
-            buildFormGroup(cf.children, subFg, rowCssClass, numberOfColsPerRow, colDivCssClassTemplate)
+            buildFormGroup(cf.children, subFg, rowCssClass, colCssClass, numberOfColsPerRow, colDivCssClassTemplate)
           );
         }
       } else if (cf.type === 'groupArray') {
@@ -358,7 +359,7 @@ export class CrispyDateFieldComponent implements OnInit {
   template: `
     <span [formGroup]="crispy.form">
       <mat-checkbox
-        [class]="field.cssClass ?? (crispy.fieldCssClass ?? '')"
+        [class]="field.cssClass ?? ''"
         [formControlName]="field.name"
       >
         {{ field.label }}
@@ -477,7 +478,7 @@ export class CrispyCustomFieldComponent
 @Component({
   selector: 'crispy-field-template',
   template: `
-    <div [class]="'w-100 ' + field.cssClass || crispy.fieldCssClass">
+    <div [class]="'w-100 ' + field.cssClass || ''">
       <ng-template crispyDynamicControl></ng-template>
     </div>
   `,
@@ -627,7 +628,6 @@ export class CrispyRenderFieldComponent implements OnInit {
       this.groupCrispy = {
         form: this.crispy.form.controls[this.field.name] as FormGroup,
         field: CrispyDiv('', this.field.children ?? []),
-        fieldCssClass: '',
       };
     }
   }
@@ -834,6 +834,7 @@ export class CrispyFormArrayComponent implements OnInit {
           this.field.children!,
           new FormGroup({}, this.field.validators),
           crispyConfig.defaultRowCssClass!,
+          crispyConfig.defaultColCssClass!,
           crispyConfig.numberOfColsPerRow!,
           crispyConfig.defaultColDivCssClassTemplate!
         ),

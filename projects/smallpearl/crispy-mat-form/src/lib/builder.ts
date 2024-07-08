@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { buildFormGroup, safeGetCrispyConfig } from './crispy-internal-components';
 import { CrispyDiv } from './crispy-mat-form-helper';
-import { CrispyField } from './crispy-types';
+import { CrispyField, CrispyForm } from './crispy-types';
 
 @Injectable({ providedIn: 'any' })
 export class CrispyBuilder {
@@ -21,7 +21,7 @@ export class CrispyBuilder {
       | AbstractControlOptions
       | null,
     asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | null
-  ) {
+  ): CrispyForm {
     const config = safeGetCrispyConfig(this.injector);
     if (Array.isArray(field)) {
       field = CrispyDiv(config.defaultContainerCssClass!, field);
@@ -32,11 +32,11 @@ export class CrispyBuilder {
         [field],
         fg,
         config.defaultRowCssClass!,
+        config.defaultColCssClass!,
         config.numberOfColsPerRow!,
         config.defaultColDivCssClassTemplate!
       ),
-      field,
-      fieldCssClass: '',
+      field
     };    
   }
 }

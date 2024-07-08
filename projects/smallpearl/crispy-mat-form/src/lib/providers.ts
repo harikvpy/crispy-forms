@@ -1,20 +1,18 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
-type LABEL_FN = (fieldName: string) => string;
+type TRANSLATE_FN = (fieldName: string) => string;
 
 export interface CrispyFormsConfig {
   /**
    * Function that returns label of a field, if one is not explicitly
    * specified in `CrispyField.label`.
    */
-  labelFn?: LABEL_FN;
+  translateFn?: TRANSLATE_FN;
   /**
-   * Unused in V2
-   */
-  defaultCssClass?: string;
-  /**
-   * 
+   * For `groupArray` field types, Crispy adds a button at the bottom of
+   * all rows of FormGroups to allow the user to add a new FormGroup to the
+   * FormArray. This allows the text of that button to be customized.
    */
   groupArrayConfig?: {
     addRowText?: string|Observable<string>;
@@ -31,6 +29,10 @@ export interface CrispyFormsConfig {
    * Defaults to 'row', if not specified.
    */
   defaultRowCssClass?: string;
+  /**
+   * Defaults to 'col', if not specified.
+   */
+  defaultColCssClass?: string;
   /**
    * Defaults to 'col-sm-{width}. {width} gets replaced with the column width
    * calculated based on the number of cols per each row rounded up to the

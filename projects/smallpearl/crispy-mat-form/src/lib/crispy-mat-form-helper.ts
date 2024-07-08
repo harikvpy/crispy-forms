@@ -17,32 +17,19 @@
  * We should be able to derive a FormControl or FormGroup instance from an
  * instance of this class. This will help us build a FormGroup from a
  * collection of these objects.
- *
- * cf = [
- *  CF('name', 'text),
- *  CF('age', 'number'),
- *  CF('password', 'password'),
- *  CF('confirmPassword', 'password'),
- *  CF('publicationRange', 'daterange', )
- * ]
  */
 
 import {
-  AbstractControlOptions,
-  AsyncValidatorFn,
-  FormGroup,
-  ValidatorFn,
+  ValidatorFn
 } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { buildFormGroup } from './crispy-internal-components';
 import {
   CrispyField,
-  CrispyForm,
   CustomComponentOptions,
   DateRangeOptions,
   FieldContext,
   SelectOption,
-  TemplateComponentOptions,
+  TemplateComponentOptions
 } from './crispy-types';
 
 
