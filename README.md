@@ -176,41 +176,41 @@ From `angular.json`:
 }
 ```
 
-    If you're using a different CSS grid management system, you can provide the CSS class names that `crispy-mat-form` should use by providing those via the `CRISPY_FORMS_CONFIG_PROVIDER` config property.
+If you're using a different CSS grid management system, you can provide the CSS class names that `crispy-mat-form` should use by providing those via the `CRISPY_FORMS_CONFIG_PROVIDER` config property.
 
-    ```
-    const CrispyConfig: CrispyFormsConfig = {
-      // Field labels and hints are fully localizable and this function
-      // helps implement that. It will be called for each field's label and
-      // hint and it can return whatever string should be displayed based on
-      // user's current language.
-      translateFn: (code: string) => code.toUpperCase(),
-      groupArrayConfig: {
-        addRowText: 'ADD ROW'
-      },
-      // Default wrapper class for the entire form
-      defaultContainerCssClass: 'container',
-      // Each field that does not have an explictly specified CSS class
-      // will be styled as this.
-      defaultRowCssClass: 'row',
-      // Number of columns in a row. Default of 12 should work with most
-      // grid systems.
-      numberOfColsPerRow: 12,
-      // The column breakpoint width class that is used for a row with multiple
-      // fields. This ensures that the final form is responsive and is usable
-      // in all screen sizes.
-      defaultColDivCssClassTemplate: 'col-md-{width}'
-    };
+```
+const CrispyConfig: CrispyFormsConfig = {
+  // Field labels and hints are fully localizable and this function
+  // helps implement that. It will be called for each field's label and
+  // hint and it can return whatever string should be displayed based on
+  // user's current language.
+  translateFn: (code: string) => code.toUpperCase(),
+  groupArrayConfig: {
+    addRowText: 'ADD ROW'
+  },
+  // Default wrapper class for the entire form
+  defaultContainerCssClass: 'container',
+  // Each field that does not have an explictly specified CSS class
+  // will be styled as this.
+  defaultRowCssClass: 'row',
+  // Number of columns in a row. Default of 12 should work with most
+  // grid systems.
+  numberOfColsPerRow: 12,
+  // The column breakpoint width class that is used for a row with multiple
+  // fields. This ensures that the final form is responsive and is usable
+  // in all screen sizes.
+  defaultColDivCssClassTemplate: 'col-md-{width}'
+};
 
-    @NgModule({
-      declarations: [AppComponent],
-      imports: [...],
-      providers: [
-        { provide: CRISPY_FORMS_CONFIG_PROVIDER, useValue: CrispyConfig },    
-      ]
-    })
-    export class AppModule {}
-    ```
+@NgModule({
+  declarations: [AppComponent],
+  imports: [...],
+  providers: [
+    { provide: CRISPY_FORMS_CONFIG_PROVIDER, useValue: CrispyConfig },    
+  ]
+})
+export class AppModule {}
+```
 
 # Reference
 
