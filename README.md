@@ -134,21 +134,45 @@ Note how the Crispy Forms version eliminates boilerplate HTML code and moves eve
       );
     ```
 
-3. By default the HTML layout engine is built to use [Bootstrap](https://getbootstrap.com/docs/5.3/layout/containers/) classes. Therefore, if you're going to use these default classes make sure to include Bootstrap's CSS file globally either by importing `bootstrap.min.css` in your app's `index.html` or including the css from `angular.json`.
+3. By default the HTML layout engine is built to use [Bootstrap](https://getbootstrap.com/docs/5.3/layout/containers/) CSS classes. Therefore, if you're going to rely on these default classes, make sure to include Bootstrap's CSS file globally either by importing `bootstrap.min.css` in your app's `index.html` or including the css from `angular.json`.
 
-    ```
-    <!doctype html>
-    <html lang="en">
-    <head>
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    </head>
-    <body>
-      <app-root></app-root>
-    </body>
-    </html>
-    ```
+From `index.html`:
+```
+<!doctype html>
+<html lang="en">
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>
+```
 
-    If you're using a different grid management system, you can provide the CSS class names that `crispy-mat-form` should use by providing those via the `CRISPY_FORMS_CONFIG_PROVIDER` config property.
+From `angular.json`:
+```
+{
+  "projects": {
+    "<project name>": {
+      "architect": {
+        ...
+        "build": {
+          ...
+          "options": {
+            "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
+              "bootstrap/dist/css/bootstrap.min.css", --> bootstrap styles
+              "src/styles.scss"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+    If you're using a different CSS grid management system, you can provide the CSS class names that `crispy-mat-form` should use by providing those via the `CRISPY_FORMS_CONFIG_PROVIDER` config property.
 
     ```
     const CrispyConfig: CrispyFormsConfig = {
