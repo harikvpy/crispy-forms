@@ -6,6 +6,10 @@
 
 > Quick and crispy Angular forms, including layout, all from TypeScript!
 
+[![MIT](https://img.shields.io/packagist/l/doctrine/orm.svg?style=flat-square)]()
+[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)]()
+[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+
 Crispy Forms is a forms engine that combines form definition and its layout in a single declaration, all from TypeScript code. It is built over Angular's Reactive Forms, but integrates a layout engine which renders the form created from the declaration.
 
 This is better explained with an example. Angular's native way of using a reactive form looks like this:
@@ -598,87 +602,37 @@ CrispyFormGroupArray(
 ): CrispyField
 ```
 
-# Error-tailor support
-
-Crispy forms includes support for reflecting field errors via the [@ngneat/error-tailor](https://github.com/ngneat/error-tailor). However, due to vagaries of material's error reporting mechanism, the client code needs to initialize Error Tailor with the appropriate configuration for this to work. Specifically, in the client relevant module class declaration, initialize Error Tailor like this:
-
-```
-import { errorTailorImports, provideErrorTailorConfig } from '@ngneat/error-tailor';
-import { MatErrorTailorControlErrorComponent } from '@smallpearl/crispy-mat-form';
-
-@NgModule({
-  ...
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    ...
-    errorTailorImports,
-    CrispyMatFormModule,
-  ],
-  providers: [
-    provideErrorTailorConfig({
-      blurPredicate(element) {
-        return element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'MAT-SELECT';
-      },
-      controlErrorComponent: MatErrorTailorControlErrorComponent,
-      errors: {
-          useValue: {
-            required: 'This field is required',
-            pattern: "Doesn't match the required pattern",
-            minlength: ({ requiredLength, actualLength }) => 
-                        `Expect ${requiredLength} but got ${actualLength}`,
-            invalidAddress: error => `Address isn't valid`
-          }
-        }
-      }),
-  ],
-  bootstrap: [AppComponent],
-})
-export class AppModule {}
-```
-Note the `MatErrorTailorControlErrorComponent` which is used to substitute the Error Tailor original `DefaultControlErrorComponent` for rendering field errors. Also note how `blurPredicate` is overridden to support `MAT-SELECT`.
-
-Once this is setup, Crispy Material Forms should render any field validation errors when the field receives the 'blur' event or when the enclosing form is submitted.
-
-## Using in pure Angular Material forms
-If you've have a pure Angular form (not crispy form), you can add Error Tailor support using the same `MatErrorTailorControlErrorComponent` like this:
-
-```
-<form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
-  <mat-form-field>
-    <mat-label>Name</mat-label>
-    <input
-      type="text"
-      matInput
-      [formControlName]="name"
-      [controlErrorAnchor]="errorAnchor"
-    />
-    <mat-error><ng-template controlErrorAnchor #errorAnchor="controlErrorAnchor"></ng-template></mat-error>
-  </mat-form-field>
-</form>
-```
-We're using Error Tailor's `controlErrorAnchor` directive to customize its behavior to render errors as `<mat-error>` elements.
-
 # Sample code
 The demo project in the workspace shows a rather comprehensive example of how the component can be used to efficiently design forms and then process their value in your code. Particularly, you may want to pay attention to the form validators that abstracts all of the business logic of the form's data.
 
-# Advantages
+# Pros & Cons
+Like any other thirdparty library, using Crispy Forms also has pros & cons. Let's try to identify these and list them.
 
+## Pros
 * All the controls are defined in *compiled* TypeScript which protects you from typos and other mistakes that can occur in HTML's declarative syntax.
 * Library takes care of the layout saving you from having to deal with HTML code and remembering the minute declarative syntax details for each Material control type.
 * Insulation from changes made to Material library between successive versions as this would only require updates to the Crispy Forms library.
 
-When you have a project consisting of tens (or even hundreds) of forms, this can increase your productivity tremendously while making the code more maintainable & therefore more robust.
+## Cons
+* Slight code bloat as using Crispy Forms for simple forms would still pull in Material components such as `matDatePicker` and `mat-date-range-input`
+* Reliance on a third-party library which some might find a bit risky as you'll be dependent on updates to the library when its own dependencies introduce breaking changes.
 
-# Background
+Given these pros & cons, if you have a project consisting of tens (or even hundreds) of forms, maintaining the HTML code for them can be a pain. This will be even more apparent when the underlying component library (Angular Material in this case), introduces some changes that you just can't look past. This is where using a higher layer library such as Crispy Forms can help you manage these changes effectively and keep the code maintainable & robust.
+
+# Inspiration
 The project is inspired by the [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms) which provides a similar feature, but for the Django backend. This explains the `crispy` part in its name.
 
-Currently, the library exclusively uses [Angular Material](https://material.angular.io/) components for its widgets. Material was chosen as it can be seen as an extension to the core Angular package, is well supported and does provide an exhaustive library of components that ought to satisfy most use cases. That said, it's quite feasible to adapt the library to support a different component library or even abstract the component library support as an independent module which can then be selected by the client via a global configuration.
-
-Note that though it uses Angular Material components, Crispy Forms also includes support for user developed custom components. These may be provided to the engine via named templates from client code and specified using the `CrispyTemplate` function.
+# Looking Ahead
+Currently the library exclusively uses [Angular Material](https://material.angular.io/) components for its widgets. Material was chosen as it can be seen as an extension to the core Angular package, is well supported and does provide an exhaustive library of components that ought to satisfy most use cases. That said, it's quite feasible to adapt the library to support a different component library or even abstract the component library support as an independent module which can then be selected by the client via a global configuration.
 
 # Version History
-* 0.1 - Initial release
-* 0.3 - Added `crispyCheckboxField`.
-* 0.4 - More elaborate readme.
+* 0.1.0 - Initial release
+* 0.3.0 - Added `crispyCheckboxField`.
+* 0.3.1 - doc update.
+* 0.3.2 - doc update.
+* 0.3.3 - doc update.
+* 0.3.4 - Set context for `template` field type.
+* 0.4.0 - Support for error messages via @ngneat/error-tailor.
+* 0.4.1 - Fix errors in publishing.
+* 0.4.2 - Fix 'string' value returned for 'number' field type.
+* 0.6.0 - Revamp to support only CrispyForm as input; New Crispy* field functions.
