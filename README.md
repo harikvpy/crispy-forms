@@ -112,6 +112,7 @@ Note how the Crispy Forms version eliminates boilerplate HTML code and moves eve
 
 * Angular ≥ 15.0.0
 * Angular Material ≥ 15.0.0
+* @ngneat/error-tailor >= 4.0.0
 
 # Getting started
 1. Install the package using `$ npm install @smallpearl/crispy-mat-form` and import `CrispyMatFormModule` into your module or component.
@@ -612,10 +613,11 @@ Like any other thirdparty library, using Crispy Forms also has pros & cons. Let'
 * All the controls are defined in *compiled* TypeScript which protects you from typos and other mistakes that can occur in HTML's declarative syntax.
 * Library takes care of the layout saving you from having to deal with HTML code and remembering the minute declarative syntax details for each Material control type.
 * Insulation from changes made to Material library between successive versions as this would only require updates to the Crispy Forms library.
+* Built-in error handling mechanics that removes the need for hardcoding `<mat-error *ngIf="">` tags in your form's HTML source.
 
 ## Cons
 * Slight code bloat as using Crispy Forms for simple forms would still pull in Material components such as `matDatePicker` and `mat-date-range-input`
-* Reliance on a third-party library which some might find a bit risky as you'll be dependent on updates to the library when its own dependencies introduce breaking changes.
+* Form error reporting is done using [@ngneat/error-tailor](https://github.com/ngneat/error-tailor), a third party library, albeit a well established one. This is a powerful library that makes error handling uniform across all your forms in the app and eliminates the need to hardcode `<mat-eror>` tags within your HTML source.
 
 Given these pros & cons, if you have a project consisting of tens (or even hundreds) of forms, maintaining the HTML code for them can be a pain. This will be even more apparent when the underlying component library (Angular Material in this case), introduces some changes that you just can't look past. This is where using a higher layer library such as Crispy Forms can help you manage these changes effectively and keep the code maintainable & robust.
 
@@ -623,7 +625,7 @@ Given these pros & cons, if you have a project consisting of tens (or even hundr
 The project is inspired by the [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms) which provides a similar feature, but for the Django backend. This explains the `crispy` part in its name.
 
 # Looking Ahead
-Currently the library exclusively uses [Angular Material](https://material.angular.io/) components for its widgets. Material was chosen as it can be seen as an extension to the core Angular package, is well supported and does provide an exhaustive library of components that ought to satisfy most use cases. That said, it's quite feasible to adapt the library to support a different component library or even abstract the component library support as an independent module which can then be selected by the client via a global configuration.
+Currently the library exclusively uses [Angular Material](https://material.angular.io/) components for its widgets. Material was chosen as it can be seen as an extension to the core Angular package, is well supported and does provide an exhaustive library of components that ought to satisfy the most extreme use cases. That said, it's quite feasible to adapt the library to support a different component library or even abstract the component library support as an independent module which can then be selected by the client via a global configuration.
 
 # Version History
 * 0.1.0 - Initial release
