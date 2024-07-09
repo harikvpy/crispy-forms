@@ -42,7 +42,7 @@ import { DEFAULT_CRISPY_CONFIG } from './config';
 
 
 export function safeGetCrispyConfig(injector: Injector): CrispyFormsConfig {
-  const crispyConfig = injector.get(CRISPY_FORMS_CONFIG_PROVIDER);
+  const crispyConfig = injector.get(CRISPY_FORMS_CONFIG_PROVIDER, {});
   return {
     ...DEFAULT_CRISPY_CONFIG,
     ...crispyConfig
@@ -692,7 +692,7 @@ export class CrispyFormArrayComponent implements OnInit {
   constructor(private cdr: ChangeDetectorRef, private injector: Injector) {}
 
   ngOnInit() {
-    const crispyConfig = this.injector.get(CRISPY_FORMS_CONFIG_PROVIDER);
+    const crispyConfig = safeGetCrispyConfig(this.injector);
     if (crispyConfig && crispyConfig?.groupArrayConfig?.addRowText) {
       if (crispyConfig?.groupArrayConfig?.addRowText instanceof Observable) {
         this.addRowLabel = crispyConfig.groupArrayConfig.addRowText;
