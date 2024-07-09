@@ -373,7 +373,7 @@ The `type` member decides the nature of the object and the UI widget that it wil
   | groupArray | A `FormArray` object consisting of multiple `FormGroup` objects |
 
 ## Error handling
-For a form to be user friendly, its inputs have to be validated and appropriate messages as to what's wrong with the input has to be shown to the user. Crispy Form uses [@ngneat/error-tailor](https://github.com/ngneat/error-tailor) to handle this in a generic way. (In a way, the idea for this project germinated as I started using `@ngneat/error-tailor` more and more, first with an Ionic project and then with a pure angular project.)
+For a form to be user friendly, its inputs have to be validated and appropriate messages as to what's wrong with the input has to be shown to the user. Crispy Form uses [@ngneat/error-tailor](https://github.com/ngneat/error-tailor) to handle this in a generic way. (In a way, the idea for this project germinated from `@ngneat/error-tailor` together with the need to author many forms quickly while minimizing potential errors.)
 
 To take advantage of this, add the `error-tailor` package (`npm install @ngneat/error-tailor`) and then define a `FORM_ERRORS` provider that captures all the error names as an object. The values of these error names can be a string or a function that returns a string. Refer to `error-tailor` documentation for more details.
 
