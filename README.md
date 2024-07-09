@@ -676,3 +676,4 @@ Currently the library exclusively uses [Angular Material](https://material.angul
 * 0.4.1 - Fix errors in publishing.
 * 0.4.2 - Fix 'string' value returned for 'number' field type.
 * 0.6.0 - Revamp to support only CrispyForm as input; New Crispy* field functions.
+
