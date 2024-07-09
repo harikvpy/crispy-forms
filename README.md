@@ -647,6 +647,12 @@ CrispyFormGroupArray(
 # Sample code
 The demo project in the workspace shows a rather comprehensive example of how the component can be used to efficiently design forms and then process their value in your code. Particularly, you may want to pay attention to the form validators that abstracts all of the business logic of the form's data.
 
+## StackBlitz Projects
+
+* [Sample 1](https://stackblitz.com/~/github.com/harikvpy/crispy-mat-form-demo1): shows input fields arranged in a row in large screens. These fields wrap into separate lines on small screens.
+* [Sample 2](https://stackblitz.com/~/github.com/harikvpy/crispy-mat-form-demo2): shows usage of `CrispyDate` and `CrispyDateRange`.
+* [Sample 3](https://stackblitz.com/~/github.com/harikvpy/crispy-mat-form-demo3): shows usage of `CrispyCustomComponent` and `CrispyTemplate`.
+
 # Pros & Cons
 Like any other thirdparty library, using Crispy Forms also has pros & cons. Let's try to identify these and list them.
 
