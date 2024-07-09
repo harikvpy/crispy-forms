@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.6](https://github.com/harikvpy/crispy-mat-form/compare/v0.6.5...v0.6.6) (2024-07-09)
+
+
+### Bug Fixes
+
+* bump version for release ([f455604](https://github.com/harikvpy/crispy-mat-form/commit/f4556042da0470978f633b4ea9240666540ffc74))
+
 ### [0.6.5](https://github.com/harikvpy/crispy-mat-form/compare/v0.6.4...v0.6.5) (2024-07-09)
 
 ### [0.6.4](https://github.com/harikvpy/crispy-mat-form/compare/v0.6.3...v0.6.4) (2024-07-09)
