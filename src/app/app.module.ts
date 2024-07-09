@@ -1,43 +1,55 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import {
+  MAT_DATE_FORMATS,
+  MatDateFormats,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { errorTailorImports, provideErrorTailorConfig } from '@ngneat/error-tailor';
-import { CRISPY_FORMS_CONFIG_PROVIDER, CrispyFormsConfig, CrispyMatFormModule, MatErrorTailorControlErrorComponent } from '@smallpearl/crispy-mat-form';
-import { interval, map, startWith } from 'rxjs';
+import {
+  errorTailorImports,
+  provideErrorTailorConfig,
+} from '@ngneat/error-tailor';
+import {
+  CRISPY_FORMS_CONFIG_PROVIDER,
+  CrispyFormsConfig,
+  CrispyMatFormModule,
+  MatErrorTailorControlErrorComponent,
+} from '@smallpearl/crispy-mat-form';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
-import { provideDateFnsAdapter } from "@angular/material-date-fns-adapter";
-import { MAT_DATE_FORMATS, MatDateFormats, provideNativeDateAdapter } from '@angular/material/core';
 
 /**
  * CrispyConfig demonstrator that converts all labels to uppercase.
  */
 const CrispyConfig: CrispyFormsConfig = {
-  labelFn: (code: string) => code.toUpperCase(),
+  translateFn: (code: string) => code.toUpperCase(),
   groupArrayConfig: {
-    addRowText: interval(3000).pipe(
-      startWith(''),
-      map(() => (Math.floor(Math.random()*100)%10 > 5 ? "ADD ROW" : "+ Row"))
-    )
-  }
+    addRowText: 'ADD ROW'
+  },
+  defaultContainerCssClass: 'container',
+  defaultRowCssClass: 'row',
+  defaultColCssClass: 'col-12',
+  numberOfColsPerRow: 12,
+  defaultColDivCssClassTemplate: 'col-md-{width}'
 };
 
 const MY_DATE_FORMATS: MatDateFormats = {
   parse: {
-    dateInput: 'YYYY/MM/DD'
+    dateInput: 'YYYY/MM/DD',
   },
   display: {
     dateInput: 'YYYY/MM/DD',
     monthYearLabel: 'MM/YYYY',
     dateA11yLabel: 'LL',
-    monthYearA11yLabel: 'MMMM/YYYY'
-  }
-}
+    monthYearA11yLabel: 'MMMM/YYYY',
+  },
+};
 
 @NgModule({
   declarations: [AppComponent],

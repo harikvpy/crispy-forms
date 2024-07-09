@@ -5,7 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build-lib": "ng build @smallpearl/crispy-mat-form",
+    "build-lib": "ng build @smallpearl/crispy-mat-form --configuration production && cp -r README.md dist/smallpearl/crispy-mat-form",
+    "release": "cd projects/smallpearl/crispy-mat-form && standard-version --infile ../../../CHANGELOG.md",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -22,7 +23,7 @@
     "@angular/platform-browser": "^17.2.3",
     "@angular/platform-browser-dynamic": "^17.2.3",
     "@angular/router": "^17.2.3",
-    "@ngneat/error-tailor": "^4.1.1",
+    "@ngneat/error-tailor": "^5.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.4"
@@ -32,6 +33,7 @@
     "@angular/cli": "~17.2.1",
     "@angular/compiler-cli": "^17.2.3",
     "@types/jasmine": "~4.3.0",
+    "bootstrap": "^5.3.3",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.1.0",
@@ -39,6 +41,8 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
     "ng-packagr": "^17.2.0",
+    "prettier": "^3.3.2",
+    "standard-version": "^9.5.0",
     "typescript": "~5.3.3"
   }
 }

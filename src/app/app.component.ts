@@ -1,26 +1,34 @@
-import { LOCALE_ID, AfterViewInit, ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
   FormGroup,
   ValidationErrors,
-  Validators
+  Validators,
 } from '@angular/forms';
 import {
-  CrispyFormField,
+  CrispyBuilder,
+  CrispyCheckbox,
+  CrispyCustomComponent,
+  CrispyDate,
+  CrispyDateRange,
+  CrispyDiv,
+  CrispyField,
+  CrispyFormGroup,
+  CrispyFormGroupArray,
   CrispyMatFormComponent,
-  buildCrispyForm,
-  crispyCheckboxField,
-  crispyCustomComponentField,
-  crispyDateField,
-  crispyDateRangeField,
-  crispyFormGroup,
-  crispyFormGroupArray,
-  crispyNumberField,
-  crispyPasswordField,
-  crispySelectField,
-  crispyTemplateField,
-  crispyTextField
+  CrispyNumber,
+  CrispyPassword,
+  CrispyRow,
+  CrispySelect,
+  CrispyTemplate,
+  CrispyText
 } from '@smallpearl/crispy-mat-form';
 import { BehaviorSubject, of, tap } from 'rxjs';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
@@ -29,7 +37,7 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
   selector: 'app-root',
   template: `
     <h1>Crispy Form Demo</h1>
-    <form [formGroup]="crispyComponent.form" (ngSubmit)="onSubmit()" errorTailor>
+    <form [formGroup]="crispy.form" (ngSubmit)="onSubmit()" errorTailor>
       <crispy-mat-form
         [crispy]="crispy"
         (formGroupAdded)="onFormGroupAdded($event)"
@@ -48,7 +56,7 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="crispyComponent.form.invalid"
+          [disabled]="crispy.form.invalid"
         >
           Submit
         </button>
@@ -57,64 +65,97 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
 
     <ng-template crispyFieldName="mobile" let-formGroup="formGroup">
       <span *ngIf="formGroup" [formGroup]="formGroup">
-        <mat-form-field>
+        <mat-form-field class="w-100">
           <mat-label>My Telephone</mat-label>
           <my-tel-input formControlName="mobile"></my-tel-input>
         </mat-form-field>
       </span>
     </ng-template>
 
-    <ng-template crispyFieldName="dummy" let-control="control" let-field="field" let-crispy="crispy" let-formGroup="formGroup">
-        Members: <span *ngFor="let m of control.value">{{ m }}&nbsp;</span>
+    <ng-template
+      crispyFieldName="dummy"
+      let-control="control"
+      let-field="field"
+      let-crispy="crispy"
+      let-formGroup="formGroup"
+    >
+      Members: <span *ngFor="let m of control.value">{{ m }}&nbsp;</span>
     </ng-template>
 
-    <ng-template crispyFieldName="lineTotal" let-formGroup="formGroup">
+    <ng-template
+      crispyFieldName="lineTotal"
+      let-formGroup="formGroup"
+      let-control="control"
+    >
       <div style="text-align: right;">
-        <h3>{{ getLineTotal(formGroup) }}</h3>
+        <h3>{{ asCurrency(control.value) }}</h3>
       </div>
     </ng-template>
 
-    <ng-template crispyFieldName="total" let-control="control" let-field="field" let-crispy="crispy" let-formGroup="formGroup">
-      <div style="width: 100% !important; display: flex; justify-content: end; padding: 0.4em 1em;">
-        <h2>Total: {{ total|async }}</h2>
+    <ng-template
+      crispyFieldName="total"
+      let-control="control"
+      let-field="field"
+      let-crispy="crispy"
+      let-formGroup="formGroup"
+    >
+      <div
+        style="width: 100% !important; display: flex; justify-content: end; padding: 0.4em 1em;"
+      >
+        <h2 *ngIf="total | async as invoiceTotal">
+          Total: {{ asCurrency(invoiceTotal) }}
+        </h2>
       </div>
     </ng-template>
 
     <!-- <router-outlet></router-outlet> -->
   `,
   styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit, AfterViewInit {
   crispy = this.getCrispy();
   @ViewChild(CrispyMatFormComponent, { static: true })
   crispyComponent!: CrispyMatFormComponent;
   total = new BehaviorSubject<number>(0);
-  constructor() {}
+
+  constructor(private crispyBuilder: CrispyBuilder) {}
 
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    const items: FormArray = this.crispyComponent.form.controls['items'] as FormArray;
+    const items: FormArray = this.crispy.form?.controls['items'] as FormArray;
     if (items) {
-      items.valueChanges.pipe(
-        tap((values: { name: string; qty: number; unitPrice: number; total: number} []) => {
-          let invoiceTotal = 0;
-          values.forEach((value, index: number) => {
-            try {
-              if (value.qty !== undefined && value.unitPrice !== undefined) {
-                const total = value.qty * value.unitPrice;
-                invoiceTotal += total;
-                items.at(index).get('total')?.setValue(total, {emitEvent: false, onlySelf: true});
-              }
-            } catch (error) {
-              
+      items.valueChanges
+        .pipe(
+          tap(
+            (
+              values: {
+                name: string;
+                qty: number;
+                unitPrice: number;
+                total: number;
+              }[]
+            ) => {
+              let invoiceTotal = 0;
+              values.forEach((value, index: number) => {
+                const lineTotal = Number(value.qty) * Number(value.unitPrice);
+                invoiceTotal += lineTotal;
+                const totalControl = (items.at(index) as FormGroup).controls[
+                  'total'
+                ];
+                (items.at(index) as FormGroup).controls['lineTotal']?.setValue(
+                  lineTotal,
+                  { emitEvent: false }
+                );
+              });
+              this.crispy.form.controls['total'].setValue(invoiceTotal);
+              this.total.next(invoiceTotal);
+              // console.log(`invoice total: ${invoiceTotal}`);
             }
-          })
-          this.total.next(invoiceTotal);
-          // console.log(`items changed: ${JSON.stringify(values)}`);
-        })
-      ).subscribe();
+          )
+        )
+        .subscribe();
     }
   }
 
@@ -153,11 +194,19 @@ export class AppComponent implements OnInit, AfterViewInit {
       fg.controls['confirmPassword'].setErrors({ passwordMismatch: true });
       return null;
     };
-    const fields: CrispyFormField[] = [
-      crispyTextField('firstName', 'Peter', [Validators.required], 'pe-2 w-50'),
-      crispyTextField('lastName', 'Parker', undefined, 'w-50'),
-      crispyDateField('date', new Date(), undefined, 'w-100'),
-      crispyDateRangeField(
+    const fields: CrispyField[] = [
+      CrispyRow([
+        CrispyText('firstName', 'Peter', {
+          label: 'First name',
+          validators: Validators.required,
+        }),
+        CrispyText('lastName', 'Parker', {
+          validators: Validators.required,
+          label: 'Last name',
+        }),
+      ]),
+      CrispyDate('date', new Date()),
+      CrispyDateRange(
         'publishedOn',
         {
           beginRangeLabel: 'From',
@@ -169,135 +218,116 @@ export class AppComponent implements OnInit, AfterViewInit {
         {
           published_on__gte: '2023-06-19T16:00:00.000Z',
           published_on__lte: '2023-06-25T16:00:00.000Z',
-        },
-        undefined,
-        'w-100'
+        }
       ),
-      crispyFormGroup(
+      CrispyFormGroup(
         'matchingPassword',
-        [
-          crispyPasswordField(
-            'password',
-            '',
-            undefined, // [Validators.required, Validators.minLength(8)],
-            'pe-2 w-50'
-          ),
-          crispyPasswordField(
-            'confirmPassword',
-            '',
-            undefined, // [Validators.required, Validators.minLength(8)],
-            'w-50'
-          ),
-        ],
-        undefined,
+        CrispyRow([
+          CrispyPassword('password', '', {
+            // validators: Validators.required,
+          }),
+          CrispyPassword('confirmPassword', '', {
+            // validators: Validators.required,
+          }),
+        ]),
         (fg) => matchPasswords(fg as FormGroup)
       ),
-      crispySelectField(
+      CrispySelect(
         'sex',
         [
           { label: 'Male', value: 'M' },
           { label: 'Female', value: 'F' },
           { label: 'Transgender', value: 'T' },
         ],
-        'M',
-        Validators.required,
-        'pe-2 w-50'
+        { initial: 'M', validators: Validators.required }
       ),
-      crispySelectField(
+      CrispySelect(
         'status',
         of([
           { label: 'Married', value: 'M' },
           { label: 'Single', value: 'S' },
           { label: 'Widow/Widower', value: 'W' },
         ]),
-        'M',
-        Validators.required,
-        'w-50'
+        { initial: 'M', validators: Validators.required }
       ),
-      crispyCustomComponentField(
-        'telephone',
-        { component: MyTelInput },
-        { area: '618', exchange: '782', subscriber: '2890' },
-        undefined,
-        'pe-2 w-50'
-      ),
-      crispyTemplateField('mobile', {
-        area: '737',
-        exchange: '777',
-        subscriber: '0787',
-      }, undefined, 'w-50'),
-      crispyNumberField('age', undefined, undefined, 'w-100'),
-      crispyCheckboxField(
-        'public',
-        false,
-        undefined,
-        'w-50'
-      ),
-      crispyTemplateField('dummy', [1, 2, 3]),
-      crispyFormGroupArray(
-        'items', [
-          crispyTextField('name', '', Validators.required, 'w-40 pe-2', 'Name'),
-          crispyNumberField('qty', 0, Validators.required, 'w-20 pe-2', 'Quantity'),
-          crispyNumberField('unitPrice', 0, Validators.required, 'w-20 pe-2', 'Unit Price'),
-          // crispyTextField('total', '', undefined, 'w-20', 'Total'),
-          crispyTemplateField('lineTotal', 0, undefined, 'w-20')
+      CrispyRow([
+        CrispyCustomComponent(
+          'telephone',
+          { area: '618', exchange: '782', subscriber: '2890' },
+          { component: MyTelInput }
+        ),
+        CrispyTemplate('mobile', {
+          area: '737',
+          exchange: '777',
+          subscriber: '0787',
+        }),
+      ]),
+      CrispyNumber('age'),
+      CrispyCheckbox('public', false),
+      CrispyTemplate('dummy', [1, 2, 3]),
+      CrispyFormGroupArray(
+        'items',
+        [
+          CrispyRow([
+            CrispyText('name', '', {
+              validators: Validators.required,
+              label: 'Name',
+            }),
+            CrispyNumber('qty', 0, {
+              validators: Validators.required,
+              label: 'Quantity',
+            }),
+            CrispyNumber('unitPrice', 0, {
+              validators: Validators.required,
+              label: 'Unit Price',
+            }),
+            CrispyTemplate('lineTotal', 0),
+          ]),
         ],
         [
           { name: 'Management Fee', qty: 30, unitPrice: 100, lineTotal: 3000 },
           { name: 'Carpark Fee', qty: 1, unitPrice: 900, lineTotal: 900 },
         ],
-        undefined,
-        undefined,
-        "Items"
+        { label: 'Line Items' }
       ),
-      {
-        type: 'template',
-        name: 'total',
-        cssClass: 'w-100',
-        initial: 0,
-        options: {
-          context: { customers: []}
-        }
-      }
+      CrispyTemplate('total', 0, {
+        context: { customers: [] },
+      }),
     ];
-    // const TXFN = (code: string, args: any) => code.toUpperCase();
-    // const crispy = {
-    //   fields,
-    //   translateFn: TXFN,
-    //   template: undefined
-    // }
-    return buildCrispyForm(fields, (code: string, args: any) => code.toUpperCase());
+    return this.crispyBuilder.build(fields);
   }
-  
+
   onFormGroupAdded(event: any) {
-    const fgEvent: {field: string, form: FormGroup} = event as {field: string, form: FormGroup};
-    // console.log(`form group added - field: ${fgEvent.field}, group: ${fgEvent.form}`);
-    // fgEvent.form.controls['total'].disable();
+    const fgEvent: { field: string; form: FormGroup } = event as {
+      field: string;
+      form: FormGroup;
+    };
+    console.log(
+      `form group added - field: ${fgEvent.field}, group valid?: ${fgEvent.form.valid}`
+    );
   }
 
   onFormGroupRemoved(event: any) {
-    const fgEvent: {field: string, form: FormGroup} = event as {field: string, form: FormGroup};
-    // console.log(`form group removed - field: ${fgEvent.field}, group: ${fgEvent.form}`);
+    const fgEvent: { field: string; form: FormGroup } = event as {
+      field: string;
+      form: FormGroup;
+    };
+    console.log(
+      `form group removed - field: ${fgEvent.field}, group: ${fgEvent.form}`
+    );
   }
 
   onReset() {
-    this.crispyComponent.form.reset();
+    this.crispy.form?.reset();
   }
 
   onSubmit() {
     console.log(
-      `onSubmit - form.value: ${JSON.stringify(
-        this.crispyComponent.form.value
-      )}`
+      `onSubmit - form.value: ${JSON.stringify(this.crispy.form?.value)}`
     );
   }
 
-  getLineTotal(form: FormGroup) {
-    const qty = form.controls['qty'].value;
-    const unitPrice = form.controls['unitPrice'].value;
-    if (qty !== undefined && unitPrice !== undefined) {
-      return (Math.round(qty*unitPrice * 100) / 100).toFixed(2);
-    }
-    return (Math.round(0 * 100) / 100).toFixed(2);
+  asCurrency(value: number) {
+    return (Math.round(value * 100) / 100).toFixed(2);
   }
 }

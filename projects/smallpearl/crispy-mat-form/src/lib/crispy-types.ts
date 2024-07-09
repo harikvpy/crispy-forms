@@ -2,6 +2,8 @@ import { FormGroup, ValidatorFn } from '@angular/forms';
 import { Observable } from 'rxjs';
 
 export type CrispyFieldType =
+  | 'div'
+  | 'row'
   | 'number'
   | 'text'
   | 'email'
@@ -40,7 +42,7 @@ export type FieldContext = { [P: string]: any };
 /**
  * Options specific to 'control' CrispyFieldType
  */
-export interface CustomControlOptions {
+export interface CustomComponentOptions {
   component: any; // The custom component class object that will be dynamically created.
   context?: FieldContext;
 }
@@ -48,7 +50,7 @@ export interface CustomControlOptions {
 /**
  * Options specific to 'template' CrispyFieldType
  */
-export interface TemplateControlOptions {
+export interface TemplateComponentOptions {
   context?: FieldContext;
 }
 
@@ -59,7 +61,7 @@ export interface GroupArrayOptions {
   context?: FieldContext;
 }
 
-export interface CrispyFormField {
+export interface CrispyField {
   name: string;
   type: CrispyFieldType;
   initial?: any;
@@ -67,17 +69,17 @@ export interface CrispyFormField {
   label?: string;
   hint?: string;
   cssClass?: string;
-  children?: CrispyFormField[];
-  options?:
-    | SelectOptions
-    | DateRangeOptions
-    | CustomControlOptions
-    | TemplateControlOptions
-    | GroupArrayOptions;
+  children?: CrispyField[];
+  options?: {
+    selectOptions?: SelectOptions,
+    dateRangeOptions?: DateRangeOptions,
+    customComponentOptions?: CustomComponentOptions,
+    templateComponentOptions?: TemplateComponentOptions,
+    groupArrayOptions?: GroupArrayOptions
+  }
 }
 
 export interface CrispyForm {
   form: FormGroup<any>;
-  fields: CrispyFormField[];
-  fieldCssClass?: string;
+  field: CrispyField;
 }

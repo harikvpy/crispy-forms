@@ -10,28 +10,30 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { errorTailorImports } from '@ngneat/error-tailor';
-import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.component';
 import {
   CrispyCheckboxComponent,
   CrispyCustomFieldComponent,
   CrispyDateFieldComponent,
   CrispyDateRangeFieldComponent,
+  CrispyDivComponent,
   CrispyDynamicControlDirective,
+  CrispyFormArrayComponent,
   CrispyInputFieldTypeComponent,
+  CrispyMatFormImplComponent,
+  CrispyRowComponent,
   CrispySelectFieldComponent,
   CrispyTemplateFieldComponent,
+  CrispyRenderFieldComponent
 } from './crispy-internal-components';
-import {
-  CrispyMatFormComponent,
-  CrispyMatFormArrayComponent,
-} from './crispy-mat-form.component';
+import { CrispyMatFormComponent } from './crispy-mat-form.component';
 import { CrispyFieldNameDirective } from './field-name.directive';
+import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.component';
 
 @NgModule({
   declarations: [
     CrispyFieldNameDirective,
     CrispyMatFormComponent,
-    CrispyMatFormArrayComponent,
+    CrispyFormArrayComponent,
     CrispySelectFieldComponent,
     CrispyInputFieldTypeComponent,
     CrispyDateRangeFieldComponent,
@@ -40,6 +42,10 @@ import { CrispyFieldNameDirective } from './field-name.directive';
     CrispyCustomFieldComponent,
     CrispyCheckboxComponent,
     CrispyTemplateFieldComponent,
+    CrispyRenderFieldComponent,
+    CrispyDivComponent,
+    CrispyRowComponent,
+    CrispyMatFormImplComponent,
     MatErrorTailorControlErrorComponent,
   ],
   imports: [
@@ -55,11 +61,11 @@ import { CrispyFieldNameDirective } from './field-name.directive';
     MatCheckboxModule,
     errorTailorImports,
   ],
-  exports: [CrispyFieldNameDirective, CrispyMatFormComponent, MatErrorTailorControlErrorComponent],
-  providers: [
-    // provideErrorTailorConfig({
-    //   controlErrorComponent: CrispyControlErrorComponent,
-    // })
+  exports: [
+    CrispyFieldNameDirective,
+    CrispyMatFormComponent,
+    MatErrorTailorControlErrorComponent,
   ],
+  providers: [],
 })
 export class CrispyMatFormModule {}
