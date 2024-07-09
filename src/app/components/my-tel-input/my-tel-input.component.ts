@@ -1,5 +1,5 @@
-import {FocusMonitor} from '@angular/cdk/a11y';
-import {BooleanInput, coerceBooleanProperty} from '@angular/cdk/coercion';
+import { FocusMonitor } from '@angular/cdk/a11y';
+import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
   ElementRef,
@@ -8,8 +8,7 @@ import {
   OnDestroy,
   Optional,
   Self,
-  ViewChild,
-  forwardRef,
+  ViewChild
 } from '@angular/core';
 import {
   AbstractControl,
@@ -17,42 +16,25 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
-  NgControl,
-  Validators,
   FormsModule,
+  NgControl,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import {
   MAT_FORM_FIELD,
   MatFormField,
-  MatFormFieldControl,
-  MatFormFieldModule,
+  MatFormFieldControl
 } from '@angular/material/form-field';
-import {Subject} from 'rxjs';
-import {MatIconModule} from '@angular/material/icon';
-
-/** @title Form field with custom telephone number input control. */
-@Component({
-  selector: 'form-field-custom-control-example',
-  templateUrl: './form-field-custom-control-example.html',
-  standalone: true,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    forwardRef(() => MyTelInput),
-    MatIconModule,
-  ],
-})
-export class FormFieldCustomControlExample {
-  form: FormGroup = new FormGroup({
-    tel: new FormControl(new MyTel('', '', '')),
-  });
-}
+import { Subject } from 'rxjs';
 
 /** Data structure for holding telephone number. */
 export class MyTel {
-  constructor(public area: string, public exchange: string, public subscriber: string) {}
+  constructor(
+    public area: string,
+    public exchange: string,
+    public subscriber: string,
+  ) {}
 }
 
 /** Custom `MatFormFieldControl` for telephone number input. */
@@ -60,7 +42,7 @@ export class MyTel {
   selector: 'my-tel-input',
   templateUrl: './my-tel-input.html',
   styleUrls: ['./my-tel-input.css'],
-  providers: [{provide: MatFormFieldControl, useExisting: MyTelInput}],
+  providers: [{ provide: MatFormFieldControl, useExisting: MyTelInput }],
   host: {
     '[class.example-floating]': 'shouldLabelFloat',
     '[id]': 'id',
@@ -68,7 +50,9 @@ export class MyTel {
   standalone: true,
   imports: [FormsModule, ReactiveFormsModule],
 })
-export class MyTelInput implements ControlValueAccessor, MatFormFieldControl<MyTel>, OnDestroy {
+export class MyTelInput
+  implements ControlValueAccessor, MatFormFieldControl<MyTel>, OnDestroy
+{
   static nextId = 0;
   @ViewChild('area') areaInput!: HTMLInputElement;
   @ViewChild('exchange') exchangeInput!: HTMLInputElement;
@@ -89,7 +73,7 @@ export class MyTelInput implements ControlValueAccessor, MatFormFieldControl<MyT
 
   get empty() {
     const {
-      value: {area, exchange, subscriber},
+      value: { area, exchange, subscriber },
     } = this.parts;
 
     return !area && !exchange && !subscriber;
@@ -136,15 +120,15 @@ export class MyTelInput implements ControlValueAccessor, MatFormFieldControl<MyT
   get value(): MyTel | null {
     if (this.parts.valid) {
       const {
-        value: {area, exchange, subscriber},
+        value: { area, exchange, subscriber },
       } = this.parts;
       return new MyTel(area!, exchange!, subscriber!);
     }
     return null;
   }
   set value(tel: MyTel | null) {
-    const {area, exchange, subscriber} = tel || new MyTel('', '', '');
-    this.parts.setValue({area, exchange, subscriber});
+    const { area, exchange, subscriber } = tel || new MyTel('', '', '');
+    this.parts.setValue({ area, exchange, subscriber });
     this.stateChanges.next();
   }
 
@@ -164,9 +148,18 @@ export class MyTelInput implements ControlValueAccessor, MatFormFieldControl<MyT
     }
 
     this.parts = formBuilder.group({
-      area: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
-      exchange: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
-      subscriber: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(4)]],
+      area: [
+        '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(3)],
+      ],
+      exchange: [
+        '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(3)],
+      ],
+      subscriber: [
+        '',
+        [Validators.required, Validators.minLength(4), Validators.maxLength(4)],
+      ],
     });
   }
 
@@ -183,7 +176,9 @@ export class MyTelInput implements ControlValueAccessor, MatFormFieldControl<MyT
   }
 
   onFocusOut(event: FocusEvent) {
-    if (!this._elementRef.nativeElement.contains(event.relatedTarget as Element)) {
+    if (
+      !this._elementRef.nativeElement.contains(event.relatedTarget as Element)
+    ) {
       this.touched = true;
       this.focused = false;
       this.onTouched();
@@ -191,7 +186,10 @@ export class MyTelInput implements ControlValueAccessor, MatFormFieldControl<MyT
     }
   }
 
-  autoFocusNext(control: AbstractControl, nextElement?: HTMLInputElement): void {
+  autoFocusNext(
+    control: AbstractControl,
+    nextElement?: HTMLInputElement,
+  ): void {
     if (!control.errors && nextElement) {
       this._focusMonitor.focusVia(nextElement, 'program');
     }
