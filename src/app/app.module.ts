@@ -70,7 +70,7 @@ const MY_DATE_FORMATS: MatDateFormats = {
       useValue: {
         required: 'This field is required',
         pattern: "Doesn't match the required pattern",
-        minlength: (error: { requiredLength: number, actualLength: number }) =>
+        minlength: (error: { requiredLength: number; actualLength: number }) =>
           `Expect ${error.requiredLength} but got ${error.actualLength}`,
         invalidAddress: (error: any) => `Address isn't valid`,
         invalidDate: 'Invalid date',
