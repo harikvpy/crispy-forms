@@ -67,12 +67,42 @@ export class RegistrationFormComponent {
 The same form using Crispy Forms, looks like this:
 ```
 import { Component } from '@angular/core';
-import { CrispyMatFormModule, CrispyBuilder, CrispyDiv, CrispyText, CrispyEmail, buildCrispy } from '@smallpearl/crispy-mat-form';
+import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import {
+  FORM_ERRORS,
+} from '@ngneat/error-tailor';
+import {
+  CrispyBuilder,
+  CrispyDiv,
+  CrispyEmail,
+  CrispyForm,
+  CrispyMatFormModule,
+  CrispyRow,
+  CrispyText,
+} from '@smallpearl/crispy-mat-form';
 
 @Component({
   selector: 'app-registration-form',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CrispyMatFormModule],
+   imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CrispyMatFormModule,
+    MatButtonModule,
+  ],
+ providers: [
+    {
+      // Errors that the form's fields would raise. These errors could
+      // be a result of local validators or from server side validation.
+      provide: FORM_ERRORS, useValue: {
+        required: 'This field is required',
+        minlength: (error: { requiredLength: number, actualLength: number }) =>
+          `Expected ${error.requiredLength} charactres, but got ${error.actualLength}`,
+      },
+    },
+  ],
   template: `
     <form [formGroup]="crispy.form" (ngSubmit)="onSubmit()">
       <crispy-mat-form [crispy]="crispy"></crispy-mat-form>
@@ -107,6 +137,8 @@ export class RegistrationFormComponent {
 }
 ```
 Note how the Crispy Forms version eliminates boilerplate HTML code and moves everything to TypeScript? This protects you from any inadvertent mistakes in declarative HTML that is hard to catch during development and consequently makes the code more robust. Also, with Crispy Forms you don't have to remember the declaration syntax for each Material component, saving you countless hours referring to its documentation and numerous copy-paste cycles.
+
+[StackBlitz](https://stackblitz.com/~/github.com/harikvpy/crispy-mat-form-demo1) project that shows the example above.
 
 # Dependencies
 
@@ -341,42 +373,13 @@ The `type` member decides the nature of the object and the UI widget that it wil
   | groupArray | A `FormArray` object consisting of multiple `FormGroup` objects |
 
 ## Error handling
-For a form to be user friendly, we have to validated the input and provide the users clues as to what's wrong with their inputs. Crispy Form uses [@ngneat/error-tailor](https://github.com/ngneat/error-tailor) to handle this in a generic way. All the client code needs to do is to provide a HasMap of error names and their corresponding error messages. You can do this in your component (or module) lile this:
+For a form to be user friendly, its inputs have to be validated and appropriate messages as to what's wrong with the input has to be shown to the user. Crispy Form uses [@ngneat/error-tailor](https://github.com/ngneat/error-tailor) to handle this in a generic way. (In a way, the idea for this project germinated as I started using `@ngneat/error-tailor` more and more, first with an Ionic project and then with a pure angular project.)
 
-```
-...
-import { FORM_ERRORS } from '@ngneat/error-tailor';
+To take advantage of this, add the `error-tailor` package (`npm install @ngneat/error-tailor`) and then define a `FORM_ERRORS` provider that captures all the error names as an object. The values of these error names can be a string or a function that returns a string. Refer to `error-tailor` documentation for more details.
 
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CrispyMatFormModule,
-  ],
-  providers: [
-    {
-      provide: FORM_ERRORS,
-      useValue: {
-        required: 'This field is required',
-        pattern: "Doesn't match the required pattern",
-        minlength: (error: { requiredLength: number, actualLength: number }) =>
-          `Expect ${error.requiredLength} but got ${error.actualLength}`,
-        invalidAddress: (error: any) => `Address isn't valid`,
-        invalidDate: 'Invalid date',
-      },
-    }
-  ],
-  template: `
-  <form [formGroup]="crispy.form" (ngSubmit)="onSubmit()">
-    <crispy-mat-form [crispy]="crispy"></crispy-mat-form>
-  </form>
-  `
-})
-export class App {}
-```
+Refer to the [StackBlitz](https://stackblitz.com/~/github.com/harikvpy/crispy-mat-form-demo1) project to see how it is done.
+
+Note that if `FORM_ERRORS` is provided at the top application level module, it will be available throughout the project. So you can have a global object with all the form validation errors and then use it across all the forms in your app. As you create new forms and new validation error names, you may keep adding these to this global errors-to-message object.
 
 ## Field Functions
 #### Helper functions
@@ -662,18 +665,7 @@ Given these pros & cons, if you have a project consisting of tens (or even hundr
 # Inspiration
 The project is inspired by the [Django Crispy Forms](https://github.com/django-crispy-forms/django-crispy-forms) which provides a similar feature, but for the Django backend. This explains the `crispy` part in its name.
 
+I also have to acknowledge the cleverness of `@ngneat/error-tailor` for sowing the seeds for this project. It showed that error handling in Angular forms can be abstracted out as a pattern and delegated to an independent module. This project takes this to the next step, whereby form layout and form handling is abstracted out as a generic pattern that can be controlled by user provided configuration from TS.
+
 # Looking Ahead
 Currently the library exclusively uses [Angular Material](https://material.angular.io/) components for its widgets. Material was chosen as it can be seen as an extension to the core Angular package, is well supported and does provide an exhaustive library of components that ought to satisfy the most extreme use cases. That said, it's quite feasible to adapt the library to support a different component library or even abstract the component library support as an independent module which can then be selected by the client via a global configuration.
-
-# Version History
-* 0.1.0 - Initial release
-* 0.3.0 - Added `crispyCheckboxField`.
-* 0.3.1 - doc update.
-* 0.3.2 - doc update.
-* 0.3.3 - doc update.
-* 0.3.4 - Set context for `template` field type.
-* 0.4.0 - Support for error messages via @ngneat/error-tailor.
-* 0.4.1 - Fix errors in publishing.
-* 0.4.2 - Fix 'string' value returned for 'number' field type.
-* 0.6.0 - Revamp to support only CrispyForm as input; New Crispy* field functions.
-
