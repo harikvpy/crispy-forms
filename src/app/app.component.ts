@@ -18,7 +18,6 @@ import {
   CrispyCustomComponent,
   CrispyDate,
   CrispyDateRange,
-  CrispyDiv,
   CrispyField,
   CrispyFormGroup,
   CrispyFormGroupArray,
@@ -169,7 +168,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     const endDateRangeValidator = (control: AbstractControl<any, any>) => {
       const endDate = new Date();
       endDate.setTime(Date.parse(control.value));
-      if (endDate.getMonth() > new Date().getMonth()) {
+      const endDateMonth = endDate.getMonth();
+      if (!Number.isInteger(endDateMonth) || endDateMonth > new Date().getMonth()) {
         return { invalidDate: true };
       }
       return null;
@@ -218,6 +218,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         {
           published_on__gte: '2023-06-19T16:00:00.000Z',
           published_on__lte: '2023-06-25T16:00:00.000Z',
+        },
+        {
+          validators: Validators.required
         }
       ),
       CrispyFormGroup(

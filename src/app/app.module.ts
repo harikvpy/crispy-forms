@@ -11,18 +11,14 @@ import { MatInputModule } from '@angular/material/input';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  errorTailorImports,
-  provideErrorTailorConfig,
-} from '@ngneat/error-tailor';
-import {
   CRISPY_FORMS_CONFIG_PROVIDER,
   CrispyFormsConfig,
   CrispyMatFormModule,
-  MatErrorTailorControlErrorComponent,
 } from '@smallpearl/crispy-mat-form';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
+import { FORM_ERRORS } from '@ngneat/error-tailor';
 
 /**
  * CrispyConfig demonstrator that converts all labels to uppercase.
@@ -30,13 +26,13 @@ import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
 const CrispyConfig: CrispyFormsConfig = {
   translateFn: (code: string) => code.toUpperCase(),
   groupArrayConfig: {
-    addRowText: 'ADD ROW'
+    addRowText: 'ADD ROW',
   },
   defaultContainerCssClass: 'container',
   defaultRowCssClass: 'row',
   defaultColCssClass: 'col-12',
   numberOfColsPerRow: 12,
-  defaultColDivCssClassTemplate: 'col-md-{width}'
+  defaultColDivCssClassTemplate: 'col-md-{width}',
 };
 
 const MY_DATE_FORMATS: MatDateFormats = {
@@ -64,31 +60,22 @@ const MY_DATE_FORMATS: MatDateFormats = {
     MatInputModule,
     MyTelInput,
     CrispyMatFormModule,
-    errorTailorImports,
   ],
   providers: [
     provideNativeDateAdapter(MY_DATE_FORMATS),
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
     { provide: CRISPY_FORMS_CONFIG_PROVIDER, useValue: CrispyConfig },
-    provideErrorTailorConfig({
-      blurPredicate(element) {
-        return (
-          element.tagName === 'INPUT' ||
-          element.tagName === 'SELECT' ||
-          element.tagName === 'MAT-SELECT'
-        );
+    {
+      provide: FORM_ERRORS,
+      useValue: {
+        required: 'This field is required',
+        pattern: "Doesn't match the required pattern",
+        minlength: (error: { requiredLength: number, actualLength: number }) =>
+          `Expect ${error.requiredLength} but got ${error.actualLength}`,
+        invalidAddress: (error: any) => `Address isn't valid`,
+        invalidDate: 'Invalid date',
       },
-      controlErrorComponent: MatErrorTailorControlErrorComponent,
-      errors: {
-        useValue: {
-          required: 'This field is required',
-          pattern: "Doesn't match the required pattern",
-          minlength: ({ requiredLength, actualLength }) =>
-            `Expect ${requiredLength} but got ${actualLength}`,
-          invalidAddress: (error) => `Address isn't valid`,
-        },
-      },
-    }),
+    },
   ],
   bootstrap: [AppComponent],
 })

@@ -133,7 +133,7 @@ function getFormControl(cf: CrispyField) {
   if (cf.type === 'daterange') {
     // Special handler for 'daterange' field type
     const options: DateRangeOptions = cf.options?.dateRangeOptions!;
-    const group = new FormGroup({});
+    const group = new FormGroup({}, cf.validators);
     const beginInitial =
       (hasInitial &&
         cf.initial[options.beginRangeFormControlName]) ||
@@ -281,19 +281,19 @@ export class CrispySelectFieldComponent implements OnInit {
       [formGroup]="crispy.form"
     >
       <mat-label>{{ field.label }}</mat-label>
-      <mat-date-range-input [formGroup]="rangeFormGroup" [rangePicker]="picker">
+      <mat-date-range-input
+        [formGroup]="rangeFormGroup"
+        [rangePicker]="picker"
+        [controlErrorAnchor]="errorAnchor"
+      >
         <input
           matStartDate
-          [formControlName]="
-            options.beginRangeFormControlName || ''
-          "
+          [formControlName]="options.beginRangeFormControlName || ''"
           [placeholder]="options.beginRangeLabel ?? 'Start'"
         />
         <input
           matEndDate
-          [formControlName]="
-            options.endRangeFormControlName || ''
-          "
+          [formControlName]="options.endRangeFormControlName || ''"
           [placeholder]="options.endRangeLabel ?? 'End'"
         />
       </mat-date-range-input>
@@ -303,6 +303,12 @@ export class CrispySelectFieldComponent implements OnInit {
         [for]="picker"
       ></mat-datepicker-toggle>
       <mat-date-range-picker #picker></mat-date-range-picker>
+      <mat-error
+        ><ng-template
+          controlErrorAnchor
+          #errorAnchor="controlErrorAnchor"
+        ></ng-template
+      ></mat-error>
     </mat-form-field>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -337,6 +343,7 @@ export class CrispyDateRangeFieldComponent implements OnInit {
         matInput
         [formControlName]="field.name"
         [matDatepicker]="picker"
+        [controlErrorAnchor]="errorAnchor"
       />
       <mat-datepicker-toggle
         matIconSuffix
@@ -344,6 +351,12 @@ export class CrispyDateRangeFieldComponent implements OnInit {
       ></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
       <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+      <mat-error
+        ><ng-template
+          controlErrorAnchor
+          #errorAnchor="controlErrorAnchor"
+        ></ng-template
+      ></mat-error>
     </mat-form-field>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
