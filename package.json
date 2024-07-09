@@ -7,6 +7,7 @@
     "build": "ng build",
     "build-lib": "ng build @smallpearl/crispy-mat-form --configuration production && cp -r README.md dist/smallpearl/crispy-mat-form",
     "release": "cd projects/smallpearl/crispy-mat-form && standard-version --infile ../../../CHANGELOG.md",
+    "publish": "cd projects/smallpearl/crispy-mat-form && npm publish",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
