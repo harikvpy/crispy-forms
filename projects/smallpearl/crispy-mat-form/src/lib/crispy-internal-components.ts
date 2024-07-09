@@ -42,6 +42,7 @@ import { DEFAULT_CRISPY_CONFIG } from './config';
 
 
 export function safeGetCrispyConfig(injector: Injector): CrispyFormsConfig {
+  // return empty config object if one was not provided by client.
   const crispyConfig = injector.get(CRISPY_FORMS_CONFIG_PROVIDER, {});
   return {
     ...DEFAULT_CRISPY_CONFIG,
