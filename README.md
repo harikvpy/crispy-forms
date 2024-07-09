@@ -340,6 +340,44 @@ The `type` member decides the nature of the object and the UI widget that it wil
   | group      | child `FormGroup` |
   | groupArray | A `FormArray` object consisting of multiple `FormGroup` objects |
 
+## Error handling
+For a form to be user friendly, we have to validated the input and provide the users clues as to what's wrong with their inputs. Crispy Form uses [@ngneat/error-tailor](https://github.com/ngneat/error-tailor) to handle this in a generic way. All the client code needs to do is to provide a HasMap of error names and their corresponding error messages. You can do this in your component (or module) lile this:
+
+```
+...
+import { FORM_ERRORS } from '@ngneat/error-tailor';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CrispyMatFormModule,
+  ],
+  providers: [
+    {
+      provide: FORM_ERRORS,
+      useValue: {
+        required: 'This field is required',
+        pattern: "Doesn't match the required pattern",
+        minlength: (error: { requiredLength: number, actualLength: number }) =>
+          `Expect ${error.requiredLength} but got ${error.actualLength}`,
+        invalidAddress: (error: any) => `Address isn't valid`,
+        invalidDate: 'Invalid date',
+      },
+    }
+  ],
+  template: `
+  <form [formGroup]="crispy.form" (ngSubmit)="onSubmit()">
+    <crispy-mat-form [crispy]="crispy"></crispy-mat-form>
+  </form>
+  `
+})
+export class App {}
+```
+
 ## Field Functions
 #### Helper functions
 Field functions are simple helper functions that return a valid `CrispyField` object corresponding to the field type that the function stands for. Using these functions, instead of building `CrispyField` objects directly, will make your form code more readable and consequently far more maintainable. Also using the functions ensures that the client code has a high chance of being insulated from any changes to the library implementation code.
