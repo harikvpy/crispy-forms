@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.7](https://github.com/harikvpy/crispy-mat-form/compare/v0.6.6...v0.6.7) (2024-07-10)
+
+
+### Bug Fixes
+
+* Call CrispyFormsConfig.translateFn for labels & hints if it's valid; if not default to CrispyField.name for field's control label string ([61f2093](https://github.com/harikvpy/crispy-mat-form/commit/61f2093b9ee5ff1b6546ec331b87f516c2c6fc38))
+
 ### [0.6.6](https://github.com/harikvpy/crispy-mat-form/compare/v0.6.5...v0.6.6) (2024-07-09)
 
 
