@@ -5,8 +5,11 @@ type TRANSLATE_FN = (fieldName: string) => string;
 
 export interface CrispyFormsConfig {
   /**
-   * Function that returns label of a field, if one is not explicitly
-   * specified in `CrispyField.label`.
+   * Function that translates the two user facing strings of a field -- its
+   * label and its hint. If this is defined, it will be called giving a field's
+   * label or hint as its argument. If a field's label is not explicitly
+   * defined, its name will be used as its label. So in this case, this
+   * function will be called with the field's name as argument.
    */
   translateFn?: TRANSLATE_FN;
   /**

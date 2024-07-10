@@ -103,7 +103,7 @@ import { CrispyFieldNameDirective } from './field-name.directive';
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CrispyMatFormComponent implements OnInit {
   /**
    * @deprecated
    */
@@ -129,28 +129,37 @@ export class CrispyMatFormComponent implements OnInit, OnDestroy, AfterViewInit 
     if (this.fields && !this.crispy) {
       this.crispy = this.createCrispyFormFromFields(this.fields);
     }
-    this.initFieldLabels();
+    this.initFieldStrings();
   }
 
-  ngAfterViewInit(): void {
-    // console.log(`CrispyMatFormComponent.ngOnInit - field[0].name: ${this.crispy.fields.at(0)?.name}`);  
-  }
-
-  ngOnDestroy(): void {}
-
-  private initFieldLabels() {
+  /**
+   * If CrispyFormsConfig.translateStrings is set to true, call the
+   * user provided translation function with the field's label and hint (if
+   * specified) and set the return value as the label & hint respectively.
+   */
+  private initFieldStrings() {
     const crispyConfig = safeGetCrispyConfig(this.injector);
     if (this.crispy) {
-      const labelFn = crispyConfig.translateFn!;
+      // const labelFn = crispyConfig.translateFn!;
+      // A recursive function that calls itself for each child CrispyField.
       const setFieldLabel = (field: CrispyField) => {
         if (!field.label && field.name) {
-          field.label = labelFn(field.name);
+          // Set field's name as its label
+          field.label = field.name;
         }
+        if (crispyConfig.translateFn) {
+          const translateFn = crispyConfig.translateFn;
+          if (field.label) {
+            field.label = translateFn(field.label!);
+          }
+          if (field.hint) {
+            field.hint = translateFn(field.hint);
+          }
+        }
+
         if (field.children) {
           field.children.forEach(child => {
-            if (child.type !== 'group') {
-              setFieldLabel(child);
-            }
+            setFieldLabel(child);
           });
         }
       }

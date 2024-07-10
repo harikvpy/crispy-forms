@@ -23,7 +23,7 @@ export const DEFAULT_LABEL_FN = (value: string): string => {
 
 // Default crispy config
 export const DEFAULT_CRISPY_CONFIG: CrispyFormsConfig = {
-  translateFn: (code: string) => DEFAULT_LABEL_FN(code),
+  translateFn: undefined, // (code: string) => DEFAULT_LABEL_FN(code),
   groupArrayConfig: {
     addRowText: 'Add Row'
   },
