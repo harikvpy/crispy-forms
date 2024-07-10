@@ -426,6 +426,15 @@ export function CrispyFormGroupArray(
   initial?: any,
   options?: Partial<CrispyField>
 ): CrispyField {
+  const setFormFieldOptions = (fields: CrispyField[], options: { [K: string]: string|number|boolean }) => {
+    fields.forEach(field => {
+      field.formFieldOptions = options;
+      if (field?.children) {
+        setFormFieldOptions(field.children, options);
+      }
+    })
+  }
+  setFormFieldOptions(children, { subscriptSizing: "dynamic" });
   return {
     ...(options ?? {}),
     type: 'groupArray',

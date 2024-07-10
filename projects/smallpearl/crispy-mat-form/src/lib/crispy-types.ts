@@ -77,6 +77,8 @@ export interface CrispyField {
     templateComponentOptions?: TemplateComponentOptions,
     groupArrayOptions?: GroupArrayOptions
   }
+  // internal stuff
+  formFieldOptions?: any;
 }
 
 export interface CrispyForm {

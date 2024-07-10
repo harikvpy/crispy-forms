@@ -182,6 +182,7 @@ function getFormControl(cf: CrispyField) {
     <mat-form-field
       class="w-100"
       [formGroup]="crispy.form"
+      [subscriptSizing]="field.formFieldOptions?.subscriptSizing"
     >
       <mat-label>{{ field.label }}</mat-label>
       <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
@@ -233,6 +234,7 @@ export class CrispyInputFieldTypeComponent implements OnInit {
     <mat-form-field
       class="w-100"
       [formGroup]="crispy.form"
+      [subscriptSizing]="field.formFieldOptions?.subscriptSizing"
     >
       <mat-label>{{ field.label }}</mat-label>
       <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
@@ -279,6 +281,7 @@ export class CrispySelectFieldComponent implements OnInit {
     <mat-form-field
       class="w-100"
       [formGroup]="crispy.form"
+      [subscriptSizing]="field.formFieldOptions?.subscriptSizing"
     >
       <mat-label>{{ field.label }}</mat-label>
       <mat-date-range-input
@@ -337,6 +340,7 @@ export class CrispyDateRangeFieldComponent implements OnInit {
     <mat-form-field
       class="w-100"
       [formGroup]="crispy.form"
+      [subscriptSizing]="field.formFieldOptions?.subscriptSizing"
     >
       <mat-label>{{ field.label }}</mat-label>
       <input
@@ -404,6 +408,7 @@ export class CrispyDynamicControlDirective {
       #matFormField
       class="w-100"
       [formGroup]="crispy.form"
+      [subscriptSizing]="field.formFieldOptions?.subscriptSizing"
     >
       <mat-label>{{ field.label }}</mat-label>
       <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
@@ -652,12 +657,14 @@ export class CrispyRowComponent implements OnInit {
         /*
         border: 1px solid lightgrey;
         border-radius: 4px;
+        padding: 0.5em;
         */
       }
       .form-array-wrapper {
         width: 100% !important;
         display: flex;
         flex-direction: row;
+        padding: 0.25em 0;
       }
       .form-array-label {
         font-size: 1.2em;
