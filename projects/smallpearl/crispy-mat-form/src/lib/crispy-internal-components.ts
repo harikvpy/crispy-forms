@@ -494,10 +494,13 @@ export class CrispyCustomFieldComponent
   // End ControlValueAccessor methods
 }
 
+/**
+ * Give the template full width and height of the parent element
+ */
 @Component({
   selector: 'crispy-field-template',
   template: `
-    <div [class]="'w-100 ' + field.cssClass || ''">
+    <div [class]="field.cssClass || ''">
       <ng-template crispyDynamicControl></ng-template>
     </div>
   `,
@@ -506,6 +509,8 @@ export class CrispyCustomFieldComponent
       div {
         display: inline-flex;
         flex-direction: column;
+        height: 100% !important;
+        width: 100% !important;
       }
     `,
   ],
