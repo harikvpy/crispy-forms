@@ -624,7 +624,7 @@ export class CrispyRowComponent implements OnInit {
   selector: 'crispy-form-array',
   template: `
     <div class="crispy-form-array-wrapper" [formGroup]="group">
-      <div class="form-array-label">{{ label }}</div>
+      <div class="form-array-label">{{ field.label }}</div>
       <div
         class="form-array-wrapper"
         *ngFor="let crispy of crispies; let i = index"
@@ -633,20 +633,21 @@ export class CrispyRowComponent implements OnInit {
           <crispy-mat-form-impl [crispy]="crispy"></crispy-mat-form-impl>
         </div>
         <div class="array-control">
-          <button mat-icon-button type="button" (click)="delRow(i)">
-            &#x274C;
-          </button>
+          <button 
+            *ngIf="!disableDelRow"
+            mat-icon-button
+            type="button"
+            (click)="delRow(i)"
+          >&#x274C;</button>
         </div>
       </div>
-      <div class="add-row-buttons">
+      <div class="add-row-buttons" *ngIf="!disableAddRow">
         <button
           mat-raised-button
           color="primary"
           type="button"
           (click)="addRow(undefined)"
-        >
-          {{ addRowLabel|async }}
-        </button>
+        >{{ addRowLabel|async }}</button>
       </div>
     </div>
   `,
@@ -736,7 +737,9 @@ export class CrispyFormArrayComponent implements OnInit {
           this.addRow(values, true);
         });
       }
-      this.addRow(undefined, true);
+      if (!this.field.options?.groupArrayOptions?.disableAddRow) {
+        this.addRow(undefined, true);
+      }
     });
   }
 
@@ -778,6 +781,13 @@ export class CrispyFormArrayComponent implements OnInit {
       this.formGroupRemoved.emit({ field: this.field.name, form: crispy[0].form });
       this.cdr.markForCheck();
     }
+  }
+
+  get disableAddRow() {
+    return !!this.field.options?.groupArrayOptions?.disableAddRow;
+  }
+  get disableDelRow() {
+    return !!this.field.options?.groupArrayOptions?.disableDelRow;
   }
 }
 
@@ -838,7 +848,6 @@ export class CrispyFormArrayComponent implements OnInit {
     </ng-container>
     <crispy-form-array
       *ngIf="field.type === 'groupArray'"
-      [label]="field.label ?? ''"
       [group]="crispy.form"
       [initial]="field.initial"
       [field]="field"

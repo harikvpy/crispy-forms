@@ -7,6 +7,7 @@ import {
   CustomComponentOptions,
   DateRangeOptions,
   FieldContext,
+  GroupArrayOptions,
   SelectOption,
   TemplateComponentOptions
 } from './crispy-types';
@@ -14,9 +15,11 @@ import {
 
 export function CrispyDiv(
   cssClass: string,
-  children: CrispyField | CrispyField[]
+  children: CrispyField | CrispyField[],
+  options?: Partial<CrispyField>
 ): CrispyField {
   return {
+    ...(options ?? {}),
     type: 'div',
     name: '',
     cssClass,
@@ -26,9 +29,11 @@ export function CrispyDiv(
 
 export function CrispyRow(
   children: CrispyField | CrispyField[],
-  cssClass?: string
+  cssClass?: string,
+  options?: Partial<CrispyField>
 ): CrispyField {
   return {
+    ...(options ?? {}),
     type: 'row',
     name: '',
     cssClass: cssClass ? cssClass : 'row',
@@ -424,6 +429,7 @@ export function CrispyFormGroupArray(
   name: string,
   children: CrispyField[],
   initial?: any,
+  groupArrayOptions?: GroupArrayOptions,
   options?: Partial<CrispyField>
 ): CrispyField {
   const setFormFieldOptions = (fields: CrispyField[], options: { [K: string]: string|number|boolean }) => {
@@ -441,6 +447,9 @@ export function CrispyFormGroupArray(
     name,
     initial,
     children,
+    options: {
+      groupArrayOptions
+    },
   };
 }
 

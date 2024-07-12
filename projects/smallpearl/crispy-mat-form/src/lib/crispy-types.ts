@@ -59,6 +59,14 @@ export interface TemplateComponentOptions {
  */
 export interface GroupArrayOptions {
   context?: FieldContext;
+  /**
+   * To disable the Add Row feature, set this true. Defaults to true.
+   */
+  disableAddRow?: boolean;  // defaults to false
+  /**
+   * To disable the Delete Row feature, set this true. Defaults to true.
+   */
+  disableDelRow?: boolean;  // defaults to false
 }
 
 export interface CrispyField {
@@ -68,6 +76,7 @@ export interface CrispyField {
   validators?: ValidatorFn | ValidatorFn[];
   label?: string;
   hint?: string;
+  id?: string;
   cssClass?: string;
   children?: CrispyField[];
   options?: {
