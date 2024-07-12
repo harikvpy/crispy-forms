@@ -291,6 +291,11 @@ export class AppComponent implements OnInit, AfterViewInit {
           { name: 'Management Fee', qty: 30, unitPrice: 100, lineTotal: 3000 },
           { name: 'Carpark Fee', qty: 1, unitPrice: 900, lineTotal: 900 },
         ],
+        {
+          // setting these to true will remove the respective buttons
+          // disableAddRow: true,
+          // disableDelRow: true
+        },
         { label: 'Line Items' }
       ),
       CrispyTemplate('total', 0, {
