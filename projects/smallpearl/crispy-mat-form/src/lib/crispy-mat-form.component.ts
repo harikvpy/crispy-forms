@@ -6,10 +6,12 @@ import {
   EventEmitter,
   Injector,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
   QueryList,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
 import {
@@ -103,7 +105,7 @@ import { CrispyFieldNameDirective } from './field-name.directive';
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CrispyMatFormComponent implements OnInit {
+export class CrispyMatFormComponent implements OnInit, OnChanges {
   /**
    * @deprecated
    */
@@ -129,7 +131,14 @@ export class CrispyMatFormComponent implements OnInit {
     if (this.fields && !this.crispy) {
       this.crispy = this.createCrispyFormFromFields(this.fields);
     }
-    this.initFieldStrings();
+    // this.initFieldStrings();
+  }
+
+  // We should move away from this and to signals API
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('crispy' in changes) {
+      this.initFieldStrings();
+    }
   }
 
   /**
