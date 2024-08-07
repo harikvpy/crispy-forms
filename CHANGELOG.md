@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.1](https://github.com/harikvpy/crispy-mat-form/compare/v0.6.7...v0.7.1) (2024-08-07)
+
+
+### Features
+
+* option to disable 'Add Row' & row delete button for CrispyFormGroupArray fields ([bece931](https://github.com/harikvpy/crispy-mat-form/commit/bece931e89a8b4fb6f5affc163f0a99ea92ba924))
+* Set subscriptSizing='dynamic' for groupArray <mat-form-field>s ([87f7368](https://github.com/harikvpy/crispy-mat-form/commit/87f7368320f2a6d50a2f57dcac4a0f809ca3dded))
+
+
+### Bug Fixes
+
+* handle field label computation in ngOnChanges so that labelling logic is effective through changes to [crispy] property ([b3892cc](https://github.com/harikvpy/crispy-mat-form/commit/b3892cc66d262e88d8e4de5e3575bba93c467f0e))
+* make template field div's height 100% ([cc87338](https://github.com/harikvpy/crispy-mat-form/commit/cc873385cc09ac189aa569f1dcca2b7eee17407e))
+
 ### [0.6.7](https://github.com/harikvpy/crispy-mat-form/compare/v0.6.6...v0.6.7) (2024-07-10)
 
 
