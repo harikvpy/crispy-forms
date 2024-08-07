@@ -67,6 +67,10 @@ export interface GroupArrayOptions {
    * To disable the Delete Row feature, set this true. Defaults to true.
    */
   disableDelRow?: boolean;  // defaults to false
+  /**
+   * Whether to show title above the columns. Defaults to true.
+   */
+  showFieldColumnTitle?: boolean;
 }
 
 export interface CrispyField {

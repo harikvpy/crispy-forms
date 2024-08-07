@@ -9,7 +9,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { errorTailorImports, provideErrorTailorConfig } from '@ngneat/error-tailor';
+import { errorTailorImports } from '@ngneat/error-tailor';
 import {
   CrispyCheckboxComponent,
   CrispyCustomFieldComponent,
@@ -27,7 +27,6 @@ import {
 } from './crispy-internal-components';
 import { CrispyMatFormComponent } from './crispy-mat-form.component';
 import { CrispyFieldNameDirective } from './field-name.directive';
-import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +45,6 @@ import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.co
     CrispyDivComponent,
     CrispyRowComponent,
     CrispyMatFormImplComponent,
-    MatErrorTailorControlErrorComponent,
   ],
   imports: [
     CommonModule,
@@ -63,24 +61,8 @@ import { MatErrorTailorControlErrorComponent } from './mat-error-tailor-error.co
   ],
   exports: [
     CrispyFieldNameDirective,
-    CrispyMatFormComponent,
-    MatErrorTailorControlErrorComponent,
+    CrispyMatFormComponent
   ],
-  providers: [
-    provideErrorTailorConfig({
-      blurPredicate(element: Element) {
-        return (
-          element.tagName === 'INPUT' ||
-          element.tagName === 'SELECT' ||
-          element.tagName === 'MAT-SELECT' ||
-          element.tagName === 'MAT-DATE-RANGE-INPUT'
-        );
-      },
-      controlErrorComponent: MatErrorTailorControlErrorComponent,
-      errors: {
-        useValue: {}
-      },
-    }),
-  ],
+  providers: [],
 })
 export class CrispyMatFormModule {}

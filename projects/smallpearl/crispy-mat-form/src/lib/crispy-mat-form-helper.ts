@@ -28,7 +28,7 @@ export function CrispyDiv(
 }
 
 export function CrispyRow(
-  children: CrispyField | CrispyField[],
+  children: CrispyField[],
   cssClass?: string,
   options?: Partial<CrispyField>
 ): CrispyField {
@@ -37,7 +37,7 @@ export function CrispyRow(
     type: 'row',
     name: '',
     cssClass: cssClass ? cssClass : 'row',
-    children: Array.isArray(children) ? children : [children],
+    children: children,
   };
 }
 

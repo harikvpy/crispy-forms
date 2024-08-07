@@ -1,6 +1,6 @@
 {
   "name": "@smallpearl/crispy-mat-form",
-  "version": "0.6.7",
+  "version": "0.7.0",
   "description": "Quick and crispy Angular forms, including layout, all from TypeScript",
   "peerDependencies": {
     "@angular/cdk": ">=15.0.0",
@@ -8,8 +8,7 @@
     "@angular/core": ">=15.0.0",
     "@angular/material": ">=15.0.0",
     "@angular/forms": ">=15.0.0",
-    "rxjs": "^7.0.0",
-    "@ngneat/error-tailor": "^4.1.1 || ^5.0.1"
+    "rxjs": "^7.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

@@ -595,6 +595,9 @@ export class CrispyDivComponent implements OnInit {
 @Component({
   selector: 'crispy-row',
   template: `
+  <div *ngIf="showTitleRow" [class]="field.cssClass ? field.cssClass : rowCssClass">
+    <div *ngFor="let child of field.children" [class]="child.cssClass">{{ child.label }}</div>
+  </div>
   <div [class]="field.cssClass ? field.cssClass : rowCssClass">
     <ng-container *ngFor="let child of field.children">
       <crispy-render-field
@@ -609,6 +612,7 @@ export class CrispyDivComponent implements OnInit {
 export class CrispyRowComponent implements OnInit {
   @Input({ required: true }) crispy!: CrispyForm;
   @Input({ required: true }) field!: CrispyField;
+  @Input({ required: false }) showTitleRow: boolean = false;
 
   rowCssClass: string = 'row';
   constructor(injector: Injector) {
@@ -711,15 +715,17 @@ export class CrispyFormArrayComponent implements OnInit {
     field: string;
     form: FormGroup;
   }>();
+  crispyConfig!: CrispyFormsConfig;
 
   control!: FormArray;
   crispies: CrispyForm[] = [];
   addRowLabel!: Observable<string>;
+  colTitles: string[] = [];
 
   constructor(private cdr: ChangeDetectorRef, private injector: Injector) {}
 
   ngOnInit() {
-    const crispyConfig = safeGetCrispyConfig(this.injector);
+    const crispyConfig = this.crispyConfig = safeGetCrispyConfig(this.injector);
     if (crispyConfig && crispyConfig?.groupArrayConfig?.addRowText) {
       if (crispyConfig?.groupArrayConfig?.addRowText instanceof Observable) {
         this.addRowLabel = crispyConfig.groupArrayConfig.addRowText;

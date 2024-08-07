@@ -18,6 +18,7 @@ import {
   CrispyCustomComponent,
   CrispyDate,
   CrispyDateRange,
+  CrispyDiv,
   CrispyField,
   CrispyFormGroup,
   CrispyFormGroupArray,
@@ -295,6 +296,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           // setting these to true will remove the respective buttons
           // disableAddRow: true,
           // disableDelRow: true
+          showFieldColumnTitle: true
         },
         { label: 'Line Items' }
       ),

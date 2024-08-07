@@ -13,12 +13,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   CRISPY_FORMS_CONFIG_PROVIDER,
   CrispyFormsConfig,
-  CrispyMatFormModule,
+  CrispyMatFormModule
 } from '@smallpearl/crispy-mat-form';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MyTelInput } from './components/my-tel-input/my-tel-input.component';
-import { FORM_ERRORS } from '@ngneat/error-tailor';
+import {
+  errorTailorImports,
+  FORM_ERRORS,
+  provideErrorTailorConfig,
+} from '@ngneat/error-tailor';
+import { MatErrorTailorControlErrorComponent } from './components/mat-error-tailor-error.component';
 
 /**
  * CrispyConfig demonstrator that converts all labels to uppercase.
@@ -60,22 +65,45 @@ const MY_DATE_FORMATS: MatDateFormats = {
     MatInputModule,
     MyTelInput,
     CrispyMatFormModule,
+    errorTailorImports,
+    MatErrorTailorControlErrorComponent,
   ],
   providers: [
     provideNativeDateAdapter(MY_DATE_FORMATS),
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
     { provide: CRISPY_FORMS_CONFIG_PROVIDER, useValue: CrispyConfig },
-    {
-      provide: FORM_ERRORS,
-      useValue: {
-        required: 'This field is required',
-        pattern: "Doesn't match the required pattern",
-        minlength: (error: { requiredLength: number; actualLength: number }) =>
-          `Expect ${error.requiredLength} but got ${error.actualLength}`,
-        invalidAddress: (error: any) => `Address isn't valid`,
-        invalidDate: 'Invalid date',
+    provideErrorTailorConfig({
+      blurPredicate(element: Element) {
+        return (
+          element.tagName === 'INPUT' ||
+          element.tagName === 'SELECT' ||
+          element.tagName === 'MAT-SELECT' ||
+          element.tagName === 'MAT-DATE-RANGE-INPUT'
+        );
       },
-    },
+      controlErrorComponent: MatErrorTailorControlErrorComponent,
+      errors: {
+        useValue: {
+          required: 'This field is required',
+          pattern: "Doesn't match the required pattern",
+          minlength: (error: { requiredLength: number; actualLength: number }) =>
+            `Expect ${error.requiredLength} but got ${error.actualLength}`,
+          invalidAddress: (error: any) => `Address isn't valid`,
+          invalidDate: 'Invalid date',
+        }
+      }
+    }),
+    // {
+    //   provide: FORM_ERRORS,
+    //   useValue: {
+    //     required: 'This field is required',
+    //     pattern: "Doesn't match the required pattern",
+    //     minlength: (error: { requiredLength: number; actualLength: number }) =>
+    //       `Expect ${error.requiredLength} but got ${error.actualLength}`,
+    //     invalidAddress: (error: any) => `Address isn't valid`,
+    //     invalidDate: 'Invalid date',
+    //   },
+    // },
   ],
   bootstrap: [AppComponent],
 })
