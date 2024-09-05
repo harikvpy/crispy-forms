@@ -29,3 +29,16 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .b-magenta {
   border: 5px solid magenta;
 }
+/**
+ * By default the fields of a line item row are styled with the CSS class
+ * 'col-n'. Bootstrap's col-n classes have a starting and ending padding, which
+ * is not desirable for the line item field columns. These two styles cause
+ * reset the col-n start & padding to 1px each causing the fields to be
+ * arranged tightly. Add it to your app's global styles for the same effect.
+ */
+.form-array .row crispy-render-field:not(:last-of-type) {
+  padding-right: 1px;
+}
+.form-array .row crispy-render-field:not(:first-of-type) {
+  padding-left: 1px;
+}
